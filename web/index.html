@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Family Property Roadmap — Harris County Heirs' Property Navigator</title>
+<meta name="description" content="An educational navigation tool for Harris County families dealing with heirs' property, probate, title, taxes, and home preservation. Not legal advice." />
+<style>
+  :root{
+    --ink:#1f2a30; --muted:#54636c; --line:#dfe6ea; --bg:#f6f8f9; --card:#ffffff;
+    --brand:#1f6f5c; --brand-dark:#155244; --brand-soft:#e8f3ef;
+    --warn:#8a3b12; --warn-bg:#fdf0e6; --warn-line:#f0c9ab;
+    --focus:#1f6f5c; --maxw:760px; --radius:14px;
+    --shadow:0 1px 2px rgba(20,40,40,.06),0 8px 24px rgba(20,40,40,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.55; font-size:17px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 18px}
+  a{color:var(--brand-dark)}
+  h1,h2,h3{line-height:1.25; color:var(--ink)}
+  h1{font-size:1.7rem; margin:.2em 0 .4em}
+  h2{font-size:1.3rem; margin:1.3em 0 .5em}
+  h3{font-size:1.08rem; margin:1.1em 0 .4em}
+  p{margin:.5em 0}
+  .small{font-size:.9rem; color:var(--muted)}
+  /* top bar */
+  header.bar{background:var(--brand); color:#fff; padding:10px 0}
+  header.bar .wrap{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  header.bar .logo{font-weight:700; font-size:1rem; letter-spacing:.2px}
+  header.bar .lang{font-size:.85rem; color:#dff1eb}
+  /* disclaimer banner */
+  .disclaimer{background:#eef4f2; border-bottom:1px solid var(--line); color:var(--muted); font-size:.86rem}
+  .disclaimer .wrap{padding:8px 18px}
+  /* card */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin:18px 0}
+  .pad{padding:22px 0 40px}
+  /* buttons */
+  .btn{display:inline-block; border:0; border-radius:10px; padding:13px 20px; font-size:1rem; font-weight:600; cursor:pointer; text-decoration:none; text-align:center}
+  .btn-primary{background:var(--brand); color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-ghost{background:#fff; color:var(--brand-dark); border:1.5px solid var(--brand)}
+  .btn-ghost:hover{background:var(--brand-soft)}
+  .btn-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px}
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+  /* options */
+  .opt{display:block; width:100%; text-align:left; background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:13px 15px; margin:8px 0; font-size:1rem; cursor:pointer; color:var(--ink)}
+  .opt:hover{border-color:var(--brand)}
+  .opt:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+  .opt.sel{border-color:var(--brand); background:var(--brand-soft); font-weight:600}
+  .opt .chk{color:var(--brand); font-weight:700; margin-right:6px}
+  input[type=text],textarea{width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:1rem; font-family:inherit}
+  input[type=text]:focus,textarea:focus{outline:3px solid var(--focus); outline-offset:1px; border-color:var(--brand)}
+  label.q{display:block; font-weight:600; font-size:1.15rem; margin-bottom:4px}
+  .help{color:var(--muted); font-size:.92rem; margin:.2em 0 1em}
+  /* progress */
+  .progress{height:8px; background:#e6edf0; border-radius:99px; overflow:hidden; margin:14px 0 4px}
+  .progress > div{height:100%; background:var(--brand); width:0; transition:width .3s ease}
+  .progress-label{font-size:.82rem; color:var(--muted); margin-bottom:6px}
+  /* notices */
+  .notice{border-radius:12px; padding:14px 16px; margin:14px 0; font-size:.95rem}
+  .notice.warn{background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn)}
+  .notice.info{background:var(--brand-soft); border:1px solid #bfe0d6; color:var(--brand-dark)}
+  .pill{display:inline-block; background:var(--brand-soft); color:var(--brand-dark); border:1px solid #bfe0d6; border-radius:99px; padding:3px 11px; font-size:.82rem; font-weight:600; margin:3px 4px 0 0}
+  .pill.urgent{background:var(--warn-bg); border-color:var(--warn-line); color:var(--warn)}
+  ul.tight{margin:.4em 0; padding-left:1.2em}
+  ul.tight li{margin:.3em 0}
+  .kv{margin:.3em 0}
+  .kv b{display:inline-block; min-width:140px; color:var(--muted); font-weight:600; font-size:.9rem}
+  .grid2{display:grid; grid-template-columns:1fr; gap:14px}
+  .feature{display:flex; gap:12px; align-items:flex-start}
+  .feature .dot{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--brand-soft); color:var(--brand-dark); display:flex; align-items:center; justify-content:center; font-weight:700}
+  hr{border:0; border-top:1px solid var(--line); margin:22px 0}
+  footer.site{border-top:1px solid var(--line); background:#fff; color:var(--muted); font-size:.85rem; padding:18px 0; margin-top:30px}
+  .center{text-align:center}
+  .hidden{display:none}
+  .back{background:none; border:0; color:var(--muted); cursor:pointer; font-size:.95rem; padding:6px 0}
+  .roadmap h2{border-bottom:2px solid var(--brand-soft); padding-bottom:4px}
+  .num{display:inline-flex; width:26px; height:26px; background:var(--brand); color:#fff; border-radius:50%; align-items:center; justify-content:center; font-size:.85rem; font-weight:700; margin-right:8px}
+  @media(min-width:620px){ .grid2{grid-template-columns:1fr 1fr} }
+  @media print{
+    header.bar,.disclaimer,.no-print,footer.site{display:none!important}
+    body{background:#fff; font-size:12pt}
+    .card{box-shadow:none; border:1px solid #ccc; page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <span class="logo">Family Property Roadmap</span>
+  <span class="lang" title="Spanish coming soon">Harris County, Texas</span>
+</div></header>
+<div class="disclaimer"><div class="wrap">
+  Educational only — <strong>not legal advice</strong> and not a substitute for a licensed Texas attorney.
+</div></div>
+
+<main class="wrap pad" id="app" aria-live="polite"></main>
+
+<footer class="site"><div class="wrap">
+  This tool provides general education and navigation support for Harris County residents. It is not legal advice,
+  does not create an attorney-client relationship, and should not be relied upon to make legal decisions.
+  For advice about your specific situation, please speak with a licensed Texas attorney.
+</div></footer>
+
+<script>
+/* =========================================================================
+   Harris County Heirs' Property Navigator — self-contained MVP (Stages 1–2)
+   No backend. Answers stay in the browser (localStorage) so users can resume.
+   No scores, no legal conclusions, no ownership/heirship determinations.
+   ========================================================================= */
+
+const A = document.getElementById('app');
+const LS_KEY = 'hcppn_answers_v1';
+const ans = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(ans)); }
+function set(id,val){ ans[id]=val; save(); }
+function get(id){ return ans[id]; }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function scrollTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ---- Canonical legal strings ---- */
+const CORE_DISCLAIMER = "This tool provides general education and navigation support for Harris County residents. It is not legal advice, does not create an attorney-client relationship, and should not be relied upon to make legal decisions. For advice about your specific situation, please speak with a licensed Texas attorney.";
+const FRAMING = "I can help you understand what issues may be present, what records may be needed, what public offices or partners may be involved, and what questions you may want to ask a licensed Texas attorney. I cannot provide legal advice, determine ownership, determine heirship, or tell you what legal action to take.";
+const ESCALATION = "Because you mentioned a notice, court paper, tax issue, foreclosure risk, or pressure to sign documents, this may require urgent review by a licensed attorney or qualified legal aid organization. This tool cannot tell you what legal action to take, but it can help you organize records and questions to bring to a professional as soon as possible.";
+const CLOSING = "You do not have to resolve every issue at once. The first step is understanding what is known, what is missing, and who can help. This roadmap is designed to help you prepare for informed conversations with qualified professionals and public agencies.";
+
+/* ---- Universal answer option sets ---- */
+const STD = ["Yes","No","I do not know","I need help finding this","This does not apply","I want to skip this"];
+const LIV = ["Living","Deceased","I do not know"];
+const OCC = ["Occupied","Vacant","Rented","Abandoned","Damaged","I'm not sure"];
+const TYP = ["A home","Vacant lot","Multifamily","Commercial","Church-owned","Other"];
+const TAX = ["Current","Delinquent (behind)","I do not know"];
+
+/* =========================================================================
+   QUESTION MODEL
+   type: 'single' | 'multi' | 'text'
+   visibleIf: optional fn(ans) -> bool
+   ========================================================================= */
+const ownerLiving   = a => a.s3_living === 'Living';
+const ownerDeceased = a => a.s3_living === 'Deceased' || a.s3_living === 'I do not know';
+
+const SECTIONS = [
+ { key:'s2', title:'Property Location', intro:'A few questions about where the property is. "I don\'t know" is always okay.',
+   qs:[
+    {id:'s2_county', q:'Is the property in Harris County, Texas?', help:'If it\'s in another county, we can still share general information, but the offices and records there may be different.', type:'single', opts:STD},
+    {id:'s2_addr', q:'What is the property address?', help:'Street, city, ZIP. You can skip if you\'re not sure.', type:'text', ph:'e.g., 123 Example St, Houston, TX 77026'},
+    {id:'s2_houston', q:'Is the property inside the City of Houston?', type:'single', opts:STD},
+    {id:'s2_kg', q:'Is the property in Kashmere Gardens or Super Neighborhood 52?', help:'This helps us connect you with the closest local resources.', type:'single', opts:STD},
+    {id:'s2_occ', q:'Right now, is the property…', type:'single', opts:OCC},
+    {id:'s2_type', q:'What kind of property is it?', type:'single', opts:TYP},
+   ]},
+ { key:'s3', title:'Current Owner Status', intro:'This helps us understand the most important part of your situation.',
+   qs:[
+    {id:'s3_owner', q:'Who is listed as the owner, if you know?', help:'A name is fine. Skip if unsure.', type:'text', ph:'Name (optional)'},
+    {id:'s3_living', q:'Is that person living or deceased?', type:'single', opts:LIV},
+    {id:'s3_isowner', q:'Are you the listed owner?', type:'single', opts:STD},
+    {id:'s3_related', q:'Are you related to the listed owner?', type:'single', opts:STD},
+    {id:'s3_live', q:'Do you live in the property?', type:'single', opts:STD},
+    {id:'s3_estate', q:'Is the property listed as "in the estate of" someone?', help:'You might see this on a tax statement or HCAD record.', type:'single', opts:STD},
+    {id:'s3_deed', q:'Do you know whether the deed has been updated since the owner\'s situation changed?', type:'single', opts:STD},
+   ]},
+ { key:'s4', title:'Planning Ahead (Owner Is Living)', intro:'Because the owner is living, this is a chance to plan ahead and prevent future problems.',
+   visibleSec: ownerLiving,
+   qs:[
+    {id:'s4_will', q:'Does the owner have a will?', type:'single', opts:STD},
+    {id:'s4_trust', q:'Does the owner have a trust?', type:'single', opts:STD},
+    {id:'s4_named', q:'Has the owner named who should receive the property?', type:'single', opts:STD},
+    {id:'s4_tod', q:'Has the owner thought about a transfer on death deed or another planning tool?', help:'A transfer on death deed can name who gets the property automatically — an attorney can explain if it fits.', type:'single', opts:STD},
+    {id:'s4_hs', q:'Does the owner have a homestead exemption?', type:'single', opts:STD},
+    {id:'s4_otherex', q:'Does the owner have an over-65, disability, veteran, or other exemption?', type:'single', opts:STD},
+    {id:'s4_records', q:'Does the family know where the deed and property records are kept?', type:'single', opts:STD},
+    {id:'s4_wishes', q:'Are family members aware of the owner\'s wishes?', type:'single', opts:STD},
+   ]},
+ { key:'s5', title:'If the Owner Has Passed Away', intro:'We\'re sorry for your loss. These questions help us understand what records may exist. "I don\'t know" is completely okay.',
+   visibleSec: ownerDeceased,
+   qs:[
+    {id:'s5_dod', q:'About when did the owner pass away?', help:'A year is fine.', type:'text', ph:'e.g., 2018 (optional)'},
+    {id:'s5_will', q:'Was there a will?', type:'single', opts:STD},
+    {id:'s5_orig', q:'Is the original will available?', type:'single', opts:STD},
+    {id:'s5_filed', q:'Was the will filed with a court?', type:'single', opts:STD},
+    {id:'s5_probate', q:'Was probate opened?', help:'Probate is the court process for handling someone\'s estate.', type:'single', opts:STD},
+    {id:'s5_exec', q:'Was anyone named executor or administrator?', type:'single', opts:STD},
+    {id:'s5_trust', q:'Was there a trust?', type:'single', opts:STD},
+    {id:'s5_tod', q:'Was there a transfer on death deed?', type:'single', opts:STD},
+    {id:'s5_aoh', q:'Was there an affidavit of heirship?', help:'A sworn statement about family history sometimes used for property.', type:'single', opts:STD},
+    {id:'s5_sea', q:'Was there a small estate affidavit?', type:'single', opts:STD},
+    {id:'s5_orders', q:'Were any court orders issued?', type:'single', opts:STD},
+    {id:'s5_disagree', q:'Is there disagreement among family members?', type:'single', opts:STD},
+    {id:'s5_multi', q:'Are there multiple people who might be heirs?', type:'single', opts:STD},
+    {id:'s5_tax', q:'Are the property taxes current or delinquent?', type:'single', opts:TAX},
+   ]},
+ { key:'s6', title:'Family & Heirship Context', intro:'We can\'t decide who the heirs are — only an attorney or court can. These questions just help us point you to the right questions and records.',
+   visibleSec: ownerDeceased,
+   qs:[
+    {id:'s6_married', q:'Was the deceased owner married?', type:'single', opts:STD},
+    {id:'s6_children', q:'Did the deceased owner have children?', type:'single', opts:STD},
+    {id:'s6_childdec', q:'Are any of those children also deceased?', type:'single', opts:STD},
+    {id:'s6_relatives', q:'Are there grandchildren, siblings, parents, or other relatives who may be involved?', type:'single', opts:STD},
+    {id:'s6_oneof', q:'Are you one of several possible heirs?', type:'single', opts:STD},
+    {id:'s6_disagree', q:'Does anyone disagree about who should receive the property?', type:'single', opts:STD},
+    {id:'s6_paying', q:'Has anyone been paying the taxes, insurance, repairs, or utilities?', type:'single', opts:STD},
+    {id:'s6_tried', q:'Has anyone tried to sell, transfer, refinance, lease, or repair the property?', type:'single', opts:STD},
+   ]},
+ { key:'s7', title:'Documents You May Have', intro:'Check anything you have or know about — it\'s completely fine if you have none yet. For anything missing, your roadmap will note where it may be found.',
+   qs:[
+    {id:'s7_docs', q:'Do you have, or know about, any of these?', type:'multi',
+     opts:["Will","Trust","Death certificate","Probate case number","Court order","Executor paperwork","Administrator paperwork","Small estate affidavit","Affidavit of heirship","Transfer on death deed","Life estate deed","Family agreement","Attorney paperwork","None of these yet","I'm not sure"]},
+   ]},
+ { key:'s8', title:'Real Property Records', intro:'These are documents recorded with the county that can affect the property.',
+   qs:[
+    {id:'s8_havedeed', q:'Do you have the deed?', type:'single', opts:STD},
+    {id:'s8_name', q:'Do you know whose name is on the deed?', type:'single', opts:STD},
+    {id:'s8_transferred', q:'Has the property ever been transferred to someone?', type:'single', opts:STD},
+    {id:'s8_searched', q:'Has anyone searched Harris County real property records for this property?', type:'single', opts:STD},
+    {id:'s8_liens', q:'Are there any liens, deeds of trust, releases, judgments, or tax liens on it?', help:'These are recorded documents that can affect the property.', type:'single', opts:STD},
+    {id:'s8_title', q:'Has a title company ever reviewed the property?', type:'single', opts:STD},
+    {id:'s8_passed', q:'Was this property given, promised, or passed down to you without clear paperwork?', help:'For example: "It was always meant to be mine," but you\'re not sure what the documents say.', type:'single', opts:STD},
+   ]},
+ { key:'s9', title:'Taxes & Exemptions', intro:'Reminder: exemptions may lower taxes, but they don\'t by themselves clear up who owns the property.',
+   qs:[
+    {id:'s9_current', q:'Are the property taxes current?', type:'single', opts:STD},
+    {id:'s9_delinq', q:'Are the taxes delinquent (behind)?', type:'single', opts:STD},
+    {id:'s9_notices', q:'Has the family received notices from the tax office, a court, an attorney, or a collection firm?', type:'single', opts:STD},
+    {id:'s9_lawsuit', q:'Is there a tax lawsuit?', type:'single', opts:STD},
+    {id:'s9_sale', q:'Is there a foreclosure or tax-sale notice?', help:'If yes, this may need urgent attention — we\'ll help you prepare.', type:'single', opts:STD},
+    {id:'s9_plan', q:'Is there a payment plan in place?', type:'single', opts:STD},
+    {id:'s9_hs', q:'Is there a homestead exemption?', type:'single', opts:STD},
+    {id:'s9_o65', q:'Is there an over-65 exemption?', type:'single', opts:STD},
+    {id:'s9_dis', q:'Is there a disability exemption?', type:'single', opts:STD},
+    {id:'s9_vet', q:'Is there a disabled veteran exemption?', type:'single', opts:STD},
+    {id:'s9_primary', q:'Does the person living there use it as their main home?', type:'single', opts:STD},
+    {id:'s9_id', q:'Does that person\'s Texas ID or driver\'s license match the property address?', type:'single', opts:STD},
+   ]},
+ { key:'s10', title:'Property Condition & Housing Stability', intro:'These help us point you to repair, disaster, and housing-stability resources.',
+   qs:[
+    {id:'s10_safe', q:'Is the home safe to live in?', type:'single', opts:STD},
+    {id:'s10_repairs', q:'Are repairs needed?', type:'single', opts:STD},
+    {id:'s10_repairdenied', q:'Has the family been denied home-repair help because of the title?', type:'single', opts:STD},
+    {id:'s10_disasterdenied', q:'Has the family been denied disaster-recovery help because of the title?', type:'single', opts:STD},
+    {id:'s10_ins', q:'Is there insurance on the property?', type:'single', opts:STD},
+    {id:'s10_util', q:'Are the utilities active?', type:'single', opts:STD},
+    {id:'s10_code', q:'Are there code violations?', type:'single', opts:STD},
+    {id:'s10_damage', q:'Is there illegal dumping, trespassing, fire damage, or storm damage?', type:'single', opts:STD},
+    {id:'s10_displace', q:'Is anyone at risk of losing their place to live (displacement)?', help:'If someone elderly or disabled is at risk, please tell us — we\'ll prioritize support resources.', type:'single', opts:STD},
+   ]},
+ { key:'s11', title:'What Are You Trying to Do?', intro:'Choose all that apply. We use this to customize your roadmap.',
+   qs:[
+    {id:'s11_goals', q:'What are you trying to do?', type:'multi',
+     opts:["Keep the family home","Understand who owns the property","Find the deed","Find probate records","Apply for an exemption","Stop tax delinquency","Avoid foreclosure or tax sale","Clear title","Repair the property","Sell the property","Transfer the property","Redevelop the property","Protect the property for the next generation","Resolve family disagreement","Talk to legal aid","Talk to an attorney","I do not know where to start"]},
+   ]},
+];
+
+/* Build the flat, branch-aware list of steps actually shown */
+function flatQuestions(){
+  const list=[];
+  SECTIONS.forEach(sec=>{
+    if(sec.visibleSec && !sec.visibleSec(ans)) return;
+    sec.qs.forEach((q,i)=> list.push({...q, sec, first:i===0}));
+  });
+  return list;
+}
+
+/* =========================================================================
+   ROUTER
+   ========================================================================= */
+let step = 0; // index into flatQuestions when in screener
+let view = 'home';
+
+function render(){
+  if(view==='home') return renderHome();
+  if(view==='consent') return renderConsent();
+  if(view==='screener') return renderScreener();
+  if(view==='review') return renderReview();
+  if(view==='roadmap') return renderRoadmap();
+}
+
+/* ---- HOME ---- */
+function renderHome(){
+  A.innerHTML = `
+  <div class="card">
+    <h1>Is your family home in your name — or still in a loved one's name?</h1>
+    <p>Many Harris County families share a home or land that was passed down without clear paperwork.
+       That can make it hard to repair, sell, insure, or get help — and it can put the home at risk.
+       You are not alone, and you can take this one step at a time.</p>
+    <p><strong>Answer a few questions about your family property. We'll help you understand what may be
+       going on, what records may be needed, which Harris County offices or partners may be involved,
+       and what questions to ask before you take your next step.</strong></p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="go('consent')">Start your roadmap</button>
+      ${Object.keys(ans).length? `<button class="btn btn-ghost" onclick="resume()">Resume where I left off</button>`:''}
+    </div>
+    <div class="notice info" style="margin-top:18px">${CORE_DISCLAIMER}</div>
+  </div>
+
+  <div class="card">
+    <h2>What this tool does — and does not do</h2>
+    <div class="grid2">
+      <div>
+        <h3>It does</h3>
+        <ul class="tight">
+          <li>Helps you understand what may be happening with your property.</li>
+          <li>Spots issues that may involve probate, title, taxes, or heirship.</li>
+          <li>Tells you which records to gather and where to look.</li>
+          <li>Points you to the right Harris County offices and partners.</li>
+          <li>Gives you clear questions to ask a licensed Texas attorney.</li>
+          <li>Builds a personalized roadmap you can save or print.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>It does not</h3>
+        <ul class="tight">
+          <li>It is <strong>not</strong> a lawyer and does <strong>not</strong> give legal advice.</li>
+          <li>It does <strong>not</strong> decide who owns the property or who the heirs are.</li>
+          <li>It does <strong>not</strong> tell you to file, sell, sign, or transfer anything.</li>
+          <li>It does <strong>not</strong> give you a score, grade, or rating.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small" style="margin-top:10px"><em>"${FRAMING}"</em></p>
+  </div>
+
+  <div class="card">
+    <h2>Three ways we help families</h2>
+    <div class="feature"><div class="dot">1</div><div><strong>Prevention</strong> — If the owner is living, plan ahead so the home passes down clearly.</div></div>
+    <div class="feature" style="margin-top:10px"><div class="dot">2</div><div><strong>Intervention</strong> — If an owner has passed away or the title is unclear, get organized and prepare for legal help.</div></div>
+    <div class="feature" style="margin-top:10px"><div class="dot">3</div><div><strong>Preservation</strong> — Keep the home, repair it, protect exemptions, and avoid displacement.</div></div>
+    <div class="notice warn" style="margin-top:16px"><strong>Need help now?</strong> If you've received a court paper, a tax-sale or foreclosure notice, or someone is pressuring you to sign, this may need urgent attention. The tool will help you organize records and questions so you can reach a professional quickly.</div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="go('consent')">Start your roadmap</button></div>
+  </div>
+  <p class="small center">Your privacy matters. Please do not enter your Social Security number, full bank account number, or other highly sensitive information.</p>
+  `;
+  scrollTop();
+}
+
+/* ---- CONSENT ---- */
+function renderConsent(){
+  const checked = ans._consent ? 'checked':'';
+  A.innerHTML = `
+  <button class="back" onclick="go('home')">← Back</button>
+  <div class="card">
+    <h1>Before we begin</h1>
+    <p>This tool helps Harris County families understand what may be going on with a family home or property,
+       what records to gather, which offices or partners may help, and what questions to ask a licensed Texas attorney.</p>
+    <h3>A few important things</h3>
+    <ul class="tight">
+      <li>This is <strong>educational only</strong>. It is <strong>not legal advice</strong> and does not create an attorney-client relationship.</li>
+      <li>It will <strong>not</strong> decide who owns the property or who the heirs are, and it will not tell you to file, sign, sell, or transfer anything.</li>
+      <li>For advice about your situation, please speak with a <strong>licensed Texas attorney</strong>.</li>
+      <li><strong>Please do not enter</strong> Social Security numbers, full bank account numbers, or other highly sensitive information.</li>
+      <li>Your answers stay in your browser on this device. We only share your information with a partner <strong>if you give permission</strong>.</li>
+    </ul>
+    <label class="opt ${checked?'sel':''}" style="margin-top:14px" id="consentBox" onclick="toggleConsent()">
+      <span class="chk">${checked?'☑':'☐'}</span> I understand this tool is educational and does not provide legal advice.
+    </label>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="startBtn" ${ans._consent?'':'disabled'} onclick="startScreener()">Continue</button>
+    </div>
+  </div>`;
+  scrollTop();
+}
+function toggleConsent(){ ans._consent = !ans._consent; save(); renderConsent(); }
+function startScreener(){ if(!ans._consent) return; step=0; go('screener'); }
+
+/* ---- SCREENER ---- */
+function renderScreener(){
+  const list = flatQuestions();
+  if(step<0) step=0;
+  if(step>=list.length){ go('review'); return; }
+  const item = list[step];
+  const pct = Math.round((step/list.length)*100);
+  const val = get(item.id);
+
+  let body='';
+  if(item.type==='text'){
+    body = `<input type="text" id="txt" placeholder="${esc(item.ph||'')}" value="${esc(val||'')}" oninput="set('${item.id}', this.value)">`;
+  } else if(item.type==='multi'){
+    const cur = Array.isArray(val)? val : [];
+    body = item.opts.map(o=>{
+      const s = cur.includes(o);
+      return `<button class="opt ${s?'sel':''}" onclick="toggleMulti('${item.id}', this, ${JSON.stringify(o).replace(/"/g,'&quot;')})">
+        <span class="chk">${s?'☑':'☐'}</span>${esc(o)}</button>`;
+    }).join('');
+  } else {
+    body = item.opts.map(o=>{
+      const s = val===o;
+      return `<button class="opt ${s?'sel':''}" onclick="pick('${item.id}', ${JSON.stringify(o).replace(/"/g,'&quot;')})">
+        ${s?'<span class="chk">●</span>':''}${esc(o)}</button>`;
+    }).join('');
+  }
+
+  A.innerHTML = `
+  <div class="progress-label">${item.sec.title}</div>
+  <div class="progress"><div style="width:${pct}%"></div></div>
+  ${item.first? `<div class="notice info">${esc(item.sec.intro)}</div>`:''}
+  <div class="card">
+    <label class="q">${esc(item.q)}</label>
+    ${item.help? `<div class="help">${esc(item.help)}</div>`:''}
+    ${body}
+    ${liveFlagNotice()}
+    <div class="btn-row no-print">
+      <button class="btn btn-ghost" onclick="prev()">← Back</button>
+      <button class="btn btn-primary" onclick="next()">${item.type==='single'?'Skip / Next':'Next'} →</button>
+    </div>
+  </div>
+  <p class="small center no-print">Step ${step+1} of ${list.length}. Your answers are saved automatically on this device.</p>`;
+  scrollTop();
+}
+function pick(id,val){ set(id,val); next(); }
+function toggleMulti(id, el, val){
+  let cur = Array.isArray(get(id))? get(id).slice() : [];
+  if(cur.includes(val)) cur = cur.filter(x=>x!==val); else cur.push(val);
+  set(id,cur);
+  el.classList.toggle('sel'); el.querySelector('.chk').textContent = cur.includes(val)?'☑':'☐';
+}
+function next(){ step++; render(); }
+function prev(){ step--; if(step<0){ go('consent'); return;} render(); }
+
+/* Live escalation hint while answering */
+function liveFlagNotice(){
+  const f = detectFlags();
+  if(f.critical.length || f.high.length){
+    return `<div class="notice warn" style="margin-top:14px"><strong>This may need prompt attention.</strong> ${esc(ESCALATION)}</div>`;
+  }
+  return '';
+}
+
+/* ---- REVIEW ---- */
+function renderReview(){
+  const rows = summaryRows();
+  A.innerHTML = `
+  <button class="back" onclick="step=flatQuestions().length-1; go('screener')">← Back to questions</button>
+  <div class="card">
+    <h1>Here's what you told us</h1>
+    <p>Take a look. You can go back and change any answer before we build your roadmap.</p>
+    ${rows.map(r=>`<div class="kv"><b>${esc(r.k)}</b> ${esc(r.v)}</div>`).join('')}
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="go('roadmap')">Build my Family Property Roadmap</button>
+      <button class="btn btn-ghost" onclick="restart()">Start over</button>
+    </div>
+  </div>`;
+  scrollTop();
+}
+function summaryRows(){
+  const v=id=>{ const x=get(id); return Array.isArray(x)? (x.length?x.join(', '):'—') : (x||'—'); };
+  const r=[];
+  r.push({k:'Property location', v: [v('s2_addr'), get('s2_county')==='Yes'?'Harris County':(get('s2_county')||''), get('s2_kg')==='Yes'?'Kashmere Gardens / SN 52':''].filter(x=>x&&x!=='—').join(' · ')||'—'});
+  r.push({k:'Property type', v:v('s2_type')});
+  r.push({k:'Occupancy', v:v('s2_occ')});
+  r.push({k:'Owner status', v: get('s3_living')||'—'});
+  if(ownerDeceased(ans)){
+    r.push({k:'Known will?', v:v('s5_will')});
+    r.push({k:'Probate known?', v:v('s5_probate')});
+    r.push({k:'Multiple heirs?', v:v('s5_multi')});
+    r.push({k:'Tax status', v:v('s5_tax')});
+  } else if(ownerLiving(ans)){
+    r.push({k:'Owner has a will?', v:v('s4_will')});
+    r.push({k:'Homestead exemption?', v:v('s4_hs')});
+  }
+  r.push({k:'Your goal', v:v('s11_goals')});
+  return r;
+}
+
+/* =========================================================================
+   PATHWAY ENGINE  (issue spotting only; additive A–K)
+   ========================================================================= */
+function yes(id){ return get(id)==='Yes'; }
+function val(id){ return get(id); }
+
+function detectPathways(){
+  const p = new Set();
+  // primary branch
+  if(ownerLiving(ans)) p.add('A');
+  if(ownerDeceased(ans)){
+    if(get('s5_will')==='Yes') p.add('B');
+    else p.add('C'); // no/unknown will
+  }
+  if(val('s3_living')==='I do not know') p.add('J');
+  // overlays
+  if(yes('s8_passed')) p.add('D');
+  if(yes('s5_multi') || yes('s6_relatives') || yes('s6_oneof')) p.add('E');
+  if(yes('s5_disagree') || yes('s6_disagree')) p.add('F');
+  if(yes('s9_delinq') || yes('s9_notices') || yes('s9_lawsuit') || yes('s9_sale') || val('s5_tax')==='Delinquent (behind)') p.add('G');
+  const goals = get('s11_goals')||[];
+  if(yes('s10_repairdenied') || yes('s10_disasterdenied') || goals.includes('Keep the family home') || goals.includes('Repair the property')) p.add('H');
+  if(goals.includes('Sell the property')||goals.includes('Transfer the property')||goals.includes('Redevelop the property')) p.add('I');
+  if(goals.includes('I do not know where to start')) p.add('J');
+  if(get('s2_occ')==='Vacant'||get('s2_occ')==='Abandoned'||get('s2_occ')==='Damaged'||yes('s3_estate')) p.add('K');
+  // count unknowns -> J
+  const unknowns = Object.values(ans).filter(x=>x==='I do not know'||x==='I need help finding this').length;
+  if(unknowns>=6) p.add('J');
+  if(p.size===0) p.add('J');
+  return p;
+}
+
+function detectFlags(){
+  const critical=[], high=[];
+  if(yes('s9_sale')) critical.push('Foreclosure or tax-sale notice');
+  if(yes('s9_lawsuit')) critical.push('Tax lawsuit / court papers');
+  if(yes('s9_notices')) high.push('Certified mail / official notices');
+  if(yes('s9_delinq')||val('s5_tax')==='Delinquent (behind)') high.push('Delinquent taxes');
+  if(yes('s5_disagree')||yes('s6_disagree')) high.push('Family disagreement or pressure');
+  if(yes('s10_displace')) high.push('Risk of displacement');
+  if(get('s10_safe')==='No') high.push('Home may not be safe to live in');
+  if(yes('s10_repairdenied')||yes('s10_disasterdenied')) high.push('Assistance denied because of title');
+  if(yes('s3_estate')) high.push('Property listed "in the estate of"');
+  return {critical, high};
+}
+
+/* Pathway content library */
+const PW = {
+ A:{name:'Living Owner Prevention Pathway',
+    why:'You shared that the listed owner is living, so this is a good time to plan ahead so the property passes down clearly.',
+    attorney:['Would a will, trust, transfer on death deed, or other tool help prevent future confusion?','What happens if the owner dies without a will?','How can the owner protect the property while living?','How should wishes be documented when several family members are involved?'],
+    avoid:['Do not sign or transfer property without legal review.','Do not assume family understanding is the same as the public record.']},
+ B:{name:'Deceased Owner With Will Pathway',
+    why:'You shared that the owner has passed away and a will exists, which may need legal review and possibly court action.',
+    attorney:['Does this will need to be probated, and is the original required?','Who has legal authority to act for the estate?','What if the will was never filed with the court?','What records are needed before transferring, repairing, selling, or refinancing?'],
+    avoid:['Do not rely on the will to sell, transfer, repair, or refinance before legal review.']},
+ C:{name:'Deceased Owner Without Known Will Pathway',
+    why:'You shared that the owner has passed away and it is not known whether there was a will, which points to heirship and possible probate questions.',
+    attorney:['What happens when someone dies without a will in Texas, and who may have an interest?','Is probate needed, or could an affidavit of heirship or small estate affidavit be appropriate?','Can one heir act alone, or must all participate?','What records are needed to clarify title?'],
+    avoid:['Do not assume one family member can act for everyone without legal documents.']},
+ D:{name:'Informal "Passed Down" Property Pathway',
+    why:'You shared that the property was given, promised, or passed down without clear paperwork. Family understanding and the public record may differ.',
+    attorney:['Was the property legally transferred, and does family understanding match the public record?','What documents are needed to clarify ownership?','Can the person who received it sell, repair, refinance, or apply for assistance?','What happens if other heirs disagree?'],
+    avoid:['Do not sign sale, loan, or transfer documents before legal review.','Do not rely only on family memory if public records say something different.']},
+ E:{name:'Multiple Heirs Pathway',
+    why:'You shared that more than one person may have an interest, which may require coordination and legal review.',
+    attorney:['Who are the possible heirs, and must each agree before action is taken?','What if one wants to sell and another wants to keep the property?','Can one family member be appointed to represent the estate?','What are the risks of signing without all heirs participating?'],
+    avoid:['Do not assume one person has full authority unless legal documents confirm it.','Do not sell, transfer, lease, or borrow against the property before legal review.']},
+ F:{name:'Family Conflict or Pressure Pathway',
+    why:'You shared there may be disagreement or pressure. It can help to slow down, gather records, and seek legal review.',
+    attorney:['What rights may each family member have?','What if heirs disagree about selling or keeping the property?','What happens if someone is pressuring another to sign?','When is mediation helpful, and what options exist if the family cannot agree?'],
+    avoid:['Do not sign sale, transfer, loan, waiver, or quitclaim documents under pressure.']},
+ G:{name:'Tax Delinquency or Foreclosure Risk Pathway',
+    why:'You shared a tax notice, delinquency, lawsuit, or sale risk. Tax issues can be time-sensitive and may require prompt review.',
+    attorney:['Is the property in tax foreclosure, and is there a deadline to respond?','Can a payment plan, deferral, exemption, or legal defense apply?','What if multiple heirs are involved?','Can delinquent taxes block title transfer, repair help, or sale?'],
+    avoid:['Do not ignore tax notices, court notices, or certified mail.']},
+ H:{name:'Keep and Repair the Family Home Pathway',
+    why:'You shared a goal to keep and possibly repair the home. Title clarity and tax status may affect access to programs.',
+    attorney:['What proof of ownership is needed for repair assistance?','Can heirs apply if the deed is still in a deceased person\'s name?','Can the occupant apply for a homestead exemption?','What steps protect the home going forward?'],
+    avoid:['Do not spend major money on repairs before understanding ownership and tax status.']},
+ I:{name:'Sell, Transfer, or Redevelop Pathway',
+    why:'You shared a goal to sell, transfer, or redevelop. This may require clear title and authority to act.',
+    attorney:['Who has authority to sell or transfer, and are all heirs required to sign?','Are there title defects, taxes, liens, or probate issues blocking a sale?','What if one heir refuses to sign?','What should be reviewed before a purchase contract?'],
+    avoid:['Do not accept fast cash offers without reviewing title, taxes, and family authority.','Do not enter rushed or predatory transactions.']},
+ J:{name:'No One Knows Where to Start Pathway',
+    why:'You shared that several things are still unknown. Here is a simple starting roadmap.',
+    attorney:['What documents should I gather first?','How do I find out who legally owns the property?','What if the deed is still in my deceased relative\'s name?','What are the first steps before I make any decisions?'],
+    avoid:['Do not make major decisions before gathering basic records.']},
+ K:{name:'Vacant, Abandoned, or "In the Estate Of" Property Pathway',
+    why:'You shared that the property may be vacant, abandoned, or listed "in the estate of." Several public pathways may be relevant.',
+    attorney:['Who has authority to act for this property, and is it in an estate?','Are there known heirs, delinquent taxes, liens, or code issues?','Could the Public Probate Administrator assist?','What public agency or housing options may be available?'],
+    avoid:['Do not assume the property has no value or that no one needs to act.']},
+};
+const ORDER = ['G','F','B','C','D','K','E','I','H','J','A']; // urgency/foundation first
+
+/* =========================================================================
+   ROADMAP
+   ========================================================================= */
+function renderRoadmap(){
+  const pw = detectPathways();
+  const flags = detectFlags();
+  const ordered = ORDER.filter(x=>pw.has(x));
+  const urgent = flags.critical.length>0 || flags.high.length>0;
+
+  const v=id=>{ const x=get(id); return Array.isArray(x)? (x.length?x.join(', '):'—') : (x||'—'); };
+  const goals = get('s11_goals')||[];
+
+  /* records to gather */
+  const records = buildRecords(pw);
+  const offices = buildOffices(pw, flags);
+
+  /* attorney + office questions */
+  const attorneyQs = []; ordered.forEach(k=> PW[k].attorney.forEach(q=>{ if(!attorneyQs.includes(q)) attorneyQs.push(q); }));
+  const avoid = []; ordered.forEach(k=> PW[k].avoid.forEach(q=>{ if(!avoid.includes(q)) avoid.push(q); }));
+  const baseAvoid=['Do not sign a deed or sale contract under pressure.','Do not ignore tax notices, court notices, or certified mail.'];
+  baseAvoid.forEach(x=>{ if(!avoid.includes(x)) avoid.push(x); });
+
+  A.innerHTML = `
+  <div class="no-print btn-row" style="justify-content:space-between">
+    <button class="back" onclick="go('review')">← Back to review</button>
+    <div>
+      <button class="btn btn-ghost" onclick="window.print()">Download / Print (PDF)</button>
+    </div>
+  </div>
+
+  <div class="roadmap">
+  <div class="card">
+    <h1>Family Property Roadmap</h1>
+    <p class="small">Harris County Heirs' Property Navigator</p>
+
+    <h2><span class="num">1</span>Educational Disclaimer</h2>
+    <div class="notice info">${CORE_DISCLAIMER}</div>
+    <p class="small"><em>${FRAMING}</em></p>
+
+    ${urgent? `<div class="notice warn"><strong>This may need urgent attention.</strong><br>${ESCALATION}
+      <div style="margin-top:8px">${[...flags.critical,...flags.high].map(f=>`<span class="pill urgent">${esc(f)}</span>`).join('')}</div></div>`:''}
+
+    <h2><span class="num">2</span>What You Shared</h2>
+    ${summaryRows().map(r=>`<div class="kv"><b>${esc(r.k)}</b> ${esc(r.v)}</div>`).join('')}
+
+    <h2><span class="num">3</span>What This May Mean</h2>
+    ${buildMeaning(pw, flags).map(m=>`<p>• ${esc(m)} <span class="small">This is not a legal conclusion.</span></p>`).join('')}
+
+    <h2><span class="num">4</span>Recommended Pathway or Pathways</h2>
+    <ol class="tight">${ordered.map(k=>`<li><strong>${esc(PW[k].name)}</strong></li>`).join('')}</ol>
+
+    <h2><span class="num">5</span>Why These Pathways</h2>
+    ${ordered.map(k=>`<p>• ${esc(PW[k].why)}</p>`).join('')}
+
+    <h2><span class="num">6</span>Records to Gather</h2>
+    <ul class="tight">${records.map(r=>`<li><strong>${esc(r.k)}</strong> — ${esc(r.v)}</li>`).join('')}</ul>
+
+    <h2><span class="num">7</span>Harris County Offices to Contact</h2>
+    <ul class="tight">${offices.map(o=>`<li><strong>${esc(o.k)}</strong> — ${esc(o.v)}</li>`).join('')}</ul>
+    <p class="small">Office contact details should be confirmed on each office's official website before you visit or call.</p>
+
+    <h2><span class="num">8</span>Questions to Ask an Attorney</h2>
+    <ul class="tight">${attorneyQs.map(q=>`<li>${esc(q)}</li>`).join('')}</ul>
+
+    <h2><span class="num">9</span>Questions to Ask Public Offices</h2>
+    <ul class="tight">
+      <li><strong>Tax Assessor-Collector:</strong> "Are the taxes current or delinquent? Is there a tax suit or sale on this account? Is a payment plan or deferral available?"</li>
+      <li><strong>HCAD:</strong> "What is the property account for this address, and what exemptions are on it?"</li>
+      <li><strong>County Clerk:</strong> "How do I search real property records by address, and how do I get a certified copy of the deed?"</li>
+      <li><strong>Probate Courts:</strong> "Was a probate case ever opened for this person, and how do I find the case number?"</li>
+    </ul>
+
+    <h2><span class="num">10</span>Non-Legal Support Referrals</h2>
+    <ul class="tight">${buildSupport(pw,flags).map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+
+    <h2><span class="num">11</span>Things to Avoid Until Legal Review</h2>
+    <ul class="tight">${avoid.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
+
+    <h2><span class="num">12</span>Suggested Next 30 Days</h2>
+    <ol class="tight">${buildNext30(pw,flags).map(n=>`<li>${esc(n)}</li>`).join('')}</ol>
+
+    <h2><span class="num">13</span>Longer-Term Protection Steps</h2>
+    <ul class="tight">
+      <li>Once title is clearer, review estate planning so the home passes down cleanly going forward.</li>
+      <li>Review property tax exemptions every year.</li>
+      <li>Keep all property documents organized in one place.</li>
+      <li>Hold a family meeting to align on the goal for the property.</li>
+      <li>Get legal review before signing anything related to the property.</li>
+      <li>Plan for home repair and preservation to protect your family's generational wealth.</li>
+    </ul>
+
+    <h2><span class="num">14</span>Closing Message</h2>
+    <div class="notice info">${CLOSING}</div>
+
+    <div class="no-print btn-row">
+      <button class="btn btn-primary" onclick="window.print()">Download / Print (PDF)</button>
+      <button class="btn btn-ghost" onclick="restart()">Start over</button>
+    </div>
+    <p class="small" style="margin-top:10px">${CORE_DISCLAIMER}</p>
+  </div>
+  </div>`;
+  scrollTop();
+}
+
+function buildMeaning(pw, flags){
+  const m=[];
+  if(flags.critical.length || yes('s9_notices') || yes('s9_delinq'))
+    m.push('Because you mentioned a tax notice, delinquency, or court paper, this may be a time-sensitive tax situation that could benefit from prompt review by legal aid or an attorney.');
+  if(pw.has('C')) m.push('Because the listed owner has passed away and it is not known whether there was a will or whether probate happened, this may be a situation where ownership records need further review.');
+  if(pw.has('B')) m.push('Because the owner has passed away and a will exists, this may be a situation where the will needs legal review and possibly court action.');
+  if(pw.has('E')) m.push('Because several family members may be heirs, this may be a situation where more than one person needs to be involved in decisions about the property.');
+  if(pw.has('F')) m.push('Because there may be disagreement or pressure, this may be a situation where slowing down and getting records together is helpful before any decision.');
+  if(pw.has('D')) m.push('Because the property may have been passed down without clear paperwork, the public record may not match what the family understands.');
+  if(pw.has('H')) m.push('Because you want to keep and possibly repair the home, title and tax status may affect access to assistance programs.');
+  if(pw.has('A')) m.push('Because the owner is living, this may be a good time to plan ahead so the property passes down clearly.');
+  if(pw.has('K')) m.push('Because the property may be vacant or listed "in the estate of," public probate, tax, housing, or land bank pathways may be relevant.');
+  if(m.length===0) m.push('Your answers suggest there may be probate, title, tax, or heirship questions worth reviewing with a professional.');
+  return m;
+}
+
+function buildRecords(pw){
+  const base=[
+    {k:'The deed', v:'Harris County Clerk (real property records — search by address or name).'},
+    {k:'HCAD property account', v:'Harris Central Appraisal District (search by address).'},
+    {k:'Property tax statement', v:'Harris County Tax Assessor-Collector.'},
+  ];
+  if(ownerDeceased(ans)){
+    base.push({k:'Death certificate', v:'Texas vital records or family records.'});
+    base.push({k:'Will (if any)', v:'Family members, a safe deposit box, or a prior attorney.'});
+    base.push({k:'Probate records / case number', v:'Harris County Probate Courts / County Clerk.'});
+    base.push({k:'Family tree & heir contact list', v:'Build with the family — names, relationships, and contacts.'});
+  }
+  if(pw.has('G')) base.push({k:'Any tax notices / certified letters', v:'Keep every page and note any deadlines.'});
+  if(pw.has('H')) base.push({k:'Proof of who pays taxes, insurance, utilities', v:'Receipts and statements.'});
+  if(pw.has('E')||pw.has('F')) base.push({k:'Records showing family relationships', v:'Birth/marriage/death records, family agreement if any.'});
+  return base;
+}
+
+function buildOffices(pw, flags){
+  const o=[];
+  if(pw.has('G')||yes('s9_notices')) o.push({k:'Harris County Tax Assessor-Collector', v:'to confirm tax status, ask about payment plans/deferrals, and whether there is a tax suit or sale.'});
+  o.push({k:'Harris Central Appraisal District (HCAD)', v:'to look up the property account and check exemptions.'});
+  o.push({k:'Harris County Clerk\'s Office', v:'to search real property records for the deed and recorded documents.'});
+  if(ownerDeceased(ans)) o.push({k:'Harris County Probate Courts', v:'to check whether a probate case was ever opened.'});
+  if(pw.has('K')) o.push({k:'Harris County Public Probate Administrator', v:'may be relevant for certain estates — ask what the office can and cannot do.'});
+  o.push({k:'Legal aid / attorney resources', v:'Lone Star Legal Aid, Houston Volunteer Lawyers, Earl Carl Institute'+(flags.critical.length?' — promptly, given the urgent notice.':'.')});
+  if(pw.has('I')||pw.has('K')) o.push({k:'Houston Land Bank', v:'may be relevant only if program rules and legal review support it.'});
+  return o;
+}
+
+function buildSupport(pw, flags){
+  const s=[];
+  if(pw.has('G')) s.push('Foreclosure prevention and housing counseling.');
+  if(pw.has('H')) s.push('Home repair pre-eligibility support.');
+  if(yes('s10_disasterdenied')||yes('s10_damage')) s.push('Disaster recovery eligibility support.');
+  s.push('Tax exemption support (homestead / over-65 / disability / veteran review).');
+  if(get('s2_kg')==='Yes') s.push('Community navigation in Kashmere Gardens / Super Neighborhood 52.');
+  if(pw.has('K')) s.push('Public Probate Administrator referral, if relevant.');
+  if(pw.has('I')||pw.has('K')) s.push('Houston Land Bank referral, if relevant.');
+  return s;
+}
+
+function buildNext30(pw, flags){
+  const n=[];
+  if(flags.critical.length||pw.has('G')){
+    n.push('Put any tax notices or certified letters in a folder and write down any deadlines.');
+    n.push('Contact the Tax Assessor-Collector to confirm tax status and ask about payment options.');
+    n.push('Contact legal aid or a licensed Texas attorney promptly because of the notice.');
+  }
+  n.push('Look up the HCAD property account online by address.');
+  n.push('Search for the deed in Harris County real property records (or ask the Clerk for help).');
+  if(ownerDeceased(ans)){
+    n.push('Ask family members whether there was a will, a trust, or any prior court action.');
+    n.push('Start a simple family tree and heir contact list.');
+  }
+  n.push('Gather any documents you have in one folder.');
+  if(pw.has('A')) n.push('Schedule a conversation with a licensed Texas attorney about prevention options, and hold a family conversation about the owner\'s wishes.');
+  return n;
+}
+
+/* =========================================================================
+   NAV HELPERS
+   ========================================================================= */
+function go(v){ view=v; render(); }
+function resume(){ view = ans._consent? 'screener':'consent'; if(view==='screener'){ step=0; } render(); }
+function restart(){ if(confirm('This will clear your answers on this device and start over. Continue?')){ for(const k in ans) delete ans[k]; localStorage.removeItem(LS_KEY); step=0; go('home'); } }
+
+render();
+</script>
+</body>
+</html>
