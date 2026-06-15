@@ -43,6 +43,22 @@ and an evaluation/data layer. Those are exactly what the grant funds.
   escalation flags, closed-loop confirmation.
 - **Partner MOUs** with legal aid, tax help, probate, repair, and housing partners.
 
+### 4b. AI, used responsibly (build-time now; runtime in Phase 2)
+- **Now (Phase 1):** the demo is a deliberately **rules-based engine** — every
+  question, pathway, and roadmap word is pre-written and **attorney-reviewable**, so
+  it cannot give off-script legal advice or hallucinate ownership/heirship. AI is
+  used to *build and iterate* the tool efficiently (no external software consultant
+  required).
+- **Phase 2:** add an **AI-assisted plain-language conversational helper** — the
+  "Conversational Legal Navigation Mode" — answering follow-up questions in English
+  or Spanish behind strict guardrails (education and navigation only; never legal
+  advice, ownership, or heirship determinations). This needs a backend, a model, a
+  safety/guardrail layer, attorney review, and monitoring — which is exactly why it
+  is funded and staged, not bolted onto the demo.
+- **Hosting note:** the demo stays a self-contained static file (free, durable,
+  fully under Houston Land Bank's control). It does **not** depend on any third-party
+  app-builder account to run.
+
 ### 5. Measurement & learning (Stage 4)
 - An **evaluation framework**: how many families reached, pathways, referrals,
   closed-loop completions, denial reasons, bottlenecks — *aggregate, no individual

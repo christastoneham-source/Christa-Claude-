@@ -123,6 +123,22 @@ completed referral system).
 4. **Deliver** Phase 1; use the evidence to submit the larger Phase 2 pilot ask
    (to the same funder and/or additional funders, reducing single-funder risk).
 
+## How AI fits the ask (a likely funder question)
+
+Expect funders to ask "where's the AI?" Answer in two parts:
+
+- **Build-time AI (now):** AI assistance builds and iterates the tool, which is how a
+  small team ships a credible bilingual demo without an external software consultant.
+- **Runtime AI (Phase 2):** a guarded, plain-language conversational helper for
+  families is a **funded Phase 2 feature** — it needs a backend, safety layer,
+  attorney review, and monitoring, so it is staged deliberately rather than rushed
+  into a legal-adjacent demo.
+
+This framing is a strength: it shows you use AI where it helps *and* that you
+understand the safety work required before AI talks to families. The Phase 1 demo
+stays a rules-based, attorney-reviewable engine, hosted as a free static file with no
+dependency on a third-party app-builder account.
+
 ## A candid note on doing this without an external consultant
 
 You can absolutely lead Phase 1 in-house. The places to *buy expertise as scoped line
