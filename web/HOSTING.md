@@ -1,10 +1,22 @@
 # Hosting & adding the Navigator to your Squarespace / Wix / Webflow site
 
-This folder contains a **self-contained web app** (`index.html`) — the working MVP
-of the Harris County Heirs' Property Navigator (education + guided screener +
-Family Property Roadmap). It needs **no backend and no database**. A visitor's
-answers stay in their own browser, and they print/save their own roadmap. That
-keeps hosting simple, free, and privacy-friendly.
+This folder contains:
+
+- **`index.html`** — the working MVP of the Harris County Heirs' Property Navigator
+  (education + guided screener + Family Property Roadmap), now **Houston Land Bank
+  branded** and fully **bilingual (English / Spanish)** via the language toggle in
+  the header. It needs **no backend and no database** — a visitor's answers stay in
+  their own browser, and they print/save their own roadmap.
+- **`funding-brief.html`** — a print-ready, HLB-branded funder packet (executive
+  summary + program brief + budget). Open it and use your browser's **Print → Save
+  as PDF** to produce a PDF you can attach to a funder email.
+
+This keeps hosting simple, free, and privacy-friendly.
+
+**A note on the font:** the app uses Houston Land Bank's brand typeface **Rubik**
+(loaded from Google Fonts). Online it renders in Rubik; opened offline (e.g., a
+downloaded file with no internet), it falls back to a clean system font — content
+and branding colors are unaffected.
 
 Site builders like **Squarespace, Wix, and Webflow can't hold a full app inside a
 code block.** The standard, reliable pattern is: **host the file on free static
