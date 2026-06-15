@@ -64,6 +64,15 @@ All 17 deliverables from the master prompt live in [`/docs`](./docs):
 | 16 | First draft of assessment questions | [docs/16-assessment-questions-draft.md](./docs/16-assessment-questions-draft.md) |
 | 17 | First draft of final roadmap output | [docs/17-roadmap-output-draft.md](./docs/17-roadmap-output-draft.md) |
 
+### Working demo + funding materials
+
+| Item | File |
+|---|---|
+| Self-contained MVP web app (open in any browser) | [web/index.html](./web/index.html) |
+| Hosting & embedding guide (Squarespace/Wix/Webflow) | [web/HOSTING.md](./web/HOSTING.md) |
+| Product improvement roadmap (for the grant) | [docs/18-improvement-roadmap.md](./docs/18-improvement-roadmap.md) |
+| Funding strategy & the ask (budget tiers) | [docs/19-funding-strategy.md](./docs/19-funding-strategy.md) |
+
 ## Non-negotiable guardrails
 
 This platform **never**:
