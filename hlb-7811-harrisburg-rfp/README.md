@@ -53,6 +53,15 @@ See [`WORKFLOW.md`](./WORKFLOW.md) for the step-by-step review method and
 [`reference/rfp-key-requirements.md`](./reference/rfp-key-requirements.md) for
 the official requirements and rubric.
 
+## Building the reviewer platform (Lovable)
+
+To turn this into a real app where HLB staff upload submissions and get walked
+through the review with live AI feedback, use
+[`lovable-build-prompt.md`](./lovable-build-prompt.md). Copy that file into
+Lovable to generate the platform. Build the prototype with **sample/fake data
+only**, then transfer the project to an HLB-owned workspace (reconnecting
+Supabase and the Claude API key) before loading real, confidential submissions.
+
 ## A note on documentation and procurement
 
 HLB is a public-purpose entity running a competitive solicitation. A clean,
