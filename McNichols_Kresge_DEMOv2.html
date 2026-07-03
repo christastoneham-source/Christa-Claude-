@@ -203,8 +203,9 @@
       <div class="corridor-toolbar">
         <button class="btn sm toggle active" id="satBtn" onclick="toggleSat()">Satellite</button>
         <button class="btn sm toggle" id="zoneBtnMap" onclick="toggleZoning()">Zoning</button>
+        <button class="btn sm toggle active" id="bldBtn" onclick="toggleBuildings()">Buildings</button>
       </div>
-      <div class="scope-note">93 parcels in scope. 24 surrounding parcels shown in grey as context, marked Not in scope.</div>
+      <div class="scope-note">93 parcels in scope. 24 surrounding parcels shown in grey as context, marked Not in scope.<span id="bldNote"></span></div>
       <div class="scrollin" id="mapDetail" style="flex:1"></div>
     </div>
   </div>
@@ -316,7 +317,7 @@ function buildReport(){
   const missing=state.parcels.filter(p=>!p.rings||!p.rings.length).map(p=>p.address);
   if(missing.length)console.warn("Parcels missing geometry (will not draw on map): "+missing.join(", "));
   if(total!==93)console.warn("Expected 93 in-scope parcels, found "+total);
-  console.log("Map libraries load from CDN (need internet): Leaflet, Chart.js, html2canvas.");
+  console.log("Map libraries load from CDN (need internet): Leaflet, Chart.js, html2canvas. Building footprints load live from Detroit open data or OpenStreetMap when the map opens.");
 }
 
 function setView(v){
@@ -489,6 +490,7 @@ function renderDashboard(){
      <div class="sumcard"><div class="n">${list.length}</div><div class="l">Parcels assigned</div></div>
      <div class="sumcard"><div class="n">${fmt(totalInvestment(list),true)}</div><div class="l">Estimated investment</div></div>
      <div class="sumcard"><div class="n">${fmt(valueCreated,true)}</div><div class="l">Est. value created</div></div>
+     <div class="sumcard"><div class="n">${fmt(newTax,true)}</div><div class="l">New annual property tax</div></div>
      <div class="sumcard"><div class="n">${vacPct}%</div><div class="l">Vacant land addressed</div></div>
    </div>
    ${list.length===0?`<p class="muted">Assign parcels to pillars on the Corridor tab to populate the dashboard.</p>`:`
@@ -549,7 +551,7 @@ function snapshotAssignments(){const a={};state.parcels.forEach(p=>{if(p.pillar)
 function exportScenarios(){
   const data=JSON.stringify({version:TOOL_VERSION,scenarios:state.scenarios,assume:state.assume},null,2);
   const b=new Blob([data],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="w-mcnichols-scenarios.json";a.click();
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="W-McNichols-scenario-share.json";a.click();
 }
 function applyImportedScenarios(d){
   if(!d||typeof d.version!=="string"||!d.version.startsWith("2")||!Array.isArray(d.scenarios))return -1;
@@ -580,25 +582,39 @@ function importScenarios(file){
 function saveScenario(){const name=prompt("Name this scenario (e.g. Housing-first, Mixed):","Scenario "+(state.scenarios.length+1));if(!name)return;state.scenarios.push({id:s_id(),name,date:new Date().toLocaleDateString(),assignments:snapshotAssignments()});renderScenarios();persist();}
 function applyScenario(id){const s=state.scenarios.find(x=>x.id===id);if(!s)return;state.parcels.forEach(p=>{p.pillar=s.assignments[p.id]||null;});renderAll();alert("Loaded scenario: "+s.name);}
 function delScenario(id){if(!confirm("Delete this scenario?"))return;state.scenarios=state.scenarios.filter(x=>x.id!==id);renderScenarios();persist();}
+function miniStrip(assignments){
+  const sorted=[...state.parcels].sort((a,b)=>Number(a.address)-Number(b.address));
+  const cell=p=>{
+    const pl=assignments[p.id]?state.pillars.find(x=>x.id===assignments[p.id]):null;
+    const col=pl?pl.color:"#E3DECD";
+    const w=Math.max(2,Math.round((Number(p.frontage)||40)*0.09));
+    return `<span style="display:inline-block;width:${w}px;height:11px;background:${col};margin-right:1px;border-radius:1px"></span>`;
+  };
+  return `<div style="line-height:0;white-space:nowrap">${sorted.filter(p=>p.side!=="S").map(cell).join("")}</div><div style="height:2px"></div><div style="line-height:0;white-space:nowrap">${sorted.filter(p=>p.side==="S").map(cell).join("")}</div>`;
+}
 function scenarioTotals(s){const list=Object.keys(s.assignments).map(pid=>{const p=state.parcels.find(x=>x.id===pid);if(!p)return null;return {...p,pillar:s.assignments[pid]};}).filter(Boolean).filter(p=>state.pillars.find(x=>x.id===p.pillar));
-  return {count:list.length,investment:totalInvestment(list),outcomes:aggregateOutcomes(list)};}
+  const inv=totalInvestment(list);
+  return {count:list.length,investment:inv,outcomes:aggregateOutcomes(list),tax:inv*state.assume.valueFactor*state.assume.taxRate};}
 function renderScenarios(){
   const w=document.getElementById("scnWrap");
   let html=`<h2>Scenarios</h2><p class="note">Save the current set of assignments as a scenario, then compare options side by side. This answers the funder question: what do we gain if we go this way instead of that way.</p>
    <button class="btn primary" onclick="saveScenario()">Save current as scenario</button>
-   <button class="btn" onclick="exportScenarios()">Export scenarios</button>
-   <button class="btn" onclick="document.getElementById('scnImport').click()">Import scenarios</button>
-   <input type="file" id="scnImport" accept=".json,application/json" class="hidden" onchange="importScenarios(this.files[0]);this.value=''">`;
+   <button class="btn" onclick="exportScenarios()">Share scenarios (download file)</button>
+   <button class="btn" onclick="document.getElementById('scnImport').click()">Load shared scenarios</button>
+   <input type="file" id="scnImport" accept=".json,application/json" class="hidden" onchange="importScenarios(this.files[0]);this.value=''">
+   <p class="note" style="margin-top:10px;max-width:640px">Scenarios save in this browser automatically. To put two people's plans side by side: one person clicks <b>Share scenarios</b>, which downloads a small scenario file, and sends it by email or Teams. The other person clicks <b>Load shared scenarios</b> and picks that file. The loaded plans join the list below and appear next to their own in the Compare table, each with its corridor picture.</p>`;
   if(!state.scenarios.length){html+=`<p class="muted" style="margin-top:16px">No scenarios yet. Assign parcels on the Corridor tab, then save this as a scenario.</p>`;w.innerHTML=html;return;}
-  html+=`<div class="scn-list" style="margin-top:16px">`+state.scenarios.map(s=>{const tt=scenarioTotals(s);return `<div class="scn"><div class="meta"><b>${s.name}</b><span>${s.date} · ${tt.count} parcels · ${fmt(tt.investment,true)} investment</span></div>
+  html+=`<div class="scn-list" style="margin-top:16px">`+state.scenarios.map(s=>{const tt=scenarioTotals(s);return `<div class="scn"><div class="meta"><b>${s.name}</b><span>${s.date} · ${tt.count} parcels · ${fmt(tt.investment,true)} investment</span><div style="margin-top:6px;overflow-x:auto">${miniStrip(s.assignments)}</div></div>
      <button class="btn sm" onclick="applyScenario('${s.id}')">Load</button>
      <button class="btn sm" onclick="delScenario('${s.id}')">Delete</button></div>`;}).join("")+`</div>`;
   if(state.scenarios.length>=1){
     const labels=new Set();const totals=state.scenarios.map(s=>{const t=scenarioTotals(s);Object.keys(t.outcomes).forEach(l=>labels.add(l));return t;});
     const rowFor=(name,vals)=>`<tr><td><b>${name}</b></td>${vals.join("")}</tr>`;
     let head=`<tr><th>Metric</th>${state.scenarios.map(s=>`<th>${s.name}</th>`).join("")}</tr>`;
-    let body=rowFor("Parcels",totals.map(t=>`<td>${t.count}</td>`));
+    let body=rowFor("Corridor picture",state.scenarios.map(s=>`<td>${miniStrip(s.assignments)}</td>`));
+    body+=rowFor("Parcels",totals.map(t=>`<td>${t.count}</td>`));
     body+=rowFor("Est. investment",totals.map(t=>`<td>${fmt(t.investment,true)}</td>`));
+    body+=rowFor("Est. new annual property tax",totals.map(t=>`<td>${fmt(t.tax,true)}</td>`));
     labels.forEach(l=>{const money=totals.find(t=>t.outcomes[l])?.outcomes[l].money;body+=rowFor(l,totals.map(t=>`<td>${t.outcomes[l]?fmt(t.outcomes[l].v,money):"-"}</td>`));});
     html+=`<h3 style="margin-top:24px">Compare</h3><table>${head}${body}</table>`;
   }
@@ -614,6 +630,50 @@ function ensureMap(){if(map)return;
   inLayer=L.layerGroup().addTo(map);
   const all=[];state.parcels.forEach(p=>(p.rings||[]).forEach(r=>r.forEach(pt=>all.push(pt))));state.context.forEach(c=>(c.rings||[]).forEach(r=>r.forEach(pt=>all.push(pt))));
   if(all.length){const la=all.map(p=>p[0]),lo=all.map(p=>p[1]);map.fitBounds([[Math.min(...la),Math.min(...lo)],[Math.max(...la),Math.max(...lo)]]);}else{const b=DATA.bbox;map.fitBounds([[b[0],b[1]],[b[2],b[3]]]);}
+  loadBuildings();
+}
+let bldLayer=null,bldOn=true,bldTried=false,bldSource="";
+function toggleBuildings(){
+  bldOn=!bldOn;const btn=document.getElementById("bldBtn");if(btn)btn.classList.toggle("active",bldOn);
+  if(bldLayer){if(bldOn)map.addLayer(bldLayer);else map.removeLayer(bldLayer);}
+}
+function updateBldNote(){const el=document.getElementById("bldNote");if(!el)return;
+  el.textContent=bldSource?(" Building outlines: "+bldSource+".")
+    :" Building outlines could not load (needs internet).";}
+function addBuildings(geoms,src){
+  bldSource=src;bldLayer=L.layerGroup();let n=0;
+  geoms.forEach(g=>{
+    if(!g||!g.coordinates)return;
+    const polys=g.type==="MultiPolygon"?g.coordinates:[g.coordinates];
+    polys.forEach(rings=>{
+      if(!rings||!rings[0])return;
+      const latlngs=rings.map(ring=>ring.map(c=>[c[1],c[0]]));
+      L.polygon(latlngs,{color:"#101C28",weight:1,opacity:.75,fillColor:"#101C28",fillOpacity:.07,interactive:false}).addTo(bldLayer);n++;
+    });
+  });
+  if(bldOn&&map)bldLayer.addTo(map);
+  console.log("Building footprints loaded: "+n+" ("+src+")");
+  updateBldNote();
+}
+async function loadBuildings(){
+  if(bldTried||!map)return;bldTried=true;
+  const b=DATA.bbox;
+  try{
+    const url="https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Buildings/FeatureServer/0/query?where=1%3D1&geometry="+b[1]+","+b[0]+","+b[3]+","+b[2]+"&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnGeometry=true&outFields=&outSR=4326&f=geojson";
+    const r=await fetch(url);const j=await r.json();
+    if(j&&j.features&&j.features.length){addBuildings(j.features.map(x=>x.geometry),"City of Detroit open data");return;}
+  }catch(e){}
+  try{
+    const q='[out:json][timeout:40];way["building"]('+b[0]+','+b[1]+','+b[2]+','+b[3]+');out geom;';
+    const r=await fetch("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q));
+    const j=await r.json();
+    const geoms=(j.elements||[]).filter(e=>e.type==="way"&&e.geometry&&e.geometry.length>2).map(e=>({type:"Polygon",coordinates:[e.geometry.map(g=>[g.lon,g.lat])]}));
+    if(geoms.length){addBuildings(geoms,"OpenStreetMap");return;}
+  }catch(e){}
+  console.warn("Building footprints could not be loaded from Detroit open data or OpenStreetMap.");
+  const btn=document.getElementById("bldBtn");
+  if(btn){btn.disabled=true;btn.classList.remove("active");btn.textContent="Buildings unavailable";}
+  updateBldNote();
 }
 function toggleSat(){satOn=!satOn;document.getElementById("satBtn").classList.toggle("active",satOn);if(satOn){map.removeLayer(osm);sat.addTo(map);}else{map.removeLayer(sat);osm.addTo(map);}}
 function renderMap(){if(!map)return;
@@ -690,7 +750,7 @@ const TOUR=[
  {sel:"#filters",title:"Filter and view zoning",body:"Filter by vacancy or pillar, or turn on Zoning to color parcels by their zoning district of record. Zoning and assessed value are read only reference data."},
  {sel:'[data-view="pillars"]',title:"Edit the pillars",body:"Open Edit Pillars to adjust names, colors, outcome metrics, and the development cost per square foot. The corridor and dashboard recompute from your assumptions."},
  {sel:"#tally",title:"Watch the totals build",body:"Investment and outcomes add up here as you assign parcels across the corridor."},
- {sel:'[data-view="map"]',title:"See it on the map",body:"The Map View draws all 93 parcels as real boundaries on satellite imagery. Surrounding parcels show in grey as context and are marked Not in scope."},
+ {sel:'[data-view="map"]',title:"See it on the map",body:"The Map View draws all 93 parcels as real boundaries on satellite imagery, with building outlines from city open data on top, so you can see where one building crosses several parcels. Grey parcels are context, marked Not in scope."},
  {sel:'[data-view="dashboard"]',title:"Dashboard and AMI",body:"Charts, investment by pillar, cost per outcome, an estimated property value and tax base impact, and an Area Median Income reference for the Detroit metro."},
  {sel:'[data-view="scenarios"]',title:"Compare scenarios",body:"Save different plans and compare them side by side to show the tradeoffs of each approach."},
  {sel:"#saveBtns",title:"Export for the meeting",body:"Export a one-page PDF or a PNG of the corridor to keep the results. Your work also autosaves in this browser."}
