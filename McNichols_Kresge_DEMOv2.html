@@ -636,6 +636,7 @@ function ensureMap(){if(map)return;
   loadBuildings();
 }
 let bldLayer=null,bldOn=true,bldTried=false,bldSource="";
+const BLD_CACHE_KEY="cds_mcnichols_bld_cache_v1";
 function toggleBuildings(){
   bldOn=!bldOn;const btn=document.getElementById("bldBtn");if(btn)btn.classList.toggle("active",bldOn);
   if(bldLayer){if(bldOn)map.addLayer(bldLayer);else map.removeLayer(bldLayer);}
@@ -643,7 +644,7 @@ function toggleBuildings(){
 function updateBldNote(){const el=document.getElementById("bldNote");if(!el)return;
   el.textContent=bldSource?(" Building outlines: "+bldSource+".")
     :" Building outlines could not load (needs internet).";}
-function addBuildings(geoms,src){
+function addBuildings(geoms,src,store){
   bldSource=src;bldLayer=L.layerGroup();let n=0;
   geoms.forEach(g=>{
     if(!g||!g.coordinates)return;
@@ -657,6 +658,7 @@ function addBuildings(geoms,src){
   if(bldOn&&map)bldLayer.addTo(map);
   console.log("Building footprints loaded: "+n+" ("+src+")");
   updateBldNote();
+  if(store){try{localStorage.setItem(BLD_CACHE_KEY,JSON.stringify({src:src,geoms:geoms}));}catch(e){}}
 }
 function bldCentroid(g){
   try{
@@ -667,6 +669,10 @@ function bldCentroid(g){
 }
 async function loadBuildings(){
   if(bldTried||!map)return;bldTried=true;
+  try{
+    const c=JSON.parse(localStorage.getItem(BLD_CACHE_KEY)||"null");
+    if(c&&Array.isArray(c.geoms)&&c.geoms.length){addBuildings(c.geoms,(c.src||"saved data")+" (saved copy)",false);return;}
+  }catch(e){}
   const b=DATA.bbox;
   const got=[],srcs=[];
   const esriQ="/query?where=1%3D1&geometry="+b[1]+","+b[0]+","+b[3]+","+b[2]+"&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnGeometry=true&outFields=&outSR=4326&f=geojson";
@@ -708,7 +714,7 @@ async function loadBuildings(){
       }
     }catch(e){}
   }
-  if(got.length){addBuildings(got,srcs.join(" + "));return;}
+  if(got.length){addBuildings(got,srcs.join(" + "),true);return;}
   console.warn("Building footprints could not be loaded from Detroit open data or OpenStreetMap.");
   const btn=document.getElementById("bldBtn");
   if(btn){btn.disabled=true;btn.classList.remove("active");btn.textContent="Buildings unavailable";}
