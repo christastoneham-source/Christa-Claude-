@@ -36,6 +36,39 @@ Saved 2026-07-03. Items deliberately NOT built before the Kresge demo, in rough 
 13. Tax-base payoff at study grade (millage detail, not the demo estimate).
 14. Additional corridors loaded and maintained.
 
+## Environmental screening — approved approach (planned 2026-07-03, build after contract)
+Decision: plan only for now; demo files unchanged. v1 live source: **EGLE Part 201
+contamination sites + Part 213 LUST** (FEMA flood zones and EPA facilities are
+later adds). Estimated effort: one working session, mirroring the
+building-footprint pattern.
+
+**Three rings:**
+- **Ring 0 — embedded use-based flags (offline, no new data).** `ENV_USE_FLAGS`
+  maps assessor uses of record already in the tool to plain-language screening
+  flags: Dry Cleaner (7546) → solvents; Gas Station (8930) → underground storage
+  tanks; Service & Repair (7100, 7591, 7642) → solvents/waste oil; Car Wash
+  (7101, 8540). Shown in the parcel panel as "Environmental screen" with a
+  REFERENCE badge. Screening language only — "typically examined in a Phase I
+  ESA" — never a score or determination.
+- **Ring 1 — live EGLE layer with cache (clone of loadBuildings).** New
+  "Environmental" toggle in the map Layers row; `loadEnv()` queries
+  `gisagoegle.state.mi.us/arcgis/rest/services/EGLE/RRDOpenData/MapServer`
+  (Part 201 + LUST layers) by corridor bbox; distinct warning-style point
+  markers (never pillar/land-use colors); tooltip = site name + program +
+  "reference data of record"; localStorage cache with "(saved copy)" fallback,
+  identical to `BLD_CACHE_KEY`. Parcel panel gains "Regulated site of record
+  within ~500 ft" proximity lines from the cached points.
+- **Ring 2 — the paid Tier 2 work (never in the tool).** Records pulls
+  (EGLE RIDE/BEA), Phase I ESA coordination, brownfield funding pathway
+  (EPA assessment grants, EGLE brownfield grants/loans, Act 381 TIF),
+  remediation line item in the pro forma. Demo line: "the tool spots the
+  question; the engagement answers it."
+
+Build order when signed: Ring 0 flags → Ring 1 layer + cache → proximity lines →
+tour/provenance updates → offline rebuild → mocked-fetch + offline tests
+(same harness and Playwright patterns as the footprint layer). Note: EPA's
+EJScreen is excluded (taken offline in 2025; mirrors unstable).
+
 ## Platform / operations
 15. **Hosted link** (Netlify drag-and-drop; password protection; custom domain)
     so the tool is a URL, not a file. ~30 minutes, do when Kresge says yes.
