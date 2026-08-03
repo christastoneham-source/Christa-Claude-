@@ -7,42 +7,56 @@ recorded in git, it is marked INFERRED.
 
 ---
 
-## ⚠️ FLAG: EARLIEST KNOWN OUTSIDE DISCLOSURE — INVENTOR ATTESTATION
+## ⚠️ FLAG: EARLIEST KNOWN OUTSIDE DISCLOSURE — DOCUMENTED BY EMAIL, WITH A SAME-DAY SALE
 
-**Earliest known external disclosure: Monday, 2026-05-04. The inventor
-(Christa Stoneham) attested on 2026-08-03 that this was the first time she
-"sent out the first iteration of the demo."** (Calendar check: May 4, 2026
-was a Monday, consistent with the attestation.)
+**Earliest known external disclosure: Monday, 2026-05-04, 2:15 PM — the
+inventor emailed the working tool (HTML file + user guide, 2 attachments) to
+Tosha M. Tabron, Director of Originations, Social Investment Practice, The
+Kresge Foundation.** The full email thread is transcribed in
+`EVIDENCE-2026-05-04-EMAIL.md` in this folder. The email contains no
+confidentiality language, and the recipient replied the same day that she
+would show it to her team the next day (2026-05-05).
 
-This date is NOT evidenced in this repository — it predates the repository's
-first commit (2026-06-15) and the tool's first commit here (2026-06-29),
-consistent with the "forked from ai-planner" predecessor history flagged
-below. The May 4 iteration was therefore a predecessor (ai-planner-era)
-version, and "sent out" indicates DISTRIBUTION of the artifact (the tool is a
-single HTML file; sending the file conveys the full working system and its
-embedded data), which is a stronger disclosure posture than a supervised demo.
+**⚠️ SAME-DAY COMMERCIAL SALE.** The delivery email priced the phase at
+$1,500; the recipient accepted at 9:48 PM the same day, committing $2,500
+"for this first phase." **Counsel should analyze 2026-05-04 as BOTH a public
+disclosure AND a potential on-sale bar event (35 U.S.C. § 102(a)(1))** — the
+on-sale analysis can apply even where a disclosure is arguably non-public.
+
+This event predates the repository (first repo commit 2026-06-15; tool's
+first commit here 2026-06-29, "forked from ai-planner"). The May 4 artifact
+was an ai-planner-era build. Because the tool is a single HTML file, sending
+it conveyed the complete working system, its formulas, and its embedded data
+— a stronger disclosure posture than a supervised demo.
 
 Consequences for counsel:
-- **Conservative US one-year grace bar date: on or about 2027-05-04**, not
-  2027-07-03 as previously inferred from git alone.
-- Foreign absolute-novelty analysis should assume a 2026-05-04 disclosure
-  unless the transmission was confidential.
-- **The content of the May 4 iteration defines WHAT was disclosed on that
-  date.** Features added afterward in this repo (documented in §3 below —
-  e.g., editable pillars and per-parcel cost override (2026-06-29), scenario
-  share files, corridor-picture compare, live building footprints, offline
-  build, footprint caching (2026-07-03)) were not part of the May 4 artifact
-  unless they existed in ai-planner; each may carry its own later disclosure
-  date. Recovering the exact May 4 file is therefore important.
+- **Conservative US one-year bar date: on or about 2027-05-04** (grace period
+  from the May 4 disclosure/sale), not 2027-07-03 as previously inferred from
+  git alone.
+- Foreign absolute-novelty analysis should assume a 2026-05-04 disclosure;
+  no confidentiality restriction is visible in the thread.
+- **The content of the May 4 attachment defines WHAT was disclosed/sold that
+  day.** Per the email's own description, the May 4 build included: the four
+  pillars, click-to-assign with immediate projected impact, the
+  square-footage-driven impact calculator, per-parcel Year-1/Year-2/long-term
+  outcome narratives, and Google Maps links — i.e., the CORE coefficient
+  engine. It explicitly did NOT yet have accurate spatial/geographic layout,
+  and GIS integration was named as a future phase. Not mentioned (presence
+  UNVERIFIED until the attachment is recovered): zoning, assessed values,
+  AMI, scenario save/compare, dashboards, value/tax projection. Features
+  added in this repo (editable pillars and cost overrides 2026-06-29;
+  scenarios/share files, real parcel geometry, building footprints, value/tax
+  card, offline build 2026-07-03) have their own later dates unless present
+  in the May 4 attachment.
 
-ACTION ITEMS for the inventor: preserve the 2026-05-04 email/message and the
-exact file attached to it; identify every recipient; state whether any
-confidentiality understanding (NDA, "please don't share," fiduciary context)
-applied; and preserve the ai-planner repository history.
+ACTION ITEMS: see the preservation checklist in
+`EVIDENCE-2026-05-04-EMAIL.md` (original .eml with headers from both email
+accounts, the two exact attachments, the $2,500 payment record, the rest of
+the 9-message thread, and the ai-planner repository).
 
-UNVERIFIED (beyond the inventor's attestation): recipients, transmission
-channel, confidentiality status, and the exact contents of the May 4
-iteration.
+UNVERIFIED: the exact contents of the May 4 attachments; whether/when the
+$2,500 was paid; the remainder of the email thread (the provided message was
+"5 of 9" in the thread).
 
 ### Secondary evidence previously inferred from git (superseded as "earliest," retained as corroboration of later events)
 
@@ -193,7 +207,7 @@ All dates documented in git unless marked otherwise.
 | Date | Milestone | Evidence | Documented or inferred |
 |---|---|---|---|
 | Before 2026-05-04 | Conception + first reduction to practice in predecessor "ai-planner" (a working iteration existed by May 4) | Fork note in 913a55a commit message; inventor attestation below | INFERRED (predecessor repo UNVERIFIED, not in this repo) |
-| **2026-05-04 (Mon)** | **First iteration of the demo sent out — earliest known external disclosure** | Inventor attestation, 2026-08-03; not in git | ATTESTED (preserve the email + attached file; identify recipients and confidentiality status) |
+| **2026-05-04 (Mon)** | **Tool delivered by email to The Kresge Foundation (T. Tabron) with user guide; priced at $1,500; accepted same day at $2,500 — earliest known disclosure AND sale** | Email thread transcribed in `EVIDENCE-2026-05-04-EMAIL.md`; not in git | DOCUMENTED (email of record held by inventor; original .eml + attachments to be preserved) |
 | 2026-06-15 | Repository created; two unrelated projects committed | f8fe2a1, 4a21d86 | Documented |
 | 2026-06-29 | Investment Map v1 committed: full decision engine present (pillars, projections, dashboard, scenarios, map, AMI) | 913a55a | Documented |
 | 2026-06-29 | Same-day iteration: context parcels, editable pillars, per-parcel cost override, value/tax projection UI, sensitivity factor; readiness checklist removed | 52c4e9c, 336bbf3, edeee1a | Documented |
