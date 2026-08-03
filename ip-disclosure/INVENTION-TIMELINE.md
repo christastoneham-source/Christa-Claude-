@@ -7,12 +7,47 @@ recorded in git, it is marked INFERRED.
 
 ---
 
-## ⚠️ FLAG: EARLIEST PLAUSIBLE OUTSIDE DISCLOSURE
+## ⚠️ FLAG: EARLIEST KNOWN OUTSIDE DISCLOSURE — INVENTOR ATTESTATION
 
-**Earliest date this project could plausibly have been shown to a person outside
-the project: on or about 2026-07-03 (the Kresge Foundation demo).**
+**Earliest known external disclosure: Monday, 2026-05-04. The inventor
+(Christa Stoneham) attested on 2026-08-03 that this was the first time she
+"sent out the first iteration of the demo."** (Calendar check: May 4, 2026
+was a Monday, consistent with the attestation.)
 
-Evidence:
+This date is NOT evidenced in this repository — it predates the repository's
+first commit (2026-06-15) and the tool's first commit here (2026-06-29),
+consistent with the "forked from ai-planner" predecessor history flagged
+below. The May 4 iteration was therefore a predecessor (ai-planner-era)
+version, and "sent out" indicates DISTRIBUTION of the artifact (the tool is a
+single HTML file; sending the file conveys the full working system and its
+embedded data), which is a stronger disclosure posture than a supervised demo.
+
+Consequences for counsel:
+- **Conservative US one-year grace bar date: on or about 2027-05-04**, not
+  2027-07-03 as previously inferred from git alone.
+- Foreign absolute-novelty analysis should assume a 2026-05-04 disclosure
+  unless the transmission was confidential.
+- **The content of the May 4 iteration defines WHAT was disclosed on that
+  date.** Features added afterward in this repo (documented in §3 below —
+  e.g., editable pillars and per-parcel cost override (2026-06-29), scenario
+  share files, corridor-picture compare, live building footprints, offline
+  build, footprint caching (2026-07-03)) were not part of the May 4 artifact
+  unless they existed in ai-planner; each may carry its own later disclosure
+  date. Recovering the exact May 4 file is therefore important.
+
+ACTION ITEMS for the inventor: preserve the 2026-05-04 email/message and the
+exact file attached to it; identify every recipient; state whether any
+confidentiality understanding (NDA, "please don't share," fiduciary context)
+applied; and preserve the ai-planner repository history.
+
+UNVERIFIED (beyond the inventor's attestation): recipients, transmission
+channel, confidentiality status, and the exact contents of the May 4
+iteration.
+
+### Secondary evidence previously inferred from git (superseded as "earliest," retained as corroboration of later events)
+
+**A Kresge Foundation demo on or about 2026-07-03** remains the earliest
+disclosure event evidenced INSIDE this repository:
 
 1. The tool itself is addressed to an outside party from its first commit. The
    guided tour text in the code reads "A quick tour of this corridor decision
@@ -31,13 +66,11 @@ Evidence:
    work "until contract," consistent with the demo having occurred between
    2026-07-03 and 2026-07-06.
 
-**The demo date itself is NOT recorded in git.** UNVERIFIED: whether the demo
-actually occurred, on what date, to whom, and whether under any confidentiality
-understanding. The inventor should confirm the actual meeting date (calendar
-entry, email) and whether any NDA or confidentiality expectation applied.
-**Counsel should treat 2026-07-03 as the conservative earliest possible public
-disclosure date** when computing the US one-year grace period (bar date on or
-about 2027-07-03) and when assessing loss of foreign (absolute-novelty) rights.
+**The Kresge demo date itself is NOT recorded in git.** UNVERIFIED: the
+meeting date, attendees, and confidentiality status. Given the inventor's
+2026-05-04 attestation above, the operative earliest-disclosure date for
+bar-date purposes is 2026-05-04; the ~2026-07-03 Kresge demo is a second,
+later disclosure event covering the more evolved v2 feature set.
 
 Secondary disclosure vectors visible in the repo, each UNVERIFIED as to whether
 it was exercised:
@@ -159,12 +192,13 @@ All dates documented in git unless marked otherwise.
 
 | Date | Milestone | Evidence | Documented or inferred |
 |---|---|---|---|
-| Before 2026-06-29 | Conception + first reduction to practice in predecessor "ai-planner" | Fork note in 913a55a commit message | INFERRED (predecessor repo UNVERIFIED, not in this repo) |
+| Before 2026-05-04 | Conception + first reduction to practice in predecessor "ai-planner" (a working iteration existed by May 4) | Fork note in 913a55a commit message; inventor attestation below | INFERRED (predecessor repo UNVERIFIED, not in this repo) |
+| **2026-05-04 (Mon)** | **First iteration of the demo sent out — earliest known external disclosure** | Inventor attestation, 2026-08-03; not in git | ATTESTED (preserve the email + attached file; identify recipients and confidentiality status) |
 | 2026-06-15 | Repository created; two unrelated projects committed | f8fe2a1, 4a21d86 | Documented |
 | 2026-06-29 | Investment Map v1 committed: full decision engine present (pillars, projections, dashboard, scenarios, map, AMI) | 913a55a | Documented |
 | 2026-06-29 | Same-day iteration: context parcels, editable pillars, per-parcel cost override, value/tax projection UI, sensitivity factor; readiness checklist removed | 52c4e9c, 336bbf3, edeee1a | Documented |
 | 2026-07-03 | v2: share files, provenance stamp, exempt handling, corridor-picture compare, live GIS footprints, floor area of record, offline build, footprint caching | 354f07d…be44a89 (7 commits) | Documented |
-| ~2026-07-03/07 | Kresge Foundation demo (external showing) | TODO header; offline backup timing; "until contract" on 07-06 | INFERRED — confirm actual date |
+| ~2026-07-03/07 | Kresge Foundation demo (second known external showing; v2 feature set) | TODO header; offline backup timing; "until contract" on 07-06 | INFERRED — confirm actual date |
 | 2026-07-06 | Environmental screening architecture documented (intended embodiment) | 24d2a64 | Documented |
 | 2026-07-13 | Architectural visualization architecture documented (intended embodiment); marketing one-pager prompt | 8ac46d8, 353da8c | Documented |
 
