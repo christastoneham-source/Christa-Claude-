@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Investment Map · Demonstration · Connecting Dots and Strategies</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'%3E%3Ccircle cx='5' cy='5' r='4' fill='%23D95448'/%3E%3Ccircle cx='15' cy='5' r='4' fill='%23F1BA4B'/%3E%3Ccircle cx='25' cy='5' r='4' fill='%2347AB4F'/%3E%3Ccircle cx='35' cy='5' r='4' fill='%2300BCC5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FCFAF1; --panel:#ffffff; --panel2:#FCFAF1; --line:#E3DECD;
+    --text:#101C28; --muted:#5C6470;
+    --brick:#D95448; --grove:#47AB4F; --turq:#00BCC5;
+    --navy:#101C28; --gold:#F1BA4B; --accent:#101C28; --road:#D7D1C0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  h1,h2,h3,h4,.logo,.welcome h1{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:600;}
+  button{font-family:inherit;cursor:pointer}
+  .hidden{display:none !important}
+
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;
+    background:var(--navy);border-bottom:none;position:sticky;top:0;z-index:50;flex-wrap:wrap}
+  .brandmark{display:flex;align-items:center;gap:11px}
+  .dots{display:flex;gap:4px}
+  .dots i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .logo{font-size:19px;letter-spacing:.2px;line-height:1.1;color:#FCFAF1}
+  .logo small{display:block;font-family:Inter;font-weight:600;font-size:10.5px;letter-spacing:.4px;color:rgba(250,247,239,.75);text-transform:uppercase}
+  .header-spacer{flex:1}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .tab{background:transparent;border:1px solid rgba(250,247,239,.35);color:#FCFAF1;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:600}
+  .tab.active{background:#FCFAF1;border-color:#FCFAF1;color:var(--navy)}
+  .iconbtn{background:transparent;border:1px solid rgba(250,247,239,.4);color:#FCFAF1;width:34px;height:34px;border-radius:50%;font-weight:700}
+  .iconbtn:hover{border-color:var(--turq)}
+  #spectrum{height:4px;background:linear-gradient(90deg,#D95448,#F1BA4B,#47AB4F,#00BCC5)}
+
+  #app{display:block;height:calc(100vh - 59px)}
+  .view{display:none;height:100%} .view.active{display:flex}
+
+  .corridor-wrap{flex:1;display:flex;flex-direction:column;min-width:0}
+  .corridor-toolbar{display:flex;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600}
+  .btn:hover{border-color:var(--turq)}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn.sm{padding:4px 9px;font-size:11.5px}
+  .btn.toggle.active{background:var(--navy);border-color:var(--navy);color:#fff}
+  .filter-chip{padding:4px 10px;border-radius:20px;font-size:11.5px;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+  .filter-chip.active{background:var(--gold);color:#101C28;font-weight:700}
+  .filter-chip.zoning.active{background:var(--gold);border-color:var(--gold);color:#101C28}
+
+  .scroll{overflow:auto;flex:1;position:relative}
+  #schematic{padding:30px 24px;min-width:max-content}
+  .corridor-title{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .road-band{position:relative;display:flex;align-items:center}
+  .road{height:34px;background:var(--road);border-top:2px dashed #B59A3A;border-bottom:2px dashed #B59A3A;width:100%;display:flex;align-items:center;justify-content:center;color:#6b6450;font-size:11px;letter-spacing:2px}
+  .side-row{display:flex;align-items:flex-end;gap:3px;min-height:90px}
+  .side-row.south{align-items:flex-start}
+  .parcel{position:relative;border-radius:4px 4px 0 0;border:1px solid rgba(0,0,0,.28);display:flex;flex-direction:column;justify-content:flex-end;padding:4px;cursor:pointer;transition:.12s;overflow:hidden;min-width:34px}
+  .south .parcel{border-radius:0 0 4px 4px;justify-content:flex-start}
+  .parcel:hover{outline:2px solid var(--text);z-index:5}
+  .parcel.selected{outline:3px solid var(--text);z-index:6}
+  .parcel.vacant{background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(0,0,0,.10) 5px,rgba(0,0,0,.10) 10px);border-style:dashed}
+  .parcel.ctx{background:repeating-linear-gradient(45deg,#dcd7c7,#dcd7c7 6px,#d0cab9 6px,#d0cab9 12px)!important;border:1px dashed #9a957f;opacity:.92}
+  .parcel.ctx .addr{color:#4b515b;text-shadow:none;font-weight:600}
+  .parcel.ctx.green{background:repeating-linear-gradient(45deg,#bfe0c1,#bfe0c1 6px,#a9d3ac 6px,#a9d3ac 12px)!important;border:1px dashed #3f7a43}
+  .parcel.ctx.green .addr{color:#234d27;font-size:9px;line-height:1.15}
+  .parcel .addr{font-size:10px;font-weight:700;color:rgba(255,255,255,.96);text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap}
+  .parcel .pill-badge{position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%;border:1px solid #fff}
+  .parcel .rd{position:absolute;top:2px;left:3px;font-size:8.5px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+  .parcel .zlab{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+  .parcel .picon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+
+  .panel-right{width:344px;min-width:344px;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+  .panel-right .scrollin,.map-side .scrollin{overflow:auto;padding:16px}
+  .ph{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin:18px 0 8px;font-weight:600} .ph:first-child{margin-top:0}
+  .kv{font-size:13px;margin:3px 0;color:var(--text)} .kv b{color:var(--muted);font-weight:600}
+  .ro-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:1px 6px;margin-left:5px}
+  .pillar-btns{display:flex;flex-direction:column;gap:7px}
+  .pillar-btn{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:13px;font-weight:600;text-align:left}
+  .pillar-btn .dot{width:13px;height:13px;border-radius:50%;flex:none}
+  .pillar-btn.active{outline:2px solid var(--text)}
+  .outcome-box{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:12px;margin-top:10px;font-size:12.5px;line-height:1.5}
+  .outcome-box h4{margin:0 0 4px;font-size:12px;color:var(--text)} .outcome-box .yr{margin-bottom:8px}
+  .impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .impact-cell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px}
+  .impact-cell .n{font-size:18px;font-weight:800} .impact-cell .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .empty-hint{color:var(--muted);font-size:13px;line-height:1.6;text-align:center;margin-top:40px}
+  .check-row{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:6px 0}
+  .check-row input{width:auto}
+  .rd-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:800}
+
+  .tally{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2);overflow-x:auto}
+  .tally-cell{flex:none;text-align:center;padding:2px 14px;border-right:1px solid var(--line)} .tally-cell:last-child{border-right:none}
+  .tally-cell .n{font-size:19px;font-weight:800;color:var(--navy)} .tally-cell .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.5px}
+  tr:hover td{background:var(--panel2)}
+  input,select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12.5px;font-family:inherit;width:100%}
+  textarea{resize:vertical;min-height:48px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px} .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .field{margin-bottom:12px} .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+  .pillar-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .pillar-card .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .swatch{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);flex:none;padding:0}
+  .assume{background:#FBF1D6;border:1px solid #E7D49E;border-radius:8px;padding:10px 12px;font-size:12px;color:#6b5d2e;margin:0 0 14px;line-height:1.5}
+
+  #map{flex:1;background:#cfc9b8;position:relative}
+  .mapstamp{position:absolute;left:6px;bottom:4px;z-index:1200;font-size:10px;color:#101C28;background:rgba(250,247,239,.88);padding:2px 7px;border-radius:4px;pointer-events:none;max-width:70%;line-height:1.3}
+  .pillar-pin{font-size:17px;line-height:24px;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.75));pointer-events:none}
+  .map-side{width:344px;min-width:344px;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+
+  .dash{flex:1;overflow:auto;padding:20px 24px}
+  .sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+  .sumcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .sumcard .n{font-size:26px;font-weight:800;color:var(--navy)} .sumcard .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .chartgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .chartcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .chartcard h3{margin:0 0 10px;font-size:14px;color:var(--navy)}
+  .chartcard canvas{max-height:240px}
+
+  .editwrap{flex:1;overflow:auto;padding:18px 22px}
+  .editwrap h2{margin:0 0 4px;font-size:20px;color:var(--navy)} .editwrap p.note{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .scn-list{display:flex;flex-direction:column;gap:10px;max-width:560px}
+  .scn{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .scn .meta{flex:1} .scn .meta b{font-size:14px} .scn .meta span{display:block;color:var(--muted);font-size:11.5px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:10px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--panel);font-size:11px;color:var(--muted)}
+  .legend .li{display:flex;align-items:center;gap:5px} .legend .li i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .narrative{padding:14px 18px;border-top:1px solid var(--line);background:var(--panel2);font-size:13px;line-height:1.6;color:var(--text)}
+  .muted{color:var(--muted)} a.maplink{color:var(--navy);font-size:12px}
+  .scope-note{font-size:11px;color:var(--muted);padding:6px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
+
+  .tip{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;background:var(--line);color:var(--muted);font-size:10px;font-weight:800;cursor:help;margin-left:4px;position:relative}
+  .tip:hover::after{content:attr(data-tip);position:absolute;left:50%;top:140%;transform:translateX(-50%);background:var(--text);color:#fff;padding:8px 10px;border-radius:8px;font-size:11.5px;font-weight:500;width:220px;z-index:300;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+
+  #tourLayer{position:fixed;inset:0;z-index:400;background:rgba(16,28,40,.45)}
+  .tour-highlight{position:relative;z-index:401;box-shadow:0 0 0 4px var(--navy),0 0 0 9999px rgba(16,28,40,.45);border-radius:8px}
+  #tourCard{position:fixed;z-index:402;max-width:300px;background:var(--panel);border:1px solid var(--navy);border-radius:12px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+  #tourCard h4{margin:0 0 6px;font-size:15px} #tourCard p{margin:0 0 12px;font-size:13px;color:var(--text);line-height:1.5}
+  #tourCard .row{display:flex;justify-content:space-between;align-items:center}
+  #tourCard .step{font-size:11px;color:var(--muted)}
+
+  #printReport{display:none}
+  @media print{
+    body{background:#fff;color:#000}
+    header,#spectrum,#app,#tourLayer,#tourCard{display:none !important}
+    #printReport{display:block;padding:24px}
+    #printReport h1{font-size:22px;margin:0;font-family:Fraunces,serif} #printReport .accent{color:#101C28}
+    #printReport table{width:100%;border-collapse:collapse;font-size:12px}
+    #printReport th,#printReport td{border:1px solid #ccc;padding:6px;text-align:left;color:#000}
+    #printReport img{max-width:100%;border:1px solid #ccc}
+    #printReport .dotrule{height:5px;background:linear-gradient(90deg,#101C28,#F1BA4B);margin:8px 0 14px;border-radius:3px}
+    #printReport .pcards{display:flex;gap:10px;flex-wrap:wrap}
+    #printReport .pc{border:1px solid #ccc;border-radius:8px;padding:10px;min-width:120px}
+    #printReport .pc .n{font-size:20px;font-weight:800;color:#101C28}
+  }
+
+  #gate{position:fixed;inset:0;z-index:9000;background:#FCFAF1;display:flex;align-items:center;justify-content:center}
+  .gate-card{max-width:430px;width:92%;text-align:center;padding:34px 30px 28px;background:#fff;border:1px solid #E3DECD;border-radius:12px;box-shadow:0 8px 30px rgba(16,28,40,.08)}
+  .gate-card .dots{justify-content:center;margin-bottom:16px}
+  .gate-card h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:27px;margin:0;color:#101C28}
+  .gate-card .demo-tag{display:inline-block;margin-top:7px;font:700 10.5px Inter,sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:#101C28;background:#F1BA4B;padding:3px 10px;border-radius:20px}
+  .gate-card p.lede{font-size:13.5px;color:#5C6470;margin:14px 0 20px;line-height:1.5}
+  .gate-card input{width:100%;padding:10px 12px;border:1px solid #E3DECD;border-radius:8px;font:14px Inter,sans-serif;text-align:center;letter-spacing:2px}
+  .gate-card input:focus{outline:2px solid #00BCC5;border-color:#00BCC5}
+  .gate-card button{margin-top:10px;width:100%;padding:10px;border:none;border-radius:8px;background:#00BCC5;color:#fff;font:700 13.5px Inter,sans-serif;cursor:pointer}
+  .gate-card button:hover{background:#00a7af}
+  .gate-err{color:#D95448;font-size:12px;min-height:16px;margin-top:8px;font-family:Inter,sans-serif}
+  .gate-foot{margin-top:18px;font-size:11px;color:#5C6470;font-family:Inter,sans-serif}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="dots"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div>
+    <h1>The Investment Map</h1>
+    <div class="demo-tag">Demonstration</div>
+    <p class="lede">A working decision environment built on real parcels. Client details anonymized.</p>
+    <input id="gatePw" type="password" placeholder="Access word" autocomplete="off" onkeydown="if(event.key==='Enter')gateTry()">
+    <button onclick="gateTry()">Enter</button>
+    <div class="gate-err" id="gateErr"></div>
+    <div class="gate-foot">Connecting Dots and Strategies · Reclaiming the map.</div>
+  </div>
+</div>
+
+<header id="appHeader">
+  <div class="brandmark">
+    <div class="dots"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div>
+    <div class="logo">The Investment Map<small>Connecting Dots and Strategies · Demonstration</small></div>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="tabs">
+    <button class="tab active" data-view="corridor" onclick="setView('corridor')">Corridor</button>
+    <button class="tab" data-view="map" onclick="setView('map')">Map View</button>
+    <button class="tab" data-view="dashboard" onclick="setView('dashboard')">Dashboard</button>
+    <button class="tab" data-view="scenarios" onclick="setView('scenarios')">Scenarios</button>
+    <button class="tab" data-view="pillars" onclick="setView('pillars')">Edit Pillars</button>
+  </div>
+  <button class="iconbtn" title="Help and guided tour" onclick="startTour(0)">?</button>
+</header>
+<div id="spectrum"></div>
+
+<div id="app">
+  <div class="view active" data-view="corridor">
+    <div class="corridor-wrap">
+      <div class="tally" id="tally"></div>
+      <div class="corridor-toolbar" id="corridorToolbar">
+        <span id="saveBtns">
+          <button class="btn sm" onclick="exportPDF()">Export PDF</button>
+          <button class="btn sm" onclick="exportPNG()">Export PNG</button>
+        </span>
+        <span style="width:6px"></span>
+        <span class="muted" style="font-size:11px">View:</span><span id="filters"></span>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="scroll"><div id="schematic"></div></div>
+      <div class="narrative" id="narrative"></div>
+    </div>
+    <div class="panel-right"><div class="scrollin" id="detail"></div></div>
+  </div>
+
+  <div class="view" data-view="map">
+    <div id="map"><div class="mapstamp" id="mapStamp"></div></div>
+    <div class="map-side">
+      <div class="corridor-toolbar">
+        <span class="muted" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Layers:</span>
+        <button class="btn sm toggle active" id="satBtn" onclick="toggleSat()">Satellite</button>
+        <button class="btn sm toggle" id="zoneBtnMap" onclick="toggleZoning()">Zoning</button>
+        <button class="btn sm toggle active" id="bldBtn" onclick="toggleBuildings()">Buildings</button>
+      </div>
+      <div class="scope-note">93 parcels in scope. 24 surrounding parcels shown in grey as context, marked Not in scope.<span id="bldNote"></span></div>
+      <div class="scrollin" id="mapDetail" style="flex:1"></div>
+    </div>
+  </div>
+
+  <div class="view" data-view="dashboard"><div class="dash" id="dash"></div></div>
+  <div class="view" data-view="scenarios"><div class="editwrap" id="scnWrap"></div></div>
+  <div class="view" data-view="pillars"><div class="editwrap" id="pillarWrap"></div></div>
+</div>
+
+<div id="printReport"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const DATA={"inscope":[{"address":"6325","owner":"ABOU ALAYOUI, RIMA","use":"Commercial","existing_use":"Store-Retail","floor_area":3972,"year_built":1938,"sqft":5987,"frontage":60,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":76200,"rings":[[[42.417041,-83.141608],[42.417042,-83.141386],[42.416768,-83.141374],[42.416767,-83.141596],[42.417041,-83.141608]]]},{"address":"6337","owner":"ZAITOUNA, KHALID Y","use":"Commercial","existing_use":"Store-Retail","floor_area":1600,"year_built":1951,"sqft":2013,"frontage":20,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":37000,"rings":[[[42.417041,-83.141682],[42.417041,-83.141608],[42.416767,-83.141596],[42.416766,-83.14167],[42.417041,-83.141682]]]},{"address":"6343","owner":"SECK, FATOU COTY","use":"Commercial","existing_use":"Store-Retail","floor_area":1900,"year_built":1946,"sqft":1999,"frontage":20,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":37800,"rings":[[[42.417041,-83.141757],[42.417041,-83.141682],[42.416766,-83.14167],[42.416766,-83.141745],[42.417041,-83.141757]]]},{"address":"6345","owner":"SEARS, JONELL","use":"Commercial","existing_use":"Store-Retail","floor_area":1993,"year_built":1946,"sqft":2013,"frontage":20,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":26600,"rings":[[[42.41704,-83.141831],[42.417041,-83.141757],[42.416766,-83.141745],[42.416765,-83.141819],[42.41704,-83.141831]]]},{"address":"7000","owner":"REGIONAL TELECOM CO (anonymized)","use":"Commercial","existing_use":"Office Bldg - 3 Stories Or Less","floor_area":72564,"year_built":1900,"sqft":37440,"frontage":240,"side":"N","notes":"Office Building; regional telecom building","zoning":"B2","assessed":0,"rings":[[[42.41766,-83.142934],[42.417658,-83.142046],[42.417231,-83.142028],[42.417232,-83.142918],[42.41766,-83.142934]]]},{"address":"7021","owner":"REGIONAL TELECOM CO (anonymized)","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":18000,"frontage":180,"side":"S","notes":"Parking Lot; AT&T Lot  -  KEY SITE; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417043,-83.142676],[42.417046,-83.14201],[42.416772,-83.142],[42.416769,-83.142667],[42.417043,-83.142676]]]},{"address":"7037","owner":"REGIONAL TELECOM CO (anonymized)","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":6000,"frontage":60,"side":"S","notes":"Parking Lot; AT&T Parking; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417042,-83.142898],[42.417043,-83.142676],[42.416769,-83.142667],[42.416768,-83.142889],[42.417042,-83.142898]]]},{"address":"7100","owner":"DEDVUKAJ, GJELOSH","use":"Commercial","existing_use":"Service And Repair Station","floor_area":2125,"year_built":1935,"sqft":5978,"frontage":62,"side":"N","notes":"Service & Repair","zoning":"B2","assessed":75000,"rings":[[[42.41751,-83.143323],[42.417512,-83.143093],[42.417237,-83.143085],[42.417236,-83.143241],[42.417264,-83.14324],[42.417264,-83.143315],[42.41751,-83.143323]]]},{"address":"7101","owner":"WILLIAMS, DOREEN","use":"Commercial","existing_use":"Carwash","floor_area":2000,"year_built":1935,"sqft":1999,"frontage":20,"side":"S","notes":"Car Wash","zoning":"B2","assessed":51500,"rings":[[[42.417038,-83.143156],[42.417039,-83.143081],[42.416764,-83.143076],[42.416764,-83.143149],[42.417038,-83.143156]]]},{"address":"7105","owner":"CITY GOVERNMENT (of record)","use":"Commercial","existing_use":"Store-Retail","floor_area":5537,"year_built":1938,"sqft":3998,"frontage":40,"side":"S","notes":"Store-Retail; City-Owned; Anchor","zoning":"B2","assessed":0,"rings":[[[42.417038,-83.143304],[42.417038,-83.143156],[42.416764,-83.143149],[42.416764,-83.143298],[42.417038,-83.143304]]]},{"address":"7113","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":1999,"frontage":20,"side":"S","notes":"Vacant Commercial; City-Owned Vacant; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417037,-83.143378],[42.417038,-83.143304],[42.416764,-83.143298],[42.416763,-83.143372],[42.417037,-83.143378]]]},{"address":"7115","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":1995,"frontage":20,"side":"S","notes":"Parking Lot; City-Owned Parking; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417037,-83.143452],[42.417037,-83.143378],[42.416763,-83.143372],[42.416763,-83.143446],[42.417037,-83.143452]]]},{"address":"7117","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":2013,"frontage":20,"side":"S","notes":"Parking Lot; City-Owned Parking; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417037,-83.143526],[42.417037,-83.143452],[42.416763,-83.143446],[42.416763,-83.143519],[42.417037,-83.143526]]]},{"address":"7120","owner":"SOLOMAN-BURNS, TAMERA","use":"Commercial","existing_use":"Store-Retail","floor_area":4800,"year_built":1960,"sqft":9019,"frontage":100,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":88000,"rings":[[[42.417507,-83.143693],[42.41751,-83.143323],[42.417264,-83.143315],[42.41726,-83.143685],[42.417507,-83.143693]]]},{"address":"7121","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":1999,"frontage":20,"side":"S","notes":"Parking Lot; City-Owned Parking; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417037,-83.1436],[42.417037,-83.143526],[42.416763,-83.143519],[42.416762,-83.143594],[42.417037,-83.1436]]]},{"address":"7136","owner":"JACKSON, DOROTHY M","use":"Commercial","existing_use":"Barber, Beauty Shop","floor_area":1104,"year_built":1950,"sqft":3598,"frontage":40,"side":"N","notes":"Barber/Beauty","zoning":"B2","assessed":22300,"rings":[[[42.417506,-83.143842],[42.417507,-83.143693],[42.41726,-83.143685],[42.417259,-83.143833],[42.417506,-83.143842]]]},{"address":"7137","owner":"N'NAMDI HOLDINGS LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":1335,"year_built":1970,"sqft":10000,"frontage":100,"side":"S","notes":"Store-Retail; N'Namdi Gallery; Anchor","zoning":"B2","assessed":39200,"rings":[[[42.417034,-83.143971],[42.417037,-83.1436],[42.416762,-83.143594],[42.41676,-83.143964],[42.417034,-83.143971]]]},{"address":"7140","owner":"LOCAL ASSET GROUP LLC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":3413,"year_built":1949,"sqft":3649,"frontage":41,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":49600,"rings":[[[42.417505,-83.143992],[42.417506,-83.143842],[42.417259,-83.143833],[42.417258,-83.143983],[42.417505,-83.143992]]]},{"address":"7300","owner":"SEVENTY THREE ZERO EIGHT LLC","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":3610,"frontage":40,"side":"N","notes":"Vacant Commercial; Vacant","zoning":"B2","assessed":4500,"rings":[[[42.417504,-83.14433],[42.417505,-83.144181],[42.417258,-83.144172],[42.417257,-83.14432],[42.417504,-83.14433]]]},{"address":"7303","owner":"PARCEL 7303 HOLDINGS LLC (anonymized)","use":"Commercial","existing_use":"Spec Act Land Only","floor_area":null,"year_built":null,"sqft":24000,"frontage":50,"side":"S","notes":"Commercial Condo; N'Namdi Apartments; Anchor","zoning":"B2","assessed":23600,"rings":[[[42.417046,-83.144149],[42.417004,-83.144147],[42.416964,-83.144201],[42.416963,-83.144566],[42.417017,-83.144568],[42.417017,-83.144582],[42.416963,-83.14458],[42.416963,-83.144833],[42.416771,-83.144826],[42.416771,-83.144826],[42.416769,-83.144962],[42.417044,-83.144972],[42.417044,-83.144972],[42.417044,-83.144836],[42.417046,-83.144149]],[[42.416771,-83.144138],[42.41677,-83.144316],[42.416905,-83.144321],[42.416904,-83.144738],[42.417044,-83.144744],[42.417046,-83.144149],[42.416771,-83.144138]]]},{"address":"7308","owner":"SEVENTY THREE ZERO EIGHT LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":2863,"year_built":1950,"sqft":3590,"frontage":40,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":37300,"rings":[[[42.417503,-83.144477],[42.417504,-83.14433],[42.417257,-83.14432],[42.417256,-83.144468],[42.417503,-83.144477]]]},{"address":"7316","owner":"SEVENTY THREE SIXTEEN LLC","use":"Commercial","existing_use":"Spec Act Land Only","floor_area":null,"year_built":null,"sqft":3590,"frontage":40,"side":"N","notes":"Restaurant; local pizza bar (anchor tenant)","zoning":"B2","assessed":4500,"rings":[[[42.417503,-83.144626],[42.417503,-83.144477],[42.417256,-83.144468],[42.417256,-83.144616],[42.417503,-83.144626]]]},{"address":"7326","owner":"PARCEL 7326 HOLDINGS LLC (anonymized)","use":"Commercial","existing_use":"Spec Act Land Only","floor_area":null,"year_built":null,"sqft":10784,"frontage":120,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":11800,"rings":[[[42.4175,-83.14507],[42.417503,-83.144626],[42.417256,-83.144616],[42.417253,-83.145061],[42.4175,-83.14507]]]},{"address":"7400","owner":"SPERAIMUS PARTNERS LLC","use":"Commercial","existing_use":"Spec Act Land Only","floor_area":null,"year_built":null,"sqft":8454,"frontage":88,"side":"N","notes":"Store-Retail; Chase Cantrell Building; Anchor","zoning":"B2","assessed":9600,"rings":[[[42.417495,-83.145581],[42.417498,-83.145252],[42.417224,-83.145237],[42.417222,-83.145563],[42.417495,-83.145581]]]},{"address":"7401","owner":"DOTSON, TORIANO","use":"Commercial","existing_use":"Store-Retail","floor_area":1942,"year_built":1929,"sqft":2012,"frontage":20,"side":"S","notes":"Restaurant; T-Mo's","zoning":"B2","assessed":72000,"rings":[[[42.417039,-83.145306],[42.417039,-83.145231],[42.416764,-83.145217],[42.416764,-83.145292],[42.417039,-83.145306]]]},{"address":"7405","owner":"LOCAL LINEN SERVICE INC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":5750,"year_built":1946,"sqft":6009,"frontage":60,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":94600,"rings":[[[42.417039,-83.145529],[42.417039,-83.145306],[42.416764,-83.145292],[42.416765,-83.145515],[42.417039,-83.145529]]]},{"address":"7420","owner":"WATSON, JEVONA","use":"Commercial","existing_use":"Store-Retail","floor_area":2468,"year_built":1942,"sqft":2796,"frontage":31,"side":"N","notes":"Store-Retail; local coffeehouse; Anchor","zoning":"B2","assessed":55400,"rings":[[[42.417494,-83.145695],[42.417495,-83.145581],[42.417222,-83.145563],[42.417221,-83.145677],[42.417494,-83.145695]]]},{"address":"7421","owner":"LOCAL LINEN SERVICE INC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":2880,"year_built":1933,"sqft":4173,"frontage":42,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":47500,"rings":[[[42.41704,-83.145682],[42.417039,-83.145529],[42.416765,-83.145515],[42.416766,-83.145669],[42.41704,-83.145682]]]},{"address":"7426","owner":"LIVE6 ALLIANCE","use":"Commercial","existing_use":"Store-Retail","floor_area":3980,"year_built":1937,"sqft":3988,"frontage":40,"side":"N","notes":"Offices; Live6 Alliance HQ; Anchor","zoning":"B2","assessed":0,"rings":[[[42.417493,-83.145844],[42.417494,-83.145695],[42.417221,-83.145677],[42.417218,-83.145826],[42.417493,-83.145844]]]},{"address":"7429","owner":"WARE, RAYMOND N","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":7244,"frontage":70,"side":"S","notes":"Vacant Commercial; Live6-programmed lot; Vacant","zoning":"B2","assessed":8400,"rings":[[[42.417041,-83.145942],[42.41704,-83.145682],[42.416766,-83.145669],[42.416757,-83.14567],[42.416757,-83.145929],[42.417041,-83.145942]]]},{"address":"7434","owner":"CORRIDOR RE HOLDINGS LLC (anonymized)","use":"Commercial","existing_use":"Spec Act Land Only","floor_area":null,"year_built":null,"sqft":4000,"frontage":40,"side":"N","notes":"Store-Retail; Live6 Shops on Six; Anchor","zoning":"B2","assessed":5000,"rings":[[[42.417492,-83.145993],[42.417493,-83.145844],[42.417218,-83.145826],[42.417217,-83.145975],[42.417492,-83.145993]]]},{"address":"7442","owner":"SCP COMMUNITY DEVELOPMENT LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":3889,"year_built":1962,"sqft":4392,"frontage":44,"side":"N","notes":"Convenience Market","zoning":"B2","assessed":69300,"rings":[[[42.41749,-83.146155],[42.417492,-83.145993],[42.417217,-83.145975],[42.417216,-83.146137],[42.41749,-83.146155]]]},{"address":"7443","owner":"WARE, RAYMOND J","use":"Commercial","existing_use":"Store-Retail","floor_area":3729,"year_built":1940,"sqft":3835,"frontage":37,"side":"S","notes":"Store-Retail; Metro Barber College","zoning":"B2","assessed":71800,"rings":[[[42.417041,-83.146079],[42.417041,-83.145942],[42.416757,-83.145929],[42.416756,-83.146065],[42.417041,-83.146079]]]},{"address":"7455","owner":"WARE, RAYMOND J","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":6993,"frontage":67,"side":"S","notes":"Parking Lot; Vacant","zoning":"B2","assessed":13500,"rings":[[[42.417039,-83.146487],[42.41704,-83.146239],[42.416754,-83.146228],[42.416751,-83.146477],[42.417039,-83.146487]]]},{"address":"7500","owner":"MARRA, JOSEPH","use":"Commercial","existing_use":"Store-Retail","floor_area":21805,"year_built":1934,"sqft":22502,"frontage":225,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":261700,"rings":[[[42.417218,-83.146395],[42.417215,-83.14723],[42.417218,-83.147229],[42.417487,-83.147243],[42.417489,-83.147243],[42.417492,-83.146407],[42.417218,-83.146395]]]},{"address":"7525","owner":"FIRST MERCHANTS BANK","use":"Commercial","existing_use":"Bank Branch","floor_area":3024,"year_built":2025,"sqft":2000,"frontage":25,"side":"S","notes":"Bank; First Merchants Bank","zoning":"B2","assessed":198500,"rings":[[[42.417039,-83.146487],[42.416751,-83.146477],[42.416747,-83.147021],[42.417037,-83.147031],[42.417039,-83.146487]]]},{"address":"7546","owner":"PLAN O, LLC.","use":"Commercial","existing_use":"Dry Cleaner","floor_area":2110,"year_built":1934,"sqft":2278,"frontage":23,"side":"N","notes":"Dry Cleaner","zoning":"B2","assessed":58200,"rings":[[[42.417215,-83.14723],[42.417215,-83.147313],[42.417489,-83.147326],[42.417489,-83.147243],[42.417487,-83.147243],[42.417218,-83.147229],[42.417215,-83.14723]]]},{"address":"7565","owner":"CITY OF HOPE","use":"Governmental","existing_use":"Religious Structure/Use","floor_area":4974,"year_built":1940,"sqft":9844,"frontage":92,"side":"S","notes":"Religious Structure; City of Hope Church","zoning":"B2","assessed":0,"rings":[[[42.417033,-83.147562],[42.417032,-83.147221],[42.41674,-83.14721],[42.41674,-83.14755],[42.417033,-83.147562]]]},{"address":"7573","owner":"CITY OF HOPE CHURCH","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":6420,"frontage":60,"side":"S","notes":"Vacant Commercial; Church-Owned Vacant; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417034,-83.147784],[42.417033,-83.147562],[42.41674,-83.14755],[42.41674,-83.147773],[42.417034,-83.147784]]]},{"address":"7591","owner":"DIMOVSKI, MIRKO","use":"Commercial","existing_use":"Service And Repair Station","floor_area":2329,"year_built":1935,"sqft":6665,"frontage":62,"side":"S","notes":"Service & Repair","zoning":"B2","assessed":35800,"rings":[[[42.417035,-83.148014],[42.417034,-83.147784],[42.41674,-83.147773],[42.41674,-83.148003],[42.417035,-83.148014]]]},{"address":"7624","owner":"DIMOVSKI, M & SVETOZAR","use":"Commercial","existing_use":"Store-Retail","floor_area":8042,"year_built":1977,"sqft":18378,"frontage":184,"side":"N","notes":"Store-Retail; McDougal Hardware","zoning":"B2","assessed":185900,"rings":[[[42.417213,-83.147672],[42.41721,-83.148353],[42.417213,-83.148355],[42.417481,-83.148368],[42.417484,-83.148368],[42.417487,-83.147686],[42.417213,-83.147672]]]},{"address":"7635","owner":"HIRAKIS, EMANUEL P.","use":"Commercial","existing_use":"Store-Retail","floor_area":4836,"year_built":1948,"sqft":6723,"frontage":62,"side":"S","notes":"Store-Retail","zoning":"B2","assessed":85000,"rings":[[[42.417037,-83.148429],[42.417038,-83.1482],[42.416742,-83.148191],[42.41674,-83.148419],[42.417037,-83.148429]]]},{"address":"7642","owner":"BDEIR, HASSAN","use":"Commercial","existing_use":"Service And Repair Station","floor_area":1881,"year_built":1939,"sqft":6392,"frontage":64,"side":"N","notes":"Service & Repair","zoning":"B2","assessed":33500,"rings":[[[42.41721,-83.148353],[42.417209,-83.148591],[42.417483,-83.148605],[42.417484,-83.148368],[42.417481,-83.148368],[42.417213,-83.148355],[42.41721,-83.148353]]]},{"address":"7645","owner":"HIRAKIS, EMANUEL P.","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":1260,"year_built":1929,"sqft":9783,"frontage":90,"side":"S","notes":"Parking Lot; Vacant","zoning":"B2","assessed":51800,"rings":[[[42.417036,-83.148762],[42.417037,-83.148429],[42.41674,-83.148419],[42.416738,-83.148754],[42.417036,-83.148762]]]},{"address":"7663","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":6795,"frontage":62,"side":"S","notes":"Vacant Commercial; City-Owned Vacant; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417036,-83.148992],[42.417036,-83.148762],[42.416738,-83.148754],[42.416736,-83.148982],[42.417036,-83.148992]]]},{"address":"7700","owner":"PARCEL 7700 HOLDINGS LLC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":3115,"year_built":1966,"sqft":6402,"frontage":64,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":67900,"rings":[[[42.417209,-83.149162],[42.417484,-83.149175],[42.417485,-83.148938],[42.41721,-83.148925],[42.417209,-83.149162]]]},{"address":"7701","owner":"DIMOVSKI, SVETOZAR & LJUBISA","use":"Vacant","existing_use":"","floor_area":null,"year_built":null,"sqft":23651,"frontage":214,"side":"S","notes":"Vacant Commercial; Large Vacant  -  KEY SITE; Vacant","zoning":"B2","assessed":23400,"rings":[[[42.417032,-83.14918],[42.416731,-83.149169],[42.416724,-83.149961],[42.417029,-83.149973],[42.417032,-83.14918]]]},{"address":"7714","owner":"YOUNG, PARIS","use":"Commercial","existing_use":"Store-Retail","floor_area":1000,"year_built":1936,"sqft":2002,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":24300,"rings":[[[42.417209,-83.149236],[42.417483,-83.149249],[42.417484,-83.149175],[42.417209,-83.149162],[42.417209,-83.149236]]]},{"address":"7718","owner":"THOMAS, JOHNNY & YVETT","use":"Commercial","existing_use":"Store-Retail","floor_area":2821,"year_built":1941,"sqft":3998,"frontage":40,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":39200,"rings":[[[42.417208,-83.149384],[42.417483,-83.149397],[42.417483,-83.149249],[42.417209,-83.149236],[42.417208,-83.149384]]]},{"address":"7726","owner":"THOMAS, JOHNEY & EVETTE","use":"Commercial","existing_use":"Store-Retail","floor_area":3240,"year_built":1948,"sqft":4004,"frontage":40,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":50700,"rings":[[[42.417208,-83.149532],[42.417482,-83.149546],[42.417483,-83.149397],[42.417208,-83.149384],[42.417208,-83.149532]]]},{"address":"7734","owner":"MAIDEN HOUSE MINISTRY","use":"Commercial","existing_use":"Store-Retail","floor_area":8319,"year_built":1946,"sqft":8386,"frontage":84,"side":"N","notes":"Store-Retail; Maiden House Ministry","zoning":"B2","assessed":156400,"rings":[[[42.417481,-83.149857],[42.417482,-83.149546],[42.417208,-83.149532],[42.417206,-83.149843],[42.417481,-83.149857]]]},{"address":"8011","owner":"LOCAL DOLLAR STORE LLC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":14070,"year_built":1948,"sqft":28248,"frontage":211,"side":"S","notes":"Store-Retail; Family Dollar","zoning":"B2","assessed":218500,"rings":[[[42.417028,-83.151021],[42.417033,-83.150157],[42.416726,-83.150147],[42.416725,-83.150502],[42.416757,-83.150503],[42.416755,-83.151013],[42.417028,-83.151021]]]},{"address":"8016","owner":"DIMOVSKI, SVETOZAR & LJUBISA","use":"Commercial","existing_use":"","floor_area":11520,"year_built":2021,"sqft":25656,"frontage":257,"side":"N","notes":"","zoning":"B2","assessed":288500,"rings":[[[42.41748,-83.150107],[42.417205,-83.150097],[42.417188,-83.151045],[42.417462,-83.151058],[42.41748,-83.150107]]]},{"address":"8110","owner":"DIMOVSKI, MIRKO & RADICA","use":"Commercial","existing_use":"Store-Retail","floor_area":35538,"year_built":1939,"sqft":27754,"frontage":278,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":257700,"rings":[[[42.417451,-83.152277],[42.41747,-83.151248],[42.417197,-83.15123],[42.417177,-83.152259],[42.417451,-83.152277]]]},{"address":"8200","owner":"LOU'S - SIX MILE LLC","use":"Commercial","existing_use":"Restaurant","floor_area":6080,"year_built":1946,"sqft":14007,"frontage":140,"side":"N","notes":"Restaurant; Lou's Deli; Anchor","zoning":"B2","assessed":212400,"rings":[[[42.41743,-83.152993],[42.417431,-83.152918],[42.417432,-83.152844],[42.417435,-83.152696],[42.417436,-83.152621],[42.417437,-83.152548],[42.417438,-83.152474],[42.417164,-83.152461],[42.417163,-83.152535],[42.417162,-83.15261],[42.417161,-83.152683],[42.417158,-83.152831],[42.417157,-83.152906],[42.417156,-83.15298],[42.41716,-83.152979],[42.417425,-83.152992],[42.41743,-83.152993]]]},{"address":"8228","owner":"CITY GOVERNMENT (of record)","use":"Commercial","existing_use":"Store-Retail","floor_area":3616,"year_built":1937,"sqft":3994,"frontage":40,"side":"N","notes":"Store-Retail; City-Owned; Anchor","zoning":"B2","assessed":0,"rings":[[[42.417428,-83.15314],[42.41743,-83.152993],[42.417425,-83.152992],[42.41716,-83.152979],[42.417156,-83.15298],[42.417153,-83.153127],[42.417158,-83.153128],[42.417423,-83.15314],[42.417428,-83.15314]]]},{"address":"8238","owner":"MDR & ASSOC LLC","use":"Governmental","existing_use":"","floor_area":1196,"year_built":1947,"sqft":2000,"frontage":20,"side":"N","notes":"Day Care Center; Day Care Center; Anchor","zoning":"B2","assessed":32500,"rings":[[[42.417427,-83.153214],[42.417428,-83.15314],[42.417423,-83.15314],[42.417158,-83.153128],[42.417153,-83.153127],[42.417152,-83.153202],[42.417157,-83.153202],[42.417422,-83.153214],[42.417427,-83.153214]]]},{"address":"8250","owner":"CITY GOVERNMENT (of record)","use":"Vacant","existing_use":"","floor_area":null,"year_built":null,"sqft":8000,"frontage":80,"side":"N","notes":"Vacant Commercial; City-Owned Vacant; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417422,-83.15351],[42.417427,-83.153214],[42.417422,-83.153214],[42.417157,-83.153202],[42.417152,-83.153202],[42.417147,-83.153497],[42.417422,-83.15351]]]},{"address":"8400","owner":"FEAGIN, RUTHA M","use":"Commercial","existing_use":"Barber, Beauty Shop","floor_area":1433,"year_built":1954,"sqft":2115,"frontage":21,"side":"N","notes":"Barber/Beauty","zoning":"B2","assessed":23600,"rings":[[[42.417416,-83.153754],[42.417417,-83.153677],[42.417143,-83.153664],[42.417142,-83.153742],[42.417146,-83.153742],[42.417412,-83.153754],[42.417416,-83.153754]]]},{"address":"8406","owner":"LINDENMUTHS REAL ESTATE","use":"Commercial","existing_use":"Store-Retail","floor_area":1194,"year_built":1954,"sqft":2000,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":21900,"rings":[[[42.417415,-83.153829],[42.417416,-83.153754],[42.417412,-83.153754],[42.417146,-83.153742],[42.417142,-83.153742],[42.417141,-83.153816],[42.417145,-83.153817],[42.41741,-83.153828],[42.417415,-83.153829]]]},{"address":"8410","owner":"LOCAL ASSET GROUP LLC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":800,"year_built":1925,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":20100,"rings":[[[42.417414,-83.153903],[42.417415,-83.153829],[42.41741,-83.153828],[42.417145,-83.153817],[42.417141,-83.153816],[42.41714,-83.153891],[42.417144,-83.153891],[42.417409,-83.153903],[42.417414,-83.153903]]]},{"address":"8414","owner":"BANANA NANA LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":960,"year_built":1930,"sqft":2003,"frontage":20,"side":"N","notes":"Store-Retail; New Owner","zoning":"B2","assessed":18600,"rings":[[[42.417413,-83.153977],[42.417414,-83.153903],[42.417409,-83.153903],[42.417144,-83.153891],[42.41714,-83.153891],[42.417139,-83.153965],[42.417143,-83.153965],[42.417408,-83.153977],[42.417413,-83.153977]]]},{"address":"8418","owner":"BANANA NANA LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":1400,"year_built":1955,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":32800,"rings":[[[42.417412,-83.154051],[42.417413,-83.153977],[42.417408,-83.153977],[42.417143,-83.153965],[42.417139,-83.153965],[42.417138,-83.154039],[42.417142,-83.154039],[42.417408,-83.154051],[42.417412,-83.154051]]]},{"address":"8420","owner":"MIMS JR, SOLOMON","use":"Commercial","existing_use":"Store-Retail","floor_area":1190,"year_built":1946,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail; The Raw Space","zoning":"B2","assessed":28300,"rings":[[[42.417412,-83.154126],[42.417412,-83.154051],[42.417408,-83.154051],[42.417142,-83.154039],[42.417138,-83.154039],[42.417137,-83.154112],[42.417141,-83.154114],[42.417407,-83.154124],[42.417412,-83.154126]]]},{"address":"8424","owner":"MIMS JR, SOLOMON","use":"Commercial","existing_use":"Store-Retail","floor_area":1300,"year_built":1938,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":30500,"rings":[[[42.417411,-83.154199],[42.417412,-83.154126],[42.417407,-83.154124],[42.417141,-83.154114],[42.417137,-83.154112],[42.417136,-83.154187],[42.41714,-83.154187],[42.417406,-83.154199],[42.417411,-83.154199]]]},{"address":"8430","owner":"TAXPAYER","use":"Commercial","existing_use":"Store-Retail","floor_area":1300,"year_built":1946,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":30400,"rings":[[[42.41741,-83.154273],[42.417411,-83.154199],[42.417406,-83.154199],[42.41714,-83.154187],[42.417136,-83.154187],[42.417135,-83.154261],[42.417139,-83.154261],[42.417405,-83.154273],[42.41741,-83.154273]]]},{"address":"8432","owner":"BRYANT, IVORY","use":"Vacant","existing_use":"","floor_area":null,"year_built":null,"sqft":2000,"frontage":20,"side":"N","notes":"Vacant Commercial; Vacant","zoning":"B2","assessed":0,"rings":[[[42.417409,-83.154347],[42.41741,-83.154273],[42.417405,-83.154273],[42.417139,-83.154261],[42.417135,-83.154261],[42.417134,-83.154335],[42.417138,-83.154335],[42.417404,-83.154347],[42.417409,-83.154347]]]},{"address":"8436","owner":"MCNEAR, DAVID LEE","use":"Commercial","existing_use":"Store-Retail","floor_area":1300,"year_built":1946,"sqft":2004,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":31000,"rings":[[[42.417408,-83.154422],[42.417409,-83.154347],[42.417404,-83.154347],[42.417138,-83.154335],[42.417134,-83.154335],[42.417133,-83.154409],[42.417137,-83.15441],[42.417403,-83.154421],[42.417408,-83.154422]]]},{"address":"8440","owner":"HIGHGATE, BURENE","use":"Commercial","existing_use":"Bar","floor_area":1300,"year_built":1946,"sqft":2004,"frontage":20,"side":"N","notes":"Bar","zoning":"B2","assessed":2700,"rings":[[[42.417407,-83.154496],[42.417408,-83.154422],[42.417403,-83.154421],[42.417137,-83.15441],[42.417133,-83.154409],[42.417132,-83.154484],[42.417136,-83.154484],[42.417402,-83.154496],[42.417407,-83.154496]]]},{"address":"8448","owner":"ASC HOLDINGS & ASSETS LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":3091,"year_built":1954,"sqft":4869,"frontage":48,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":60900,"rings":[[[42.417404,-83.154675],[42.417407,-83.154496],[42.417402,-83.154496],[42.417136,-83.154484],[42.417132,-83.154484],[42.417129,-83.154662],[42.417404,-83.154675]]]},{"address":"8500","owner":"LYDELL INVESTMENTS LLC","use":"Commercial","existing_use":"Store-Retail","floor_area":2802,"year_built":1937,"sqft":2833,"frontage":28,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":61400,"rings":[[[42.417395,-83.155067],[42.417396,-83.154962],[42.417122,-83.154949],[42.41712,-83.155055],[42.417125,-83.155055],[42.41739,-83.155067],[42.417395,-83.155067]]]},{"address":"8506","owner":"LOCAL ASSET GROUP LLC (anonymized)","use":"Commercial","existing_use":"Store-Retail","floor_area":660,"year_built":1945,"sqft":1997,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":17100,"rings":[[[42.417394,-83.15514],[42.417395,-83.155067],[42.41739,-83.155067],[42.417125,-83.155055],[42.41712,-83.155055],[42.417119,-83.155128],[42.417124,-83.155128],[42.417389,-83.15514],[42.417394,-83.15514]]]},{"address":"8514","owner":"LESTER, EUGENE","use":"Commercial","existing_use":"Office Bldg - 3 Stories Or Less","floor_area":3200,"year_built":1953,"sqft":4000,"frontage":40,"side":"N","notes":"Office Building","zoning":"B2","assessed":81500,"rings":[[[42.417391,-83.155289],[42.417394,-83.15514],[42.417389,-83.15514],[42.417124,-83.155128],[42.417119,-83.155128],[42.417116,-83.155276],[42.417121,-83.155277],[42.417387,-83.155288],[42.417391,-83.155289]]]},{"address":"8530","owner":"INTEGRITY FIRST PROPERTIES","use":"Commercial","existing_use":"","floor_area":5717,"year_built":1952,"sqft":10913,"frontage":109,"side":"N","notes":"Garage/Upholstery; Upholstery Store","zoning":"B2","assessed":72900,"rings":[[[42.417385,-83.155692],[42.417391,-83.155289],[42.417387,-83.155288],[42.417121,-83.155277],[42.417116,-83.155276],[42.41711,-83.15568],[42.417114,-83.15568],[42.41738,-83.155692],[42.417385,-83.155692]]]},{"address":"8540","owner":"D AND D PREMIUM HAND CAR WASH","use":"Commercial","existing_use":"","floor_area":1680,"year_built":1946,"sqft":2411,"frontage":24,"side":"N","notes":"Car Wash","zoning":"B2","assessed":30100,"rings":[[[42.417383,-83.155781],[42.417385,-83.155692],[42.41738,-83.155692],[42.417114,-83.15568],[42.41711,-83.15568],[42.417108,-83.155769],[42.417112,-83.155769],[42.417378,-83.155781],[42.417383,-83.155781]]]},{"address":"8544","owner":"CRAFT ONE ENTERPRISE INC","use":"Commercial","existing_use":"Health Professional Office","floor_area":1771,"year_built":1938,"sqft":2518,"frontage":25,"side":"N","notes":"Health Office","zoning":"B2","assessed":57000,"rings":[[[42.417382,-83.155874],[42.417383,-83.155781],[42.417378,-83.155781],[42.417112,-83.155769],[42.417108,-83.155769],[42.417106,-83.155861],[42.417382,-83.155874]]]},{"address":"8600","owner":"IVORY, CHRISTOPHER","use":"Governmental","existing_use":"","floor_area":3300,"year_built":1953,"sqft":8358,"frontage":83,"side":"N","notes":"Day Care Center; Day Care Center; Anchor","zoning":"B2","assessed":107700,"rings":[[[42.417372,-83.156355],[42.417377,-83.156048],[42.417102,-83.15604],[42.417096,-83.156346],[42.4171,-83.156347],[42.417367,-83.156355],[42.417372,-83.156355]]]},{"address":"8620","owner":"LINDENMUTHS REAL ESTATE","use":"Commercial","existing_use":"Health Professional Office","floor_area":1903,"year_built":1947,"sqft":2000,"frontage":20,"side":"N","notes":"Health Office","zoning":"B2","assessed":45700,"rings":[[[42.417371,-83.15643],[42.417372,-83.156355],[42.417367,-83.156355],[42.4171,-83.156347],[42.417096,-83.156346],[42.417094,-83.156421],[42.417098,-83.156421],[42.417366,-83.156429],[42.417371,-83.15643]]]},{"address":"8626","owner":"MCGEE-FLOURNOY, APRIL","use":"Commercial","existing_use":"Store-Retail","floor_area":3600,"year_built":1951,"sqft":4029,"frontage":40,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":42600,"rings":[[[42.417369,-83.156578],[42.417371,-83.15643],[42.417366,-83.156429],[42.417098,-83.156421],[42.417094,-83.156421],[42.417091,-83.156568],[42.417095,-83.156568],[42.417364,-83.156578],[42.417369,-83.156578]]]},{"address":"8632","owner":"JONES, KIMBERLY S.","use":"Commercial","existing_use":"Store-Retail","floor_area":1498,"year_built":1946,"sqft":2022,"frontage":20,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":27600,"rings":[[[42.417368,-83.156652],[42.417369,-83.156578],[42.417364,-83.156578],[42.417095,-83.156568],[42.417091,-83.156568],[42.41709,-83.156642],[42.417094,-83.156643],[42.417363,-83.156652],[42.417368,-83.156652]]]},{"address":"8634","owner":"COOK, FELICIA","use":"Commercial","existing_use":"Bar","floor_area":1400,"year_built":1955,"sqft":2026,"frontage":20,"side":"N","notes":"Bar","zoning":"B2","assessed":37800,"rings":[[[42.417366,-83.156727],[42.417368,-83.156652],[42.417363,-83.156652],[42.417094,-83.156643],[42.41709,-83.156642],[42.417088,-83.156717],[42.417093,-83.156717],[42.417361,-83.156725],[42.417366,-83.156727]]]},{"address":"8636","owner":"JONES, KIMBERLY","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":4051,"frontage":40,"side":"N","notes":"Parking Lot; Vacant","zoning":"B2","assessed":6200,"rings":[[[42.417364,-83.156874],[42.417366,-83.156727],[42.417361,-83.156725],[42.417093,-83.156717],[42.417088,-83.156717],[42.417085,-83.156865],[42.41709,-83.156865],[42.417359,-83.156874],[42.417364,-83.156874]]]},{"address":"8646","owner":"INVESTMENT PROPERTY REHAB LLC","use":"Commercial","existing_use":"Office Bldg - 3 Stories Or Less","floor_area":713,"year_built":1935,"sqft":2344,"frontage":23,"side":"N","notes":"Office Building","zoning":"B2","assessed":23100,"rings":[[[42.417363,-83.156959],[42.417364,-83.156874],[42.417359,-83.156874],[42.41709,-83.156865],[42.417085,-83.156865],[42.417083,-83.15695],[42.417363,-83.156959]]]},{"address":"8714","owner":"TRUE LIGHT WORSHIP CENTER INC","use":"Governmental","existing_use":"","floor_area":8471,"year_built":1946,"sqft":20300,"frontage":203,"side":"N","notes":"Religious Structure; True Light Worship Center","zoning":"B2","assessed":0,"rings":[[[42.417345,-83.157906],[42.417357,-83.157155],[42.417082,-83.157141],[42.417064,-83.157893],[42.417345,-83.157906]]]},{"address":"8744","owner":"MANNING MECHANICAL PLLC","use":"Commercial","existing_use":"Store-Retail","floor_area":3372,"year_built":1949,"sqft":4393,"frontage":43,"side":"N","notes":"Store-Retail","zoning":"B2","assessed":64100,"rings":[[[42.417342,-83.158064],[42.417345,-83.157906],[42.417064,-83.157893],[42.41706,-83.158052],[42.417342,-83.158064]]]},{"address":"8800","owner":"MANNING MECHANICAL PLLC","use":"Commercial","existing_use":"Office Bldg - 3 Stories Or Less","floor_area":1665,"year_built":1956,"sqft":2294,"frontage":23,"side":"N","notes":"Office Building","zoning":"B2","assessed":37500,"rings":[[[42.417324,-83.158328],[42.417326,-83.158243],[42.417051,-83.158231],[42.41705,-83.158316],[42.417054,-83.158316],[42.417319,-83.158328],[42.417324,-83.158328]]]},{"address":"8806","owner":"MANNING MECHNICAL PLLC","use":"Commercial","existing_use":"Office Bldg - 3 Stories Or Less","floor_area":1400,"year_built":1936,"sqft":2000,"frontage":20,"side":"N","notes":"Office Building","zoning":"B2","assessed":32400,"rings":[[[42.417323,-83.158403],[42.417324,-83.158328],[42.417319,-83.158328],[42.417054,-83.158316],[42.41705,-83.158316],[42.417048,-83.158389],[42.417052,-83.158389],[42.417318,-83.158401],[42.417323,-83.158403]]]},{"address":"8822","owner":"MANNING, CARLIN","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":2004,"frontage":20,"side":"N","notes":"Vacant Commercial; Vacant","zoning":"B2","assessed":2700,"rings":[[[42.417322,-83.158476],[42.417323,-83.158403],[42.417318,-83.158401],[42.417052,-83.158389],[42.417048,-83.158389],[42.417047,-83.158463],[42.417051,-83.158464],[42.417317,-83.158476],[42.417322,-83.158476]]]},{"address":"8826","owner":"MANNING, CARLIN","use":"Vacant","existing_use":"","floor_area":null,"year_built":null,"sqft":2000,"frontage":20,"side":"N","notes":"Vacant Commercial; Vacant","zoning":"B2","assessed":2700,"rings":[[[42.41732,-83.15855],[42.417322,-83.158476],[42.417317,-83.158476],[42.417051,-83.158464],[42.417047,-83.158463],[42.417045,-83.158538],[42.417049,-83.158538],[42.417316,-83.15855],[42.41732,-83.15855]]]},{"address":"8830","owner":"THE TELLIS COMPANY","use":"Vacant","existing_use":"Vacant Commercial","floor_area":null,"year_built":null,"sqft":16463,"frontage":163,"side":"N","notes":"Vacant Commercial; Tellis Vacant  -  KEY SITE; Vacant","zoning":"B2","assessed":17100,"rings":[[[42.41731,-83.159154],[42.41732,-83.15855],[42.417316,-83.15855],[42.417049,-83.158538],[42.417045,-83.158538],[42.417032,-83.159141],[42.41731,-83.159154]]]},{"address":"8900","owner":"MADENA MART INC","use":"Vacant","existing_use":"Parking Lot-Paved","floor_area":null,"year_built":null,"sqft":6193,"frontage":62,"side":"N","notes":"Parking Lot; Marathon Parking; Vacant","zoning":"B2","assessed":7300,"rings":[[[42.41731,-83.159568],[42.417314,-83.159338],[42.41704,-83.159324],[42.417036,-83.159553],[42.417041,-83.159553],[42.417306,-83.159567],[42.41731,-83.159568]]]},{"address":"8930","owner":"MADENA MART INC","use":"Commercial","existing_use":"Gas Station W/Conv Store-Resturant","floor_area":3393,"year_built":2003,"sqft":17018,"frontage":170,"side":"N","notes":"Gas Station; Marathon Gas & Subway","zoning":"B2","assessed":201200,"rings":[[[42.417301,-83.160197],[42.41731,-83.159568],[42.417306,-83.159567],[42.417041,-83.159553],[42.417036,-83.159553],[42.417026,-83.160183],[42.417301,-83.160197]]]},{"address":"10001","owner":"CVS PHARMACY INC","use":"Commercial","existing_use":"Drug Store","floor_area":10857,"year_built":2006,"sqft":48520,"frontage":250,"side":"N","notes":"Drug Store; CVS","zoning":"B2","assessed":313800,"rings":[[[42.416491,-83.161258],[42.416542,-83.161231],[42.416789,-83.161245],[42.416813,-83.160431],[42.416567,-83.160417],[42.416511,-83.160404],[42.416182,-83.160391],[42.416174,-83.160761],[42.416243,-83.160762],[42.41624,-83.160847],[42.416231,-83.161247],[42.416491,-83.161258]]]}],"context":[{"address":"10141","side":"S","frontage":40,"vacant":false,"existing_use":"Health Professional Office","kind":"grey","name":"","rings":[[[42.416755,-83.162325],[42.41676,-83.162176],[42.416513,-83.162162],[42.416509,-83.162311],[42.416755,-83.162325]]]},{"address":"10200","side":"N","frontage":80,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.417227,-83.16292],[42.417236,-83.162623],[42.417016,-83.162612],[42.417008,-83.162908],[42.417012,-83.162908],[42.417223,-83.16292],[42.417227,-83.16292]]]},{"address":"10040","side":"N","frontage":20,"vacant":false,"existing_use":"","kind":"grey","name":"","rings":[[[42.417264,-83.161256],[42.417266,-83.161183],[42.417262,-83.161183],[42.417051,-83.161176],[42.417047,-83.161175],[42.417045,-83.16125],[42.417264,-83.161256]]]},{"address":"10036","side":"N","frontage":20,"vacant":true,"existing_use":"","kind":"grey","name":"","rings":[[[42.417266,-83.161183],[42.417268,-83.161109],[42.417264,-83.161109],[42.417053,-83.161101],[42.417049,-83.161101],[42.417047,-83.161175],[42.417051,-83.161176],[42.417262,-83.161183],[42.417266,-83.161183]]]},{"address":"10000","side":"N","frontage":120,"vacant":false,"existing_use":"Restaurant","kind":"grey","name":"","rings":[[[42.417273,-83.160886],[42.417283,-83.160442],[42.417063,-83.160434],[42.417054,-83.160879],[42.417058,-83.160879],[42.417269,-83.160886],[42.417273,-83.160886]]]},{"address":"10205","side":"S","frontage":70,"vacant":false,"existing_use":"","kind":"grey","name":"","rings":[[[42.416743,-83.16292],[42.416751,-83.162662],[42.416505,-83.162648],[42.416496,-83.162906],[42.416743,-83.16292]]]},{"address":"10120","side":"N","frontage":20,"vacant":false,"existing_use":"Barber, Beauty Shop","kind":"grey","name":"","rings":[[[42.417257,-83.161975],[42.417259,-83.161901],[42.417254,-83.161901],[42.417044,-83.161893],[42.417039,-83.161893],[42.417037,-83.161967],[42.417257,-83.161975]]]},{"address":"10133","side":"S","frontage":20,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.41676,-83.162176],[42.416762,-83.162102],[42.416515,-83.162088],[42.416513,-83.162162],[42.41676,-83.162176]]]},{"address":"10138","side":"N","frontage":60,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.417246,-83.162345],[42.417253,-83.162124],[42.417033,-83.162116],[42.417028,-83.162337],[42.417246,-83.162345]]]},{"address":"10032","side":"N","frontage":20,"vacant":true,"existing_use":"","kind":"grey","name":"","rings":[[[42.417268,-83.161109],[42.417269,-83.161035],[42.417265,-83.161034],[42.417054,-83.161027],[42.41705,-83.161027],[42.417049,-83.161101],[42.417053,-83.161101],[42.417264,-83.161109],[42.417268,-83.161109]]]},{"address":"10127","side":"S","frontage":40,"vacant":false,"existing_use":"","kind":"grey","name":"","rings":[[[42.416762,-83.162102],[42.416767,-83.161955],[42.41652,-83.161941],[42.416515,-83.162088],[42.416762,-83.162102]]]},{"address":"10030","side":"N","frontage":20,"vacant":false,"existing_use":"Other Commercial Structure","kind":"grey","name":"","rings":[[[42.417269,-83.161035],[42.417271,-83.16096],[42.417267,-83.16096],[42.417056,-83.160953],[42.417052,-83.160953],[42.41705,-83.161027],[42.417054,-83.161027],[42.417265,-83.161034],[42.417269,-83.161035]]]},{"address":"10024","side":"N","frontage":20,"vacant":false,"existing_use":"Barber, Beauty Shop","kind":"grey","name":"","rings":[[[42.417271,-83.16096],[42.417273,-83.160886],[42.417269,-83.160886],[42.417058,-83.160879],[42.417054,-83.160879],[42.417052,-83.160953],[42.417056,-83.160953],[42.417267,-83.16096],[42.417271,-83.16096]]]},{"address":"10111","side":"S","frontage":80,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.416767,-83.161955],[42.416775,-83.161658],[42.416528,-83.161645],[42.41652,-83.161941],[42.416767,-83.161955]]]},{"address":"10118","side":"N","frontage":20,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.417259,-83.161901],[42.417261,-83.161827],[42.417256,-83.161828],[42.417046,-83.161819],[42.417041,-83.161819],[42.417039,-83.161893],[42.417044,-83.161893],[42.417254,-83.161901],[42.417259,-83.161901]]]},{"address":"10112","side":"N","frontage":20,"vacant":true,"existing_use":"Vacant Commercial","kind":"grey","name":"","rings":[[[42.417261,-83.161827],[42.417263,-83.161754],[42.417258,-83.161753],[42.417048,-83.161746],[42.417044,-83.161746],[42.417041,-83.161819],[42.417046,-83.161819],[42.417256,-83.161828],[42.417261,-83.161827]]]},{"address":"10108","side":"N","frontage":20,"vacant":true,"existing_use":"","kind":"grey","name":"","rings":[[[42.417263,-83.161754],[42.417266,-83.161679],[42.417261,-83.161679],[42.417051,-83.161672],[42.417046,-83.161672],[42.417044,-83.161746],[42.417048,-83.161746],[42.417258,-83.161753],[42.417263,-83.161754]]]},{"address":"10104","side":"N","frontage":20,"vacant":true,"existing_use":"Vacant Commercial","kind":"grey","name":"","rings":[[[42.417266,-83.161679],[42.417267,-83.161605],[42.417263,-83.161605],[42.417052,-83.161598],[42.417048,-83.161598],[42.417046,-83.161672],[42.417051,-83.161672],[42.417261,-83.161679],[42.417266,-83.161679]]]},{"address":"10100","side":"N","frontage":20,"vacant":false,"existing_use":"Barber, Beauty Shop","kind":"grey","name":"","rings":[[[42.417267,-83.161605],[42.417269,-83.161531],[42.41705,-83.161523],[42.417048,-83.161598],[42.417052,-83.161598],[42.417263,-83.161605],[42.417267,-83.161605]]]},{"address":"10201","side":"S","frontage":20,"vacant":false,"existing_use":"","kind":"grey","name":"","rings":[[[42.416751,-83.162662],[42.416753,-83.162588],[42.416506,-83.162574],[42.416505,-83.162648],[42.416751,-83.162662]]]},{"address":"10101","side":"S","frontage":40,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.416775,-83.161658],[42.416779,-83.161511],[42.416533,-83.161497],[42.416528,-83.161645],[42.416775,-83.161658]]]},{"address":"4110","side":"N","frontage":92,"vacant":false,"existing_use":"Office Bldg - 3 Stories Or Less","kind":"grey","name":"","rings":[[[42.417511,-83.140268],[42.417518,-83.139927],[42.417236,-83.139919],[42.417231,-83.14026],[42.417511,-83.140268]]]},{"address":"10124","side":"N","frontage":40,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.417257,-83.161975],[42.417037,-83.161967],[42.417035,-83.162041],[42.417255,-83.162049],[42.417257,-83.161975]]]},{"address":"10130","side":"N","frontage":20,"vacant":false,"existing_use":"Store-Retail","kind":"grey","name":"","rings":[[[42.417253,-83.162124],[42.417255,-83.162049],[42.417035,-83.162041],[42.417033,-83.162116],[42.417253,-83.162124]]]},{"address":"8425","side":"S","frontage":0,"vacant":false,"existing_use":"School (Institutional Campus and Early Education Center)","kind":"green","name":"Institutional Campus","rings":[[[42.415369,-83.15275],[42.41534,-83.153785],[42.413978,-83.153739],[42.413882,-83.159001],[42.414471,-83.159001],[42.414469,-83.160109],[42.41459,-83.16011],[42.414601,-83.158073],[42.41565,-83.158082],[42.415651,-83.157764],[42.415945,-83.157765],[42.415938,-83.160121],[42.416847,-83.160175],[42.416988,-83.152809],[42.415369,-83.15275]]]}],"bbox":[42.416055,-83.162849,42.417779,-83.139783]};
+const TOOL_VERSION="2.1";
+const STAMP="Parcel data: county assessor of record, 2026. Boundaries and values are reference data of record. Demonstration copy; client and location details anonymized. Tool v"+TOOL_VERSION+", Connecting Dots and Strategies.";
+const CORRIDOR="A Commercial Corridor", CITY="a legacy Midwest city";
+const AMI_VALUE=95900, AMI_METRO="Metro area of record (HUD FY2025 Median Family Income)";
+
+const LAND_USES={"Commercial":"#D64545","Vacant":"#9AA0A6","Governmental":"#5B8DC9","Single Family":"#F2D94E","Multifamily":"#F4A95C","Industrial":"#8E6FB0","Green Space":"#6FAE5C","Mixed Use":"#E8852A","Agricultural":"#C9B084"};
+const ZONING_COLORS={"B2":"#5C6B8A","B3":"#47AB4F","B4":"#00838A","P1":"#C9B084","R1":"#E0A33E","R2":"#E8852A","R3":"#D2693E","R5":"#A8743E","R6":"#8E6FB0","PR":"#6FAE5C","PD":"#999"};
+function zoneColor(z){return ZONING_COLORS[z]||"#7E8AA2";}
+
+const TIPS={
+ frontage:"The width of the parcel along the street, in feet. Drives how wide the block is drawn.",
+ longterm:"The lasting community outcomes expected once this use is built and stable.",
+ cpo:"Estimated development cost divided by the outcome produced. Funders compare projects on cost per outcome.",
+ investment:"Estimated development cost: parcel square footage times a planning cost per square foot set on each pillar.",
+ assessed:"City assessor value of record for this parcel. Reference data, read only.",
+ zoning:"The parcel zoning district of record from the city assessor. Reference data, read only.",
+ ami:"Area Median Income for the metro area of record, published yearly by HUD. Reference only. Shows income bands and the housing cost a household at each band can afford at 30 percent of income.",
+ existinguse:"The use of record for this parcel from the city assessor, more specific than the broad land use category. Reference data, read only.",
+ floorarea:"The building floor area and year built of record from the city assessor. A standing building points to a rehab or demolition conversation; no building of record points to new construction. The deeper engagement prices these paths separately.",
+ costedit:"Estimated development cost is building square footage times a planning cost per square foot. Edit it here for this parcel, or change the pillar default under Edit Pillars.",
+ value:"A planning estimate of value created after the investment and the new annual property tax it could return. Editable assumptions, not an appraisal or a tax determination."
+};
+
+let _pid=0,_parid=0,_sid=0;
+function p_id(){return "p"+(++_pid);} function par_id(){return "r"+(++_parid);} function s_id(){return "s"+(++_sid);}
+
+function defaultPillars(){return [
+ {id:p_id(),name:"Housing & Commercial Development",color:"#D95448",icon:"🏠",cost:250,
+  metrics:[{label:"Housing Units",factor:1200},{label:"Jobs",factor:2000},{label:"Annual Revenue",factor:4,money:true}],
+  y1:"Acquire and identify development scenarios for select commercial properties. Develop infill housing options on vacant residential parcels.",
+  y2:"Activate previously vacant commercial properties for retail or community use. Complete first infill housing developments.",
+  lt:"Increased supply of affordable housing at 30 to 50 percent AMI. Decreased housing cost burden for longtime residents. Full utilization of commercial storefronts."},
+ {id:p_id(),name:"Youth & Education",color:"#F1BA4B",icon:"🎓",cost:300,
+  metrics:[{label:"Children Served",factor:60},{label:"Educator Jobs",factor:600}],
+  y1:"Identify sites for early learning expansion. Assess childcare center sustainability along the corridor.",
+  y2:"Open or expand early learning capacity. Launch youth third space programming.",
+  lt:"Stable cradle to career pipeline. Expanded early learning. Stronger postsecondary and HBCU access."},
+ {id:p_id(),name:"Sustainable Public Realm",color:"#47AB4F",icon:"🌳",cost:80,
+  metrics:[{label:"Park Area (sqft)",factor:1},{label:"Households Served",factor:500}],
+  y1:"Upgrade neighborhood parks. Develop an open space network strategy. Scope on street greenway completion.",
+  y2:"Complete park and greenway upgrades. Pilot green alleys.",
+  lt:"Improved health and quality of life. Retention of longtime residents and households with children."},
+ {id:p_id(),name:"Cultural & Arts Ecosystem",color:"#00BCC5",icon:"🎨",cost:220,
+  metrics:[{label:"Arts Jobs",factor:800},{label:"Studio/Gallery Units",factor:1000},{label:"Arts Revenue",factor:5,money:true}],
+  y1:"Identify cultural anchors. Build a coordinating mechanism for artists and arts organizations.",
+  y2:"Implement creative economy supports. Sustain arts anchor projects.",
+  lt:"A coherent cultural identity that centers the neighborhood history of Black artists. Increased retention and attraction of local artists."}
+];}
+
+function buildParcels(){
+  return DATA.inscope.map(d=>({id:par_id(),address:d.address,owner:d.owner,use:LAND_USES[d.use]?d.use:"Commercial",
+    existingUse:d.existing_use||"",floorArea:(d.floor_area==null?null:Number(d.floor_area)),yearBuilt:(d.year_built==null?null:Number(d.year_built)),sqft:Number(d.sqft)||0,frontage:Number(d.frontage)||40,side:d.side==="S"?"S":"N",
+    notes:d.notes||"",zoning:d.zoning||"",assessed:(d.assessed==null?null:Number(d.assessed)),rings:d.rings||[],pillar:null,costOverride:null}));
+}
+
+function buildContext(){
+  return (DATA.context||[]).map((d,i)=>({id:"c"+(i+1),address:d.address||"",side:d.side==="S"?"S":"N",frontage:Number(d.frontage)||0,vacant:!!d.vacant,kind:d.kind||"grey",name:d.name||"",existingUse:d.existing_use||"",rings:d.rings||[]}));
+}
+
+const state={parcels:[],context:[],pillars:[],scenarios:[],assume:{costFactor:1.0,valueFactor:1.0,taxRate:0.034},filter:"all",colorMode:"use",selected:null,view:"corridor"};
+const LS_KEY="cds_investmentmap_demo_v1";
+
+function persist(){try{
+  const a={},co={};state.parcels.forEach(p=>{if(p.pillar)a[p.id]=p.pillar;if(p.costOverride!=null)co[p.id]=p.costOverride;});
+  localStorage.setItem(LS_KEY,JSON.stringify({a,co,pillars:state.pillars,assume:state.assume,scenarios:state.scenarios}));
+}catch(e){}}
+function restore(){try{
+  const o=JSON.parse(localStorage.getItem(LS_KEY)||"null");if(!o)return;
+  if(o.pillars&&o.pillars.length){state.pillars=o.pillars;state.pillars.forEach(p=>{const n=parseInt((p.id||"").replace(/\D/g,""));if(n>_pid)_pid=n;});}
+  if(o.assume)state.assume={...state.assume,...o.assume};
+  state.parcels.forEach(p=>{if(o.a&&o.a[p.id])p.pillar=o.a[p.id];if(o.co&&o.co[p.id]!=null)p.costOverride=o.co[p.id];});
+  state.scenarios=o.scenarios||[];
+  (state.scenarios||[]).forEach(s=>{const n=parseInt((s.id||"").replace(/\D/g,""));if(n>_sid)_sid=n;});
+}catch(e){}}
+
+function init(){
+  state.parcels=buildParcels();
+  state.context=buildContext();
+  state.pillars=defaultPillars();
+  document.querySelectorAll(".mapstamp").forEach(el=>el.textContent=STAMP);
+  restore();
+  renderAll();
+  buildReport();
+  if(!localStorage.getItem("cds_investmentmap_tour_done")){setTimeout(()=>startTour(0),500);}
+}
+function buildReport(){
+  const total=state.parcels.length;
+  const withGeom=state.parcels.filter(p=>p.rings&&p.rings.length).length;
+  const ctx=state.context.length;
+  console.log("%cThe Investment Map demonstration · build report","font-weight:bold");
+  console.log("In-scope parcels loaded: "+total+" (expected 93)");
+  console.log("In-scope parcels with polygon geometry: "+withGeom+" of "+total);
+  console.log("Context (not in scope) parcels loaded: "+ctx+" (expected 25, including the institutional campus)");
+  const missing=state.parcels.filter(p=>!p.rings||!p.rings.length).map(p=>p.address);
+  if(missing.length)console.warn("Parcels missing geometry (will not draw on map): "+missing.join(", "));
+  if(total!==93)console.warn("Expected 93 in-scope parcels, found "+total);
+  console.log("Map libraries load from CDN (need internet): Leaflet, Chart.js, html2canvas. Building footprints load live from municipal open data or OpenStreetMap when the map opens.");
+}
+
+function setView(v){
+  state.view=v;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===v));
+  document.querySelectorAll(".view").forEach(el=>el.classList.toggle("active",el.dataset.view===v));
+  if(v==="map"){ensureMap();renderMap();}
+  if(v==="dashboard")renderDashboard();
+  if(v==="scenarios")renderScenarios();
+  if(v==="pillars")renderPillarEditor();
+}
+function renderAll(){renderLegend();renderFilters();renderSchematic();renderTally();renderNarrative();renderDetail();persist();}
+
+function renderLegend(){
+  const hasGreen=state.context.some(c=>c.kind==="green");
+  const NIS_LI=` <span class="li"><i style="background:#b9b4a3;border:1px dashed #8a8676"></i>Not in scope (context)</span>`+(hasGreen?` <span class="li"><i style="background:#7fc184;border:1px solid #2f6e34"></i>Conservancy / institutional (not in scope)</span>`:"");
+  if(state.colorMode==="zoning"){
+    const zs=[...new Set(state.parcels.map(p=>p.zoning).filter(Boolean))].sort();
+    document.getElementById("legend").innerHTML="<span style='font-weight:700;color:var(--text)'>Zoning district (read only):</span> "+
+      zs.map(z=>`<span class="li"><i style="background:${zoneColor(z)}"></i>${z}</span>`).join("")+
+      `<span class="li muted">All in-scope parcels are zoned B2 (local business). Reference data.</span>`+NIS_LI;
+  }else{
+    const present=["Commercial","Vacant","Governmental"];
+    document.getElementById("legend").innerHTML="<span style='font-weight:700;color:var(--text)'>Land use:</span> "+
+      present.map(k=>`<span class="li"><i style="background:${LAND_USES[k]}"></i>${k}</span>`).join("")+NIS_LI;
+  }
+}
+function renderFilters(){
+  const opts=[["all","All"],["vacant","Vacant only"],["committed","Assigned only"]];
+  state.pillars.forEach(p=>opts.push(["pillar:"+p.id,p.name]));
+  let html=opts.map(([v,l])=>`<span class="filter-chip ${state.filter===v?'active':''}" onclick="setFilter('${v}')">${l}</span>`).join(" ");
+  html+=` <span class="filter-chip zoning ${state.colorMode==='zoning'?'active':''}" onclick="toggleZoning()" title="Color parcels by zoning district. Read only.">Zoning</span>`;
+  document.getElementById("filters").innerHTML=html;
+}
+function setFilter(v){state.filter=v;renderFilters();renderSchematic();}
+function toggleZoning(){
+  state.colorMode=state.colorMode==="zoning"?"use":"zoning";
+  document.querySelectorAll("#zoneBtnMap").forEach(b=>b.classList.toggle("active",state.colorMode==="zoning"));
+  renderLegend();renderFilters();renderSchematic();if(state.view==="map")renderMap();
+}
+function passFilter(p){if(state.filter==="all")return true;if(state.filter==="vacant")return p.use==="Vacant";if(state.filter==="committed")return !!p.pillar;if(state.filter.startsWith("pillar:"))return p.pillar===state.filter.split(":")[1];return true;}
+
+
+function parcelColor(p){
+  if(state.colorMode==="zoning")return zoneColor(p.zoning);
+  if(p.pillar){const pl=state.pillars.find(x=>x.id===p.pillar);if(pl)return pl.color;}
+  return LAND_USES[p.use]||"#888";
+}
+function widthFor(p){return Math.max(34,(Number(p.frontage)||40)*1.1);}
+function heightFor(p){const s=Number(p.sqft)||3000;return Math.max(46,Math.min(120,s/420));}
+function renderSchematic(){
+  const zmode=state.colorMode==="zoning";
+  const cell=p=>{
+    if(!passFilter(p))return `<div style="width:${widthFor(p)}px;opacity:.12"></div>`;
+    const sel=state.selected===p.id?"selected":"",vac=p.use==="Vacant"?"vacant":"";
+    const badge=p.pillar?`<span class="pill-badge" style="background:${(state.pillars.find(x=>x.id===p.pillar)||{}).color}"></span>`:"";
+    const center=zmode?`<span class="zlab">${p.zoning||""}</span>`:(p.pillar?`<span class="picon">${(state.pillars.find(x=>x.id===p.pillar)||{}).icon||""}</span>`:"");
+    return `<div class="parcel ${sel} ${vac}" style="width:${widthFor(p)}px;height:${heightFor(p)}px;background:${parcelColor(p)}" onclick="selectParcel('${p.id}')" title="Parcel ${p.address} · ${p.use}">${badge}${center}<div class="addr">${p.address}</div></div>`;
+  };
+  const ctxCell=c=>{
+    if(state.filter!=="all")return `<div style="width:${widthFor(c)}px;opacity:.12"></div>`;
+    const sel=state.selected===c.id?"selected":"";
+    if(c.kind==="green")return `<div class="parcel ctx green ${sel}" style="width:175px;height:74px" onclick="selectParcel('${c.id}')" title="${c.name} · Not in scope"><div class="addr" style="white-space:normal">${c.name}<br>not in scope</div></div>`;
+    return `<div class="parcel ctx ${sel}" style="width:${widthFor(c)}px;height:60px" onclick="selectParcel('${c.id}')" title="Parcel ${c.address} · Not in scope"><div class="addr">${c.address}</div></div>`;
+  };
+  const items=[...state.parcels.map(o=>({k:"p",o,num:Number(o.address)})),...state.context.map(o=>({k:"c",o,num:Number(o.address)}))].sort((a,b)=>a.num-b.num);
+  const render=it=>it.k==="p"?cell(it.o):ctxCell(it.o);
+  const north=items.filter(it=>it.o.side!=="S").map(render).join("");
+  const south=items.filter(it=>it.o.side==="S").map(render).join("");
+  document.getElementById("schematic").innerHTML=`<div class="corridor-title">${CORRIDOR} · ${CITY} · ${state.parcels.length} parcels in scope · ${state.context.length} shown for context</div>
+    <div class="side-row north">${north}</div>
+    <div class="road-band"><div class="road">THE CORRIDOR</div></div>
+    <div class="side-row south">${south}</div>`;
+}
+
+function impactFor(p,pl){const sqft=Number(p.sqft)||0;return pl.metrics.map(m=>{
+  let f=Number(m.factor)||0;
+  const value=m.money?sqft*f:(f>0?Math.floor(sqft/f):0);
+  return {label:m.label,money:m.money,value};
+});}
+function parcelCost(p,pl){const cps=(p&&p.costOverride!=null)?Number(p.costOverride):(Number(pl.cost)||0);return (Number(p.sqft)||0)*cps*(state.assume.costFactor||1);}
+function fmt(v,money){return money?"$"+Math.round(v).toLocaleString():Math.round(v).toLocaleString();}
+
+function committedParcels(){return state.parcels.filter(p=>p.pillar&&state.pillars.find(x=>x.id===p.pillar));}
+function aggregateOutcomes(list){const t={};list.forEach(p=>{const pl=state.pillars.find(x=>x.id===p.pillar);if(!pl)return;impactFor(p,pl).forEach(m=>{t[m.label]=t[m.label]||{v:0,money:m.money};t[m.label].v+=m.value;});});return t;}
+function totalInvestment(list){return list.reduce((a,p)=>{const pl=state.pillars.find(x=>x.id===p.pillar);return a+(pl?parcelCost(p,pl):0);},0);}
+function renderTally(){
+  const list=committedParcels(),t=aggregateOutcomes(list);
+  let cells=`<div class="tally-cell"><div class="n">${list.length}</div><div class="l">Parcels assigned</div></div>`;
+  cells+=`<div class="tally-cell"><div class="n">${fmt(totalInvestment(list),true)}</div><div class="l">Est. investment</div></div>`;
+  cells+=Object.entries(t).map(([l,o])=>`<div class="tally-cell"><div class="n">${fmt(o.v,o.money)}</div><div class="l">${l}</div></div>`).join("");
+  if(list.length===0)cells=`<div class="tally-cell"><div class="n">0</div><div class="l">Parcels assigned</div></div><div class="tally-cell" style="border:none"><div class="l" style="padding-top:6px">Assign parcels to pillars to build cumulative outcomes</div></div>`;
+  document.getElementById("tally").innerHTML=cells;
+}
+function renderNarrative(){
+  const list=committedParcels(),el=document.getElementById("narrative");
+  if(!list.length){el.innerHTML=`<span class="muted">Click any parcel, choose a pillar, and a live revitalization summary builds here.</span>`;return;}
+  const t=aggregateOutcomes(list);const parts=Object.entries(t).map(([l,o])=>`${fmt(o.v,o.money)} ${l.toLowerCase()}`);
+  el.innerHTML=`<b>${CORRIDOR} plan.</b> This plan proposes to transform ${list.length} parcel${list.length>1?"s":""} along the corridor at an estimated investment of ${fmt(totalInvestment(list),true)}. Projected outcomes: ${parts.join(", ")}.`;
+}
+
+function selectParcel(id){state.selected=id;renderSchematic();renderDetail();if(state.view==="map")renderMapDetail();}
+function findCtx(id){return state.context.find(x=>x.id===id);}
+function renderDetail(){const el=document.getElementById("detail");const p=state.parcels.find(x=>x.id===state.selected);if(p){el.innerHTML=detailHTML(p);return;}const c=findCtx(state.selected);el.innerHTML=c?ctxDetailHTML(c):`<div class="empty-hint">Select a parcel on the corridor to see its details, assign an investment pillar, adjust its cost, and view projected outcomes.</div>`;}
+function ctxDetailHTML(c){
+  const title=c.kind==="green"?c.name:("Parcel "+c.address);
+  return `<div class="ph">Parcel · not in scope</div>
+   <div class="kv"><b>${c.kind==="green"?"Site":"Address"}:</b> ${title}</div>
+   <div class="kv"><b>Status:</b> Not in scope <span class="ro-badge">context</span></div>
+   <div class="kv"><b>Existing use:</b> ${c.existingUse||(c.vacant?"Vacant":"Commercial, improved")}</div>
+   <div class="kv"><b>Side:</b> ${c.side==="S"?"South":"North"} side of the corridor</div>
+   <div class="empty-hint" style="margin-top:16px">This parcel is shown for geographic context so the corridor matches what is on the ground. It is outside the 93 parcel engagement scope, so it cannot be assigned to a pillar and is excluded from every tally, projection, and export.</div>`;
+}
+function tip(key){return `<span class="tip" data-tip="${TIPS[key]}">i</span>`;}
+function detailHTML(p){
+  const pl=p.pillar?state.pillars.find(x=>x.id===p.pillar):null;
+  const assessed=(p.assessed==null||Number(p.assessed)===0)?"Exempt / no value of record":fmt(p.assessed,true);
+  let html=`<div class="ph">Parcel</div>
+   <div class="kv"><b>Parcel:</b> ${p.address} <span class="ro-badge">address anonymized</span></div>
+   <div class="kv"><b>Owner:</b> Withheld in this demonstration <span class="ro-badge">anonymized</span></div>
+   <div class="kv"><b>Land use (category):</b> ${p.use}</div>
+   <div class="kv"><b>Existing use${tip("existinguse")}:</b> ${p.existingUse||"Not coded"} <span class="ro-badge">reference</span></div>
+   <div class="kv"><b>Building${tip("floorarea")}:</b> ${p.floorArea?Number(p.floorArea).toLocaleString()+" sqft"+(p.yearBuilt?" · built "+p.yearBuilt:""):"No building of record"} <span class="ro-badge">reference</span></div>
+   <div class="kv"><b>Land area:</b> ${Number(p.sqft).toLocaleString()} sqft</div>
+   <div class="kv"><b>Frontage${tip("frontage")}:</b> ${p.frontage} ft · ${p.side==="S"?"South":"North"} side</div>
+   <div class="kv"><b>Vacant:</b> ${p.use==="Vacant"?"Yes":"No"}</div>
+   <div class="kv"><b>Zoning${tip("zoning")}:</b> ${p.zoning||"Not available"} <span class="ro-badge">reference</span></div>
+   <div class="kv"><b>Assessed value${tip("assessed")}:</b> ${assessed} <span class="ro-badge">reference</span></div>
+   ${p.notes?`<div class="kv"><b>Notes:</b> ${p.notes}</div>`:""}
+   <div class="ph">Assign an investment pillar</div><div class="pillar-btns">`;
+  state.pillars.forEach(x=>html+=`<button class="pillar-btn ${p.pillar===x.id?'active':''}" onclick="assign('${p.id}','${x.id}')"><span class="dot" style="background:${x.color}"></span>${x.icon||""} ${x.name}</button>`);
+  if(p.pillar)html+=`<button class="btn sm" style="margin-top:6px" onclick="assign('${p.id}',null)">Clear assignment</button>`;
+  html+=`</div>`;
+  if(pl){
+    html+=`<div class="outcome-box"><div class="yr"><h4>Year 1 outputs</h4>${pl.y1}</div><div class="yr"><h4>Year 2 outputs</h4>${pl.y2}</div><div><h4>Long-term outcomes${tip("longterm")}</h4>${pl.lt}</div></div>`;
+    html+=`<div class="impact-grid">`+impactFor(p,pl).map(m=>`<div class="impact-cell"><div class="n">${fmt(m.value,m.money)}</div><div class="l">${m.label}</div></div>`).join("")
+        +`<div class="impact-cell"><div class="n">${fmt(parcelCost(p,pl),true)}</div><div class="l">Est. cost${tip("investment")}</div></div></div>`;
+    const cps=(p.costOverride!=null)?p.costOverride:pl.cost;
+    html+=`<div class="ph">Adjust development cost${tip("costedit")}</div>
+     <div class="kv" style="display:flex;align-items:center;gap:8px"><b>Cost per sqft:</b><input type="number" min="0" style="width:90px" value="${cps}" onchange="setCost('${p.id}',this.value)"><button class="btn sm" onclick="setCost('${p.id}','')">Reset</button></div>
+     <div class="muted" style="font-size:11px;margin-top:4px">Pillar default $${pl.cost}/sqft. Estimated cost = ${Number(p.sqft).toLocaleString()} sqft × cost per sqft. Planning assumption, editable.</div>`;
+  }
+  return html;
+}
+function assign(pid,plid){const p=state.parcels.find(x=>x.id===pid);p.pillar=(plid==="null"||plid===null)?null:plid;renderAll();if(state.view==="map"){renderMap();renderMapDetail();}}
+function setCost(pid,v){const p=state.parcels.find(x=>x.id===pid);p.costOverride=(v===""||v==null)?null:(Number(v)||0);renderAll();if(state.view==="map"){renderMap();renderMapDetail();}}
+function setAssume(k,v){state.assume[k]=Number(v)||0;persist();renderAll();if(state.view==="dashboard")renderDashboard();if(state.view==="pillars")renderPillarEditor();}
+
+let charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
+function renderDashboard(){
+  const list=committedParcels();
+  const el=document.getElementById("dash");
+  const vacTotal=state.parcels.filter(p=>p.use==="Vacant").length;
+  const vacAssigned=state.parcels.filter(p=>p.use==="Vacant"&&p.pillar).length;
+  const vacPct=vacTotal?Math.round(vacAssigned/vacTotal*100):0;
+  const t=aggregateOutcomes(list);
+  const valued=list.filter(p=>Number(p.assessed)>0);
+  const curAssessed=valued.reduce((a,p)=>a+Number(p.assessed),0);
+  const exemptInPlan=list.length-valued.length;
+  const exemptAll=state.parcels.filter(p=>!(Number(p.assessed)>0)).length;
+  const invest=totalInvestment(list);
+  const postValue=invest*state.assume.valueFactor;
+  const valueCreated=postValue-curAssessed;
+  const newTax=postValue*state.assume.taxRate;
+  el.innerHTML=`
+   <div class="sumgrid">
+     <div class="sumcard"><div class="n">${list.length}</div><div class="l">Parcels assigned</div></div>
+     <div class="sumcard"><div class="n">${fmt(totalInvestment(list),true)}</div><div class="l">Estimated investment</div></div>
+     <div class="sumcard"><div class="n">${fmt(valueCreated,true)}</div><div class="l">Est. value created</div></div>
+     <div class="sumcard"><div class="n">${fmt(newTax,true)}</div><div class="l">New annual property tax</div></div>
+     <div class="sumcard"><div class="n">${vacPct}%</div><div class="l">Vacant land addressed</div></div>
+   </div>
+   ${list.length===0?`<p class="muted">Assign parcels to pillars on the Corridor tab to populate the dashboard.</p>`:`
+   <div class="chartgrid">
+     <div class="chartcard"><h3>Estimated investment by pillar</h3><canvas id="cInv"></canvas></div>
+     <div class="chartcard"><h3>Parcels by pillar</h3><canvas id="cPar"></canvas></div>
+     <div class="chartcard"><h3>Key projected outcomes</h3><canvas id="cOut"></canvas></div>
+   </div>
+   <div class="chartcard" style="margin-top:16px"><h3>Cost per outcome${tip("cpo")}</h3><div id="cpoTable"></div></div>`}
+   <div class="chartcard" style="margin-top:16px"><h3>Property value and tax base impact${tip("value")}</h3>
+     <div class="assume">Planning assumptions, editable. Estimated value after investment = total development investment × value factor. Estimated new annual property tax = value after investment × effective tax rate. Planning estimates only, not an appraisal or a tax determination.</div>
+     <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+       <div class="field" style="margin:0"><label>Cost adjustment (sensitivity)</label><input type="number" step="0.05" value="${state.assume.costFactor}" onchange="setAssume('costFactor',this.value)" style="width:130px"></div>
+       <div class="field" style="margin:0"><label>Value factor (value / investment)</label><input type="number" step="0.05" value="${state.assume.valueFactor}" onchange="setAssume('valueFactor',this.value)" style="width:130px"></div>
+       <div class="field" style="margin:0"><label>Effective annual tax rate</label><input type="number" step="0.001" value="${state.assume.taxRate}" onchange="setAssume('taxRate',this.value)" style="width:130px"></div>
+     </div>
+     <table><tbody>
+       <tr><td>Current assessed value (assigned parcels)</td><td>${fmt(curAssessed,true)}</td></tr>
+       <tr><td>Estimated development investment</td><td>${fmt(invest,true)}</td></tr>
+       <tr><td>Estimated value after investment</td><td>${fmt(postValue,true)}</td></tr>
+       <tr><td><b>Estimated value created</b></td><td><b>${fmt(valueCreated,true)}</b></td></tr>
+       <tr><td>Estimated new annual property tax</td><td>${fmt(newTax,true)}</td></tr>
+       <tr><td colspan="2" class="muted" style="font-size:11px">${exemptAll} of ${state.parcels.length} parcels are tax exempt or carry no assessed value and are excluded from assessed-value totals (${exemptInPlan} in this plan).</td></tr>
+     </tbody></table>
+   </div>
+   <div class="chartcard" style="margin-top:16px"><h3>Area Median Income reference${tip("ami")}</h3>
+     <div class="muted" style="font-size:11.5px;margin-bottom:10px">${AMI_METRO}. Reference data, read only. Affordable cost is 30 percent of household income, the standard threshold. HUD adjusts by household size.</div>
+     <div id="amiTable"></div>
+   </div>`;
+  renderAmiTable();
+  if(!list.length)return;
+  if(typeof Chart==="undefined")return;
+  destroyCharts();
+  const invByP={},parByP={};
+  state.pillars.forEach(pl=>{invByP[pl.name]=0;parByP[pl.name]=0;});
+  list.forEach(p=>{const pl=state.pillars.find(x=>x.id===p.pillar);invByP[pl.name]+=parcelCost(p,pl);parByP[pl.name]+=1;});
+  const colors=state.pillars.map(p=>p.color),names=state.pillars.map(p=>p.name);
+  charts.inv=new Chart(document.getElementById("cInv"),{type:"bar",data:{labels:names,datasets:[{data:names.map(n=>invByP[n]),backgroundColor:colors}]},options:chartOpts("$")});
+  charts.par=new Chart(document.getElementById("cPar"),{type:"doughnut",data:{labels:names,datasets:[{data:names.map(n=>parByP[n]),backgroundColor:colors}]},options:{plugins:{legend:{labels:{color:"#101C28",font:{size:10}}}}}});
+  const oLabels=Object.keys(t).filter(l=>!t[l].money);
+  charts.out=new Chart(document.getElementById("cOut"),{type:"bar",data:{labels:oLabels,datasets:[{data:oLabels.map(l=>Math.round(t[l].v)),backgroundColor:"#00BCC5"}]},options:chartOpts()});
+  let rows="";
+  state.pillars.forEach(pl=>{
+    const pl_list=list.filter(p=>p.pillar===pl.id);if(!pl_list.length)return;
+    const cost=totalInvestment(pl_list);const agg=aggregateOutcomes(pl_list);
+    Object.entries(agg).forEach(([l,o])=>{if(o.money)return;const cpo=o.v>0?cost/o.v:0;rows+=`<tr><td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${pl.color};margin-right:6px"></span>${pl.name}</td><td>${l}</td><td>${fmt(o.v)}</td><td>${fmt(cpo,true)}</td></tr>`;});
+  });
+  document.getElementById("cpoTable").innerHTML=`<table><thead><tr><th>Pillar</th><th>Outcome</th><th>Total</th><th>Cost per outcome</th></tr></thead><tbody>${rows||'<tr><td colspan="4" class="muted">No countable outcomes yet.</td></tr>'}</tbody></table>`;
+}
+function chartOpts(prefix){return {plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5C6470",font:{size:9}},grid:{display:false}},y:{ticks:{color:"#5C6470",font:{size:9},callback:v=>(prefix==="$"?"$":"")+v.toLocaleString()},grid:{color:"#E2DCC8"}}}};}
+function renderAmiTable(){const el=document.getElementById("amiTable");if(!el)return;const ami=AMI_VALUE;
+  const bands=[30,50,60,80,100,120];
+  const rows=bands.map(b=>{const inc=ami*b/100;const mo=inc*0.30/12;return `<tr><td><b>${b}% AMI</b></td><td>${fmt(inc,true)}</td><td>${fmt(mo,true)} / mo</td></tr>`;}).join("");
+  el.innerHTML=`<table><thead><tr><th>Income band</th><th>Annual household income</th><th>Affordable housing cost (30%)</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function snapshotAssignments(){const a={};state.parcels.forEach(p=>{if(p.pillar)a[p.id]=p.pillar;});return a;}
+function exportScenarios(){
+  const data=JSON.stringify({version:TOOL_VERSION,scenarios:state.scenarios,assume:state.assume},null,2);
+  const b=new Blob([data],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="investment-map-scenarios.json";a.click();
+}
+function applyImportedScenarios(d){
+  if(!d||typeof d.version!=="string"||!d.version.startsWith("2")||!Array.isArray(d.scenarios))return -1;
+  const names=new Set(state.scenarios.map(s=>s.name));let added=0;
+  d.scenarios.forEach(s=>{
+    if(!s||typeof s.name!=="string"||typeof s.assignments!=="object"||s.assignments===null)return;
+    let name=s.name;if(names.has(name))name=name+" (imported)";
+    names.add(name);
+    state.scenarios.push({id:s_id(),name,date:s.date||"imported",assignments:{...s.assignments}});
+    added++;
+  });
+  if(d.assume&&typeof d.assume==="object")state.assume={...state.assume,...d.assume};
+  persist();
+  return added;
+}
+function importScenarios(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    let d;try{d=JSON.parse(e.target.result);}catch(err){alert("Could not read that file. It is not valid JSON.");return;}
+    const added=applyImportedScenarios(d);
+    if(added<0){alert("That file is not a scenarios export from this tool (version 2).");return;}
+    renderScenarios();
+    alert("Imported "+added+" scenario"+(added===1?"":"s")+".");
+  };
+  r.readAsText(file);
+}
+function saveScenario(){const name=prompt("Name this scenario (e.g. Housing-first, Mixed):","Scenario "+(state.scenarios.length+1));if(!name)return;state.scenarios.push({id:s_id(),name,date:new Date().toLocaleDateString(),assignments:snapshotAssignments()});renderScenarios();persist();}
+function applyScenario(id){const s=state.scenarios.find(x=>x.id===id);if(!s)return;state.parcels.forEach(p=>{p.pillar=s.assignments[p.id]||null;});renderAll();alert("Loaded scenario: "+s.name);}
+function delScenario(id){if(!confirm("Delete this scenario?"))return;state.scenarios=state.scenarios.filter(x=>x.id!==id);renderScenarios();persist();}
+function miniStrip(assignments){
+  const sorted=[...state.parcels].sort((a,b)=>Number(a.address)-Number(b.address));
+  const cell=p=>{
+    const pl=assignments[p.id]?state.pillars.find(x=>x.id===assignments[p.id]):null;
+    const col=pl?pl.color:"#E3DECD";
+    const w=Math.max(2,Math.round((Number(p.frontage)||40)*0.09));
+    return `<span style="display:inline-block;width:${w}px;height:11px;background:${col};margin-right:1px;border-radius:1px"></span>`;
+  };
+  return `<div style="line-height:0;white-space:nowrap">${sorted.filter(p=>p.side!=="S").map(cell).join("")}</div><div style="height:2px"></div><div style="line-height:0;white-space:nowrap">${sorted.filter(p=>p.side==="S").map(cell).join("")}</div>`;
+}
+function scenarioTotals(s){const list=Object.keys(s.assignments).map(pid=>{const p=state.parcels.find(x=>x.id===pid);if(!p)return null;return {...p,pillar:s.assignments[pid]};}).filter(Boolean).filter(p=>state.pillars.find(x=>x.id===p.pillar));
+  const inv=totalInvestment(list);
+  return {count:list.length,investment:inv,outcomes:aggregateOutcomes(list),tax:inv*state.assume.valueFactor*state.assume.taxRate};}
+function renderScenarios(){
+  const w=document.getElementById("scnWrap");
+  let html=`<h2>Scenarios</h2><p class="note">Save the current set of assignments as a scenario, then compare options side by side. This answers the funder question: what do we gain if we go this way instead of that way.</p>
+   <button class="btn primary" onclick="saveScenario()">Save current as scenario</button>
+   <button class="btn" onclick="exportScenarios()">Share scenarios (download file)</button>
+   <button class="btn" onclick="document.getElementById('scnImport').click()">Load shared scenarios</button>
+   <input type="file" id="scnImport" accept=".json,application/json" class="hidden" onchange="importScenarios(this.files[0]);this.value=''">
+   <p class="note" style="margin-top:10px;max-width:640px">Scenarios save in this browser automatically. To put two people's plans side by side: one person clicks <b>Share scenarios</b>, which downloads a small scenario file, and sends it by email or Teams. The other person clicks <b>Load shared scenarios</b> and picks that file. The loaded plans join the list below and appear next to their own in the Compare table, each with its corridor picture.</p>`;
+  if(!state.scenarios.length){html+=`<p class="muted" style="margin-top:16px">No scenarios yet. Assign parcels on the Corridor tab, then save this as a scenario.</p>`;w.innerHTML=html;return;}
+  html+=`<div class="scn-list" style="margin-top:16px">`+state.scenarios.map(s=>{const tt=scenarioTotals(s);return `<div class="scn"><div class="meta"><b>${s.name}</b><span>${s.date} · ${tt.count} parcels · ${fmt(tt.investment,true)} investment</span><div style="margin-top:6px;overflow-x:auto">${miniStrip(s.assignments)}</div></div>
+     <button class="btn sm" onclick="applyScenario('${s.id}')">Load</button>
+     <button class="btn sm" onclick="delScenario('${s.id}')">Delete</button></div>`;}).join("")+`</div>`;
+  if(state.scenarios.length>=1){
+    const labels=new Set();const totals=state.scenarios.map(s=>{const t=scenarioTotals(s);Object.keys(t.outcomes).forEach(l=>labels.add(l));return t;});
+    const rowFor=(name,vals)=>`<tr><td><b>${name}</b></td>${vals.join("")}</tr>`;
+    let head=`<tr><th>Metric</th>${state.scenarios.map(s=>`<th>${s.name}</th>`).join("")}</tr>`;
+    let body=rowFor("Corridor picture",state.scenarios.map(s=>`<td>${miniStrip(s.assignments)}</td>`));
+    body+=rowFor("Parcels",totals.map(t=>`<td>${t.count}</td>`));
+    body+=rowFor("Est. investment",totals.map(t=>`<td>${fmt(t.investment,true)}</td>`));
+    body+=rowFor("Est. new annual property tax",totals.map(t=>`<td>${fmt(t.tax,true)}</td>`));
+    labels.forEach(l=>{const money=totals.find(t=>t.outcomes[l])?.outcomes[l].money;body+=rowFor(l,totals.map(t=>`<td>${t.outcomes[l]?fmt(t.outcomes[l].v,money):"-"}</td>`));});
+    html+=`<h3 style="margin-top:24px">Compare</h3><table>${head}${body}</table>`;
+  }
+  w.innerHTML=html;
+}
+
+let map,osm,sat,satOn=true,inLayer,ctxLayer;
+function ensureMap(){if(map)return;
+  map=L.map("map",{zoomControl:true});
+  osm=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,attribution:"© OpenStreetMap"});
+  sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:20,attribution:"Esri"}).addTo(map);
+  ctxLayer=L.layerGroup().addTo(map);
+  inLayer=L.layerGroup().addTo(map);
+  const all=[];state.parcels.forEach(p=>(p.rings||[]).forEach(r=>r.forEach(pt=>all.push(pt))));state.context.forEach(c=>(c.rings||[]).forEach(r=>r.forEach(pt=>all.push(pt))));
+  if(all.length){const la=all.map(p=>p[0]),lo=all.map(p=>p[1]);map.fitBounds([[Math.min(...la),Math.min(...lo)],[Math.max(...la),Math.max(...lo)]]);}else{const b=DATA.bbox;map.fitBounds([[b[0],b[1]],[b[2],b[3]]]);}
+  loadBuildings();
+}
+let bldLayer=null,bldOn=true,bldTried=false,bldSource="";
+const BLD_CACHE_KEY="cds_investmentmap_bld_cache_v1";
+function toggleBuildings(){
+  bldOn=!bldOn;const btn=document.getElementById("bldBtn");if(btn)btn.classList.toggle("active",bldOn);
+  if(bldLayer){if(bldOn)map.addLayer(bldLayer);else map.removeLayer(bldLayer);}
+}
+function updateBldNote(){const el=document.getElementById("bldNote");if(!el)return;
+  el.textContent=bldSource?(" Building outlines: "+bldSource+".")
+    :" Building outlines could not load (needs internet).";}
+function addBuildings(geoms,src,store){
+  bldSource=src;bldLayer=L.layerGroup();let n=0;
+  geoms.forEach(g=>{
+    if(!g||!g.coordinates)return;
+    const polys=g.type==="MultiPolygon"?g.coordinates:[g.coordinates];
+    polys.forEach(rings=>{
+      if(!rings||!rings[0])return;
+      const latlngs=rings.map(ring=>ring.map(c=>[c[1],c[0]]));
+      L.polygon(latlngs,{color:"#101C28",weight:1,opacity:.75,fillColor:"#101C28",fillOpacity:.07,interactive:false}).addTo(bldLayer);n++;
+    });
+  });
+  if(bldOn&&map)bldLayer.addTo(map);
+  console.log("Building footprints loaded: "+n+" ("+src+")");
+  updateBldNote();
+  if(store){try{localStorage.setItem(BLD_CACHE_KEY,JSON.stringify({src:src,geoms:geoms}));}catch(e){}}
+}
+function bldCentroid(g){
+  try{
+    const ring=(g.type==="MultiPolygon"?g.coordinates[0][0]:g.coordinates[0]);
+    let la=0,lo=0;ring.forEach(c=>{lo+=c[0];la+=c[1];});
+    return [la/ring.length,lo/ring.length];
+  }catch(e){return null;}
+}
+async function loadBuildings(){
+  if(bldTried||!map)return;bldTried=true;
+  try{
+    const c=JSON.parse(localStorage.getItem(BLD_CACHE_KEY)||"null");
+    if(c&&Array.isArray(c.geoms)&&c.geoms.length){addBuildings(c.geoms,(c.src||"saved data")+" (saved copy)",false);return;}
+  }catch(e){}
+  const b=DATA.bbox;
+  const got=[],srcs=[];
+  const esriQ="/query?where=1%3D1&geometry="+b[1]+","+b[0]+","+b[3]+","+b[2]+"&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnGeometry=true&outFields=&outSR=4326&f=geojson";
+  const arcgisCandidates=[
+    "https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Buildings/FeatureServer/0",
+    "https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Building_Footprints/FeatureServer/0",
+    "https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/building_footprints/FeatureServer/0"
+  ];
+  for(const base of arcgisCandidates){
+    try{
+      const r=await fetch(base+esriQ);const j=await r.json();
+      if(j&&j.features&&j.features.length){got.push(...j.features.map(x=>x.geometry).filter(Boolean));srcs.push("municipal open data");break;}
+    }catch(e){}
+  }
+  const q='[out:json][timeout:40];way["building"]('+b[0]+','+b[1]+','+b[2]+','+b[3]+');out geom;';
+  const overpassMirrors=[
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  ];
+  for(const mirror of overpassMirrors){
+    try{
+      const r=await fetch(mirror+"?data="+encodeURIComponent(q));
+      const j=await r.json();
+      const geoms=(j.elements||[]).filter(e=>e.type==="way"&&e.geometry&&e.geometry.length>2).map(e=>({type:"Polygon",coordinates:[e.geometry.map(g=>[g.lon,g.lat])]}));
+      if(geoms.length){
+        if(!got.length){got.push(...geoms);}
+        else{
+          const cents=got.map(bldCentroid).filter(Boolean);
+          let added=0;
+          geoms.forEach(g=>{
+            const c=bldCentroid(g);if(!c)return;
+            const dup=cents.some(e=>Math.abs(e[0]-c[0])<0.00006&&Math.abs(e[1]-c[1])<0.00008);
+            if(!dup){got.push(g);cents.push(c);added++;}
+          });
+          console.log("OpenStreetMap supplement: "+added+" footprints added that the municipal layer lacked.");
+        }
+        srcs.push("OpenStreetMap");break;
+      }
+    }catch(e){}
+  }
+  if(got.length){addBuildings(got,srcs.join(" + "),true);return;}
+  console.warn("Building footprints could not be loaded from municipal open data or OpenStreetMap.");
+  const btn=document.getElementById("bldBtn");
+  if(btn){btn.disabled=true;btn.classList.remove("active");btn.textContent="Buildings unavailable";}
+  updateBldNote();
+}
+function toggleSat(){satOn=!satOn;document.getElementById("satBtn").classList.toggle("active",satOn);if(satOn){map.removeLayer(osm);sat.addTo(map);}else{map.removeLayer(sat);osm.addTo(map);}}
+function renderMap(){if(!map)return;
+  ctxLayer.clearLayers();inLayer.clearLayers();
+  let drawnCtx=0;
+  state.context.forEach(c=>{const green=c.kind==="green";(c.rings||[]).forEach(ring=>{
+    const sel=state.selected===c.id;
+    const poly=L.polygon(ring,{color:sel?"#101C28":(green?"#2f6e34":"#8a8676"),weight:sel?2:1,fillColor:green?"#7fc184":"#b9b4a3",fillOpacity:green?.5:.4});
+    poly.on("click",()=>{selectParcel(c.id);renderMap();});
+    poly.bindTooltip(`${green?c.name:("Parcel "+c.address)} · Not in scope`,{sticky:true});
+    poly.addTo(ctxLayer);
+  });if(c.rings&&c.rings.length)drawnCtx++;});
+  let drawnIn=0;
+  const parcelCentroid=p=>{const pts=[];(p.rings||[]).forEach(r=>r.forEach(pt=>pts.push(pt)));if(!pts.length)return null;
+    return [pts.reduce((a,x)=>a+x[0],0)/pts.length,pts.reduce((a,x)=>a+x[1],0)/pts.length];};
+  state.parcels.forEach(p=>{
+    if(!p.rings||!p.rings.length)return;
+    const col=parcelColor(p),sel=state.selected===p.id;
+    p.rings.forEach(ring=>{
+      const poly=L.polygon(ring,{color:sel?"#101C28":"#ffffff",weight:sel?3:1,fillColor:col,fillOpacity:.78});
+      poly.on("click",()=>selectParcel(p.id));
+      poly.bindTooltip(`Parcel ${p.address} · ${p.use}`,{sticky:true});
+      poly.addTo(inLayer);
+    });
+    if(p.pillar){
+      const pl=state.pillars.find(x=>x.id===p.pillar);
+      const c=parcelCentroid(p);
+      if(pl&&pl.icon&&c){
+        L.marker(c,{icon:L.divIcon({className:"pillar-pin",html:pl.icon,iconSize:[24,24],iconAnchor:[12,12]}),interactive:false,keyboard:false}).addTo(inLayer);
+      }
+    }
+    drawnIn++;
+  });
+  console.log("Map render: "+drawnIn+" in-scope polygons drawn, "+drawnCtx+" context parcels drawn.");
+  if(drawnIn!==state.parcels.length)console.warn("Only "+drawnIn+" of "+state.parcels.length+" in-scope parcels drew on the map.");
+  renderMapDetail();
+}
+function renderMapDetail(){const el=document.getElementById("mapDetail");const p=state.parcels.find(x=>x.id===state.selected);
+  let head=`<div class="ph">Map View</div><div class="kv muted" style="margin-bottom:8px">Real assessor parcel boundaries on satellite imagery. Click a parcel to open it. Grey parcels are context only and are not in scope.</div>`;
+  if(p){el.innerHTML=head+detailHTML(p);return;}
+  const c=findCtx(state.selected);
+  el.innerHTML=head+(c?ctxDetailHTML(c):`<div class="empty-hint">Select a parcel on the map to see its details and assign an investment pillar.</div>`);}
+
+function exportPNG(){if(typeof html2canvas==="undefined"){alert("Image export needs an internet connection the first time. Use Export PDF instead.");return;}
+  const src=document.getElementById("schematic");
+  html2canvas(src,{backgroundColor:"#FCFAF1"}).then(c=>{
+    const k=Math.max(1,c.width/Math.max(1,src.offsetWidth));
+    const strip=Math.round(22*k);
+    const c2=document.createElement("canvas");c2.width=c.width;c2.height=c.height+strip;
+    const ctx=c2.getContext("2d");ctx.fillStyle="#FCFAF1";ctx.fillRect(0,0,c2.width,c2.height);
+    ctx.drawImage(c,0,0);
+    ctx.fillStyle="#101C28";ctx.font=Math.round(11*k)+"px Inter, sans-serif";
+    ctx.fillText(STAMP,Math.round(10*k),c.height+Math.round(15*k));
+    const a=document.createElement("a");a.href=c2.toDataURL("image/png");a.download="investment-map-corridor.png";a.click();});}
+function exportPDF(){buildPrint().then(()=>{window.print();});}
+async function buildPrint(){
+  const list=committedParcels(),t=aggregateOutcomes(list);
+  const curAssessed=list.filter(p=>Number(p.assessed)>0).reduce((a,p)=>a+Number(p.assessed),0);
+  const exemptAllP=state.parcels.filter(p=>!(Number(p.assessed)>0)).length;
+  const invest=totalInvestment(list);
+  const valueCreated=invest*state.assume.valueFactor-curAssessed;
+  let img="";
+  if(typeof html2canvas!=="undefined"){try{const c=await html2canvas(document.getElementById("schematic"),{backgroundColor:"#ffffff"});img=`<img src="${c.toDataURL("image/png")}">`;}catch(e){}}
+  const cards=`<div class="pc"><div class="n">${list.length}</div><div>Parcels assigned</div></div><div class="pc"><div class="n">${fmt(totalInvestment(list),true)}</div><div>Est. investment</div></div>`+
+    Object.entries(t).map(([l,o])=>`<div class="pc"><div class="n">${fmt(o.v,o.money)}</div><div>${l}</div></div>`).join("")+`<div class="pc"><div class="n">${fmt(valueCreated,true)}</div><div>Est. value created</div></div>`;
+  let prows=list.map(p=>{const pl=state.pillars.find(x=>x.id===p.pillar);return `<tr><td>${p.address}</td><td>${p.use}</td><td>${Number(p.sqft).toLocaleString()}</td><td>${pl.name}</td><td>${fmt(parcelCost(p,pl),true)}</td></tr>`;}).join("");
+  document.getElementById("printReport").innerHTML=`
+   <h1>The Investment Map · Demonstration</h1>
+   <div class="dotrule"></div>
+   <p style="margin:2px 0 0;color:#101C28"><b>Connecting Dots and Strategies</b><br><span style="color:#666">Prepared for a national foundation (details anonymized) · Corridor investment summary · ${new Date().toLocaleDateString()}</span></p>
+   <div class="pcards" style="margin:14px 0">${cards}</div>
+   ${img?`<div style="margin:10px 0">${img}</div>`:""}
+   <h3>Parcel assignments</h3>
+   <table><thead><tr><th>Address</th><th>Use</th><th>Sqft</th><th>Pillar</th><th>Est. cost</th></tr></thead><tbody>${prows||'<tr><td colspan="5">No parcels assigned.</td></tr>'}</tbody></table>
+   <p style="color:#666;font-size:11px;margin-top:14px">Projections are planning estimates based on parcel size and the outcome and cost assumptions set per pillar. Assessed values and zoning are reference data of record from the city assessor. This is a planning and decision demonstration, not a feasibility study or an appraisal. ${exemptAllP} of ${state.parcels.length} parcels are tax exempt or carry no assessed value and are excluded from assessed-value totals.</p>
+   <p style="color:#101C28;font-size:10px;margin-top:6px">${STAMP}</p>`;
+}
+
+const TOUR=[
+ {sel:null,title:"The Investment Map",body:"A quick tour of this corridor decision demonstration, built for a national foundation and anonymized for sharing. About forty seconds."},
+ {sel:"#schematic",title:"Read the corridor",body:"Each block is one of the 93 in-scope parcels, sized by its frontage and colored by land use. Vacant parcels are hatched. Click any parcel to open it."},
+ {sel:".panel-right",title:"Make a decision",body:"Open a parcel to see its owner, size, zoning, and assessed value, then assign one of the four investment pillars. Projected outputs and estimated cost appear right away, and you can fine tune the cost per square foot."},
+ {sel:"#filters",title:"Filter and view zoning",body:"Filter by vacancy or pillar, or turn on Zoning to color parcels by their zoning district of record. Zoning and assessed value are read only reference data."},
+ {sel:'[data-view="pillars"]',title:"Edit the pillars",body:"Open Edit Pillars to adjust names, colors, outcome metrics, and the development cost per square foot. The corridor and dashboard recompute from your assumptions."},
+ {sel:"#tally",title:"Watch the totals build",body:"Investment and outcomes add up here as you assign parcels across the corridor."},
+ {sel:'[data-view="map"]',title:"See it on the map",body:"The Map View draws all 93 parcels as real boundaries on satellite imagery, with building outlines from city open data on top, so you can see where one building crosses several parcels. Grey parcels are context, marked Not in scope."},
+ {sel:'[data-view="dashboard"]',title:"Dashboard and AMI",body:"Charts, investment by pillar, cost per outcome, an estimated property value and tax base impact, and an Area Median Income reference for the metro area of record."},
+ {sel:'[data-view="scenarios"]',title:"Compare scenarios",body:"Save different plans and compare them side by side to show the tradeoffs of each approach."},
+ {sel:"#saveBtns",title:"Export for the meeting",body:"Export a one-page PDF or a PNG of the corridor to keep the results. Your work also autosaves in this browser."}
+];
+let tourI=0,tourTarget=null;
+function startTour(i){clearTour();tourI=i;const layer=document.createElement("div");layer.id="tourLayer";layer.onclick=e=>{if(e.target===layer)endTour();};document.body.appendChild(layer);const card=document.createElement("div");card.id="tourCard";document.body.appendChild(card);tourStep();}
+function tourStep(){
+  const step=TOUR[tourI];const card=document.getElementById("tourCard");
+  if(tourTarget){tourTarget.classList.remove("tour-highlight");tourTarget=null;}
+  let rect={left:window.innerWidth/2-150,bottom:window.innerHeight/2,top:window.innerHeight/2,right:0,width:0};
+  if(step.sel){const el=document.querySelector(step.sel);if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.classList.add("tour-highlight");tourTarget=el;rect=el.getBoundingClientRect();}}
+  card.innerHTML=`<h4>${step.title}</h4><p>${step.body}</p><div class="row"><span class="step">${tourI+1} / ${TOUR.length}</span><span>
+     ${tourI>0?'<button class="btn sm" onclick="tourNav(-1)">Back</button> ':''}
+     ${tourI<TOUR.length-1?'<button class="btn sm primary" onclick="tourNav(1)">Next</button>':'<button class="btn sm primary" onclick="endTour()">Done</button>'}
+     <button class="btn sm" onclick="endTour()">Skip</button></span></div>`;
+  let top=rect.bottom+12;if(top+150>window.innerHeight)top=Math.max(12,rect.top-160);
+  let left=Math.min(Math.max(12,rect.left),window.innerWidth-312);
+  card.style.top=top+"px";card.style.left=left+"px";
+}
+function tourNav(d){tourI+=d;tourStep();}
+function endTour(){clearTour();localStorage.setItem("cds_investmentmap_tour_done","1");}
+function clearTour(){if(tourTarget){tourTarget.classList.remove("tour-highlight");tourTarget=null;}const l=document.getElementById("tourLayer");if(l)l.remove();const c=document.getElementById("tourCard");if(c)c.remove();}
+
+function renderPillarEditor(){
+  const note=`<div class="assume">Estimated development cost = building square footage × cost per square foot. Each pillar default cost per square foot is a planning placeholder for corridor scale construction, not a construction estimate. Edit any pillar here, or override a single parcel from its detail panel. These drive the investment and cost per outcome figures.</div>`;
+  let html=`<h2>Edit pillars and assumptions</h2><p class="note">Adjust the four investment pillars, their development costs, and outcome metrics, or add your own. Edits save in this browser and update the corridor and dashboard.</p>${note}<div class="field" style="max-width:340px"><label>Global cost adjustment (sensitivity, default 1.0)</label><input type="number" step="0.05" value="${state.assume.costFactor}" onchange="setAssume('costFactor',this.value)"></div><button class="btn primary" onclick="addPillar()">Add pillar</button><div style="height:12px"></div>`;
+  html+=state.pillars.map(p=>`
+   <div class="pillar-card">
+     <div class="top"><input type="color" class="swatch" value="${p.color}" onchange="updPillar('${p.id}','color',this.value)">
+       <input value="${(p.icon||'').replace(/"/g,'&quot;')}" onchange="updPillar('${p.id}','icon',this.value)" title="Symbol for this pillar" style="width:46px;text-align:center;font-size:18px">
+       <input value="${(p.name||'').replace(/"/g,'&quot;')}" onchange="updPillar('${p.id}','name',this.value)" style="font-weight:700;font-size:15px">
+       <button class="btn sm" onclick="delPillar('${p.id}')">Delete</button></div>
+     <div class="row2"><div class="field"><label>Development cost ($ / sqft)</label><input type="number" value="${p.cost}" onchange="updPillar('${p.id}','cost',Number(this.value)||0)"></div><div></div></div>
+     <div class="field"><label>Year 1 outputs</label><textarea onchange="updPillar('${p.id}','y1',this.value)">${p.y1||''}</textarea></div>
+     <div class="field"><label>Year 2 outputs</label><textarea onchange="updPillar('${p.id}','y2',this.value)">${p.y2||''}</textarea></div>
+     <div class="field"><label>Long-term outcomes</label><textarea onchange="updPillar('${p.id}','lt',this.value)">${p.lt||''}</textarea></div>
+     <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Outputs (check $ for dollars per sqft, otherwise sqft per unit)</label>
+     <div>${(p.metrics||[]).map((m,i)=>metricRow(p.id,m,i)).join("")}</div>
+     <button class="btn sm" onclick="addMetric('${p.id}')">Add metric</button></div>`).join("");
+  document.getElementById("pillarWrap").innerHTML=html;
+}
+function metricRow(pid,m,i){const fv=(m.factor!==undefined)?m.factor:'';return `<div class="row3" style="margin:6px 0;align-items:end">
+   <div><input value="${(m.label||'').replace(/"/g,'&quot;')}" onchange="updMetric('${pid}',${i},'label',this.value)" placeholder="Label"></div>
+   <div><input type="number" step="0.01" value="${fv}" onchange="updMetric('${pid}',${i},'factor',this.value)" placeholder="${m.money?'$ per sqft':'sqft per unit'}"></div>
+   <div style="display:flex;gap:6px;align-items:center"><label style="display:flex;gap:4px;align-items:center;font-size:11px;text-transform:none;letter-spacing:0;margin:0"><input type="checkbox" style="width:auto" ${m.money?"checked":""} onchange="updMetric('${pid}',${i},'money',this.checked)">$</label><button class="btn sm" onclick="delMetric('${pid}',${i})">x</button></div></div>`;}
+function updPillar(id,k,v){const p=state.pillars.find(x=>x.id===id);p[k]=v;renderFilters();renderSchematic();renderTally();renderNarrative();renderDetail();persist();if(state.view==="dashboard")renderDashboard();}
+function updMetric(id,i,k,v){const p=state.pillars.find(x=>x.id===id);if(k==="factor")v=Number(v)||0;p.metrics[i][k]=v;if(k==="money")renderPillarEditor();renderTally();renderNarrative();renderDetail();persist();}
+function addMetric(id){state.pillars.find(x=>x.id===id).metrics.push({label:"New metric",factor:1000});renderPillarEditor();persist();}
+function delMetric(id,i){state.pillars.find(x=>x.id===id).metrics.splice(i,1);renderPillarEditor();renderTally();renderDetail();persist();}
+function addPillar(){state.pillars.push({id:p_id(),name:"New Pillar",color:"#7aa2c4",icon:"⭐",cost:150,metrics:[{label:"Jobs",factor:2000}],y1:"",y2:"",lt:""});renderPillarEditor();renderFilters();persist();}
+function delPillar(id){if(!confirm("Delete this pillar?"))return;state.parcels.forEach(p=>{if(p.pillar===id)p.pillar=null;});state.pillars=state.pillars.filter(x=>x.id!==id);renderPillarEditor();renderAll();}
+
+init();
+
+function gateTry(){
+  const v=(document.getElementById("gatePw").value||"").trim().toLowerCase();
+  if(btoa(v)==="ZGVjaWRl"){try{sessionStorage.setItem("cds_im_gate","1");}catch(e){}const g=document.getElementById("gate");if(g)g.remove();}
+  else{document.getElementById("gateErr").textContent="That is not the access word. Check the note that came with this link.";}
+}
+(function(){try{if(sessionStorage.getItem("cds_im_gate")==="1"){const g=document.getElementById("gate");if(g)g.remove();}else{setTimeout(()=>{const i=document.getElementById("gatePw");if(i)i.focus();},200);}}catch(e){}})();
+</script>
+</body>
+</html>
