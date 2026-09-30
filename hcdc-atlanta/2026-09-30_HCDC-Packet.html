@@ -1,0 +1,334 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>HCDC Packet · The Investment Map · Connecting Dots and Strategies</title><style>
+body{margin:0;color:#101C28;background:#fff;font:13.5px/1.55 Georgia,serif}
+.band{background:#101C28;color:#FCFAF1;text-align:center;font:700 10.5px Arial;letter-spacing:1.5px;padding:7px;text-transform:uppercase}
+.wrap{max-width:860px;margin:0 auto;padding:26px 34px 70px}
+.cover{border-bottom:3px solid #00BCC5;padding:24px 0 20px;margin-bottom:22px}
+.cover h1{font-size:27px;margin:0 0 4px;color:#101C28;font-family:Georgia,serif}
+.cover p{color:#5C6470;margin:4px 0;font:13px Arial}
+.dots span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+nav{background:#FCFAF1;border:1px solid #E3DECD;border-radius:6px;padding:12px 18px;margin-bottom:26px;font:13px Arial}
+nav ol{margin:6px 0 0;padding-left:20px} nav a{color:#00838A;text-decoration:none}
+.sh{font-size:21px;color:#101C28;border-bottom:2px solid #00BCC5;padding:20px 0 6px;margin:26px 0 14px;page-break-before:always}
+section:first-of-type .sh{page-break-before:auto}
+h2{font-size:16.5px;margin:22px 0 8px} h3{font-size:14px;margin:16px 0 6px}
+blockquote{margin:10px 0 10px 6px;padding:4px 14px;border-left:3px solid #F1BA4B;background:#FCFAF1;font-style:italic}
+code{font:11.5px Consolas,monospace;background:#f2efe3;padding:1px 4px;border-radius:3px}
+table{border-collapse:collapse;margin:10px 0;font:12px Arial;width:100%}
+th,td{border:1px solid #E3DECD;padding:5px 8px;text-align:left;vertical-align:top}
+th{background:#FCFAF1;font-size:10.5px;text-transform:uppercase}
+hr{border:none;border-top:1px solid #E3DECD;margin:22px 0}
+footer{margin-top:40px;border-top:1px solid #E3DECD;padding-top:10px;font:10.5px Arial;color:#5C6470}
+@media print{.wrap{padding:20px 0}table,blockquote{page-break-inside:avoid}}
+</style></head><body>
+<div class="band">Connecting Dots and Strategies · Internal Working Packet · Draft, Nothing Sent</div>
+<div class="wrap"><div class="cover">
+<div class="dots"><span style="background:#D95448"></span><span style="background:#F1BA4B"></span><span style="background:#47AB4F"></span><span style="background:#00BCC5"></span></div>
+<h1>HCDC · The Investment Map</h1>
+<p>Prospect packet · Prepared September 30, 2026 · Christa D. Stoneham</p>
+<p>Contents: the build prompt for the Portfolio Demonstration, the proposal draft with pricing left open, and the pipeline card from the September 30 discovery call with Sheneh Joseph.</p>
+</div><nav><b>Contents</b><ol><li><a href="#s0">1. Build Prompt · Portfolio Demonstration</a></li><li><a href="#s1">2. Proposal Draft (pricing open)</a></li><li><a href="#s2">3. Pipeline Card</a></li></ol></nav><section id="s0"><h1 class="sh">1. Build Prompt · Portfolio Demonstration</h1><p>Saved 2026-09-30. Paste everything between the lines into a NEW Claude Code
+project. Strongly recommended: attach <code>Investment_Map_DEMO_WHITELABEL.html</code>
+from this repo to that conversation as the reference implementation.</p>
+<hr />
+<p>You are building a high-level working demonstration called <strong>The Investment
+Map · Portfolio Demonstration</strong>. It extends a proven corridor decision tool
+into site-level and deal-structure analysis. I am validating feasibility for
+a client proposal, so this is an internal demonstration with stylized data,
+not a client deliverable. I am a visual person: I need to click through every
+feature, not read about it.</p>
+<p>If I have attached a file named <code>Investment_Map_DEMO_WHITELABEL.html</code>, read
+it first and reuse its engine patterns (state model, pillar objects, metric
+factors, scenario snapshots, render-everything-on-change, localStorage
+persistence, print export). If it is not attached, build from this spec alone.</p>
+<h2>What it is</h2>
+<p>One self-contained HTML file. No backend, no build step, vanilla JavaScript.
+A landing view opens on three workspaces. Each workspace is one live deal
+type. One shared decision engine powers all three.</p>
+<p><strong>Landing view.</strong> Title: "The Investment Map". Tag: "Portfolio
+Demonstration". One line: "One decision engine. Three live deal types.
+Demonstration data." Three cards, one per workspace, each with a one-line
+description and an Open button.</p>
+<h2>Workspace 1: The District (a small Southern city)</h2>
+<p>A district revitalization study. About 40 stylized parcels drawn as a
+schematic street grid or corridor band (no real addresses, label parcels
+D-01, D-02, ...). Each parcel carries: land sqft, existing building sqft or
+none, year built or none, assessed value or exempt, existing use.</p>
+<ul>
+<li>Assign editable investment pillars parcel by parcel (defaults: Housing,
+  Commercial, Community and Education, Green and Public Realm; each has a
+  color, an icon, cost per sqft by construction mode, and outcome metrics).</li>
+<li>Live totals: parcels assigned, estimated investment, outcomes, value
+  created, new annual property tax.</li>
+<li><strong>Capital stack panel</strong> (the new piece): per scenario, editable source
+  lines: Public partner resources, Grants, Debt, Partner equity, HCDC
+  equity. The panel always shows THE GAP: total cost minus committed
+  sources, big and unmissable.</li>
+<li><strong>Role toggle: Advisor vs Equity Partner.</strong> Advisor shows an advisory fee
+  line and zero balance sheet exposure. Equity Partner moves HCDC equity
+  into the stack and shows ownership share of projected value created. The
+  toggle answers: what does it take for the gap to close, and what role does
+  that imply?</li>
+</ul>
+<h2>Workspace 2: The Five-Acre Site (single parcel)</h2>
+<p>One parcel, 217,800 sqft, with a small existing building. The scenario axis
+here is DEAL STRUCTURE, not land use. Eight structure cards, each selectable
+as the active scenario:</p>
+<ol>
+<li>Buy outright (cash or debt)</li>
+<li>Option contract with entitlement period</li>
+<li>Ground lease</li>
+<li>Fee developer</li>
+<li>Joint venture, owner contributes land as equity</li>
+<li>Phased takedown</li>
+<li>Seller financing</li>
+<li>Public conveyance or authority partnership</li>
+</ol>
+<p>Each structure computes and displays: capital required day one, total
+capital at completion, HCDC role, control timeline, risk level (Low, Medium,
+High with color), income type (fee, equity return, both), and the capital
+stack under that structure. A Compare view puts all eight in one table so
+the tradeoff is visible at a glance. All assumption numbers are editable.</p>
+<h2>Workspace 3: The Twenty Acres (bank-owned site, large metro)</h2>
+<p>One 871,200 sqft site owned by a bank. Two decisions on screen:</p>
+<ul>
+<li><strong>Subdivision concepts.</strong> At least three preset concepts the user can
+  switch between, drawn as a simple diagrammatic site plan (SVG or divs, no
+  mapping library needed): (a) One parcel, single use. (b) Four to six lots,
+  mixed use, user assigns a pillar per lot. (c) Three-phase takedown with
+  phases shaded. Switching concepts recomputes everything. Compare table
+  across concepts: investment, outcomes, value created, new annual tax.</li>
+<li><strong>Acquisition scenarios.</strong> Price basis selector: market price, distressed
+  or REO price, seller financing terms. The selection flows into every
+  concept's numbers.</li>
+</ul>
+<p>This workspace answers: should we buy it, what is highest and best use, and
+should it stay one parcel or subdivide.</p>
+<h2>Shared engine (all three workspaces)</h2>
+<ul>
+<li><strong>Construction modes per parcel or lot:</strong> Rehab (cost basis = existing
+  building sqft), New Construction (cost basis = proposed building sqft, an
+  editable input), Demolition plus New (adds a demolition cost per sqft
+  line). Historic Preservation is a rehab variant that adds a historic tax
+  credit line to the capital stack (placeholder 20 percent federal plus a
+  state credit line, both editable).</li>
+<li><strong>Sustainability toggle per scenario:</strong> adds an editable cost premium
+  percentage, adds green outcome metrics (annual energy savings dollars,
+  green building sqft), and adds unlockable funding lines to the stack
+  (PACE financing, energy credits). Clearly labeled as planning assumptions.</li>
+<li><strong>Market profiles:</strong> named assumption sets, switchable per workspace:
+  "Small Southern City" and "Large Metro". Each profile sets a construction
+  cost multiplier, a value factor, and an effective property tax rate. A
+  visible chip always shows which profile is active. All values editable.</li>
+<li><strong>Projection math</strong> (label everything as planning estimates, editable
+  assumptions, never an appraisal or tax determination):</li>
+<li>cost = basis sqft x cost per sqft x mode adjustment x market multiplier</li>
+<li>count outcomes = floor(basis sqft / sqft-per-unit factor); dollar
+    outcomes = basis sqft x dollars-per-sqft factor</li>
+<li>value after investment = total investment x value factor</li>
+<li>value created = value after investment minus current assessed value</li>
+<li>new annual property tax = value after investment x effective tax rate</li>
+<li><strong>Scenarios:</strong> save the current state of any workspace under a name, list
+  saved scenarios with a small visual strip, load any scenario, and compare
+  scenarios side by side in a table.</li>
+<li><strong>Partner Brief export:</strong> a print-ready one-page brief for the active
+  scenario: recommendation line, the key numbers, the capital stack, and
+  the diagram. Framing: the client team keeps the instrument, partners
+  receive the paper. Use the browser print dialog, no libraries required.</li>
+<li><strong>Edit Pillars view:</strong> add, rename, recolor, reprice pillars and their
+  outcome metrics at any time.</li>
+<li><strong>Persistence:</strong> everything saves to localStorage and restores on reload.</li>
+<li><strong>Guided tour:</strong> a short click-through tour, one step per major feature,
+  that starts on first visit and can be reopened from a help button.</li>
+</ul>
+<h2>Design system (non-negotiable)</h2>
+<p>Background cream #FCFAF1. Text ink #101C28. Accent colors in this fixed
+order: Brick #D95448, Gold #F1BA4B, Grove #47AB4F, Turquoise #00BCC5.
+Turquoise is the only action and link color. A four-dot mark (one dot of
+each color, in order) sits beside the wordmark. One thin spectrum rule runs
+Brick to Turquoise through Gold and Grove, never reversed. Headings in
+Fraunces (Google Fonts, graceful fallback to Georgia). Body in Inter
+(fallback to system sans). No em dashes anywhere in interface text. Footer:
+"Connecting Dots and Strategies · Reclaiming the map. · Demonstration data."</p>
+<h2>Language rules</h2>
+<p>Never use the words software, platform, product, AI-powered, or patent
+pending. Say: instrument, decision environment, analysis, demonstration.
+Every read-only figure of record gets a small "reference" badge. Every
+projection carries "planning estimate, editable assumptions" language.</p>
+<h2>Technical rules</h2>
+<p>Single HTML file. Chart.js from a CDN is allowed for dashboard charts but
+the page must degrade gracefully without it (tables instead of charts). No
+mapping library: the district and site plans are schematic (divs or inline
+SVG). Works when opened from a local file with no internet except fonts and
+charts. Keep it under 400 KB.</p>
+<h2>Acceptance checklist (verify each before you finish, then show me)</h2>
+<ol>
+<li>Landing view shows three workspace cards and the exact title and line.</li>
+<li>District: assign 5 parcels across 2 pillars, totals update live, the gap
+   in the capital stack changes when a source line is edited.</li>
+<li>District: Advisor vs Equity Partner toggle visibly changes the stack and
+   the role summary.</li>
+<li>Five-acre: all 8 structures selectable, each changes capital required,
+   risk, and income type; the compare table shows all 8.</li>
+<li>Twenty acres: switching the 3 subdivision concepts redraws the site plan
+   and recomputes; assigning pillars per lot works in the mixed concept;
+   REO vs market price basis changes the numbers.</li>
+<li>Rehab vs New Construction vs Demo plus New produce different costs on
+   the same parcel; Historic variant shows credit lines in the stack.</li>
+<li>Sustainability toggle adds premium, green metrics, and funding lines.</li>
+<li>Market profile switch changes costs, value, and tax figures visibly.</li>
+<li>Save two scenarios, reload the page, both restore; compare table works.</li>
+<li>Partner Brief prints one clean page for the active scenario.</li>
+<li>Edit Pillars changes propagate to totals immediately.</li>
+<li>The banned words appear nowhere; the brand system is applied throughout.</li>
+</ol>
+<p>Work through the build, then walk me through the acceptance checklist with
+screenshots so I can see every feature working.</p>
+<hr />
+<h2>Note to self (not part of the prompt)</h2>
+<p>This demonstration stays internal until the provisional patent application
+is filed. Do not host it or send it to HCDC or anyone else before filing or
+before an engagement agreement with confidentiality language is signed. The
+new mechanisms in it (deal structure scenarios, subdivision concepts, market
+profiles, capital stack with role toggle) are claimable embodiments already
+described in ip-disclosure/TECHNICAL-DISCLOSURE.md section 12.</p></section><section id="s1"><h1 class="sh">2. Proposal Draft (pricing open)</h1><p>DRAFT for Christa's review. Nothing sent. Pricing is placeholder, her call.
+Voice check: warm, direct, short sentences, no em dashes, one clear next step.</p>
+<hr />
+<p>Sheneh,</p>
+<p>Thank you for the conversation. What you described is exactly what the
+Investment Map was built to do: put a live decision environment under the
+deals you are already in, so your team can test the options before the
+capital moves.</p>
+<p>You named three live decisions. Here is how I would put the instrument under
+each one.</p>
+<h2>1. The Alabama district</h2>
+<p>We load the district parcels into their own decision environment, built on
+the records of record: boundaries, ownership, land area, existing use,
+assessed value. Your team assigns investment pillars parcel by parcel and
+sees cost, outcomes, value created, and new tax base for each scenario, side
+by side. Because your partner brings alignment rather than capital, each
+scenario also carries a capital stack view: what the plan costs, what the
+partner's public resources can realistically cover, and what gap remains.
+That gap is the number that answers your real question, whether HCDC enters
+as advisor or as equity partner, and at what level.</p>
+<h2>2. The Alabama five-acre site</h2>
+<p>One site, one decision, several ways in. We model the same site under each
+structure your team is weighing, plus the ones I would add to the menu:</p>
+<ul>
+<li>Buy outright, cash or debt</li>
+<li>Option contract with an entitlement period, control before ownership</li>
+<li>Ground lease, the land stays with the owner</li>
+<li>Fee developer, fee income with no balance sheet risk</li>
+<li>Joint venture where the owner contributes the land as equity</li>
+<li>Phased takedown, buy in tranches as phases start</li>
+<li>Seller financing or installment terms</li>
+<li>Public conveyance or authority partnership if the city is at the table</li>
+</ul>
+<p>Each structure becomes a scenario on the same parcel: same site, different
+role, different capital, different risk, different return. Your team compares
+them on one screen and documents the choice.</p>
+<h2>3. The Atlanta and Decatur twenty acres</h2>
+<p>This is the strongest fit of the three. We treat the site as its own corridor:
+we draw candidate subdivision plans as parcels inside the twenty acres, then
+test them against each other. One parcel, one use. Subdivided, mixed use.
+Phased. Each concept shows total investment, outcomes, projected value, and
+new annual tax base, so highest and best use stops being an opinion and
+becomes a comparison. Because the seller is a bank, the acquisition scenarios
+can carry distressed pricing and seller-financing assumptions alongside
+market ones.</p>
+<h2>The four capabilities you asked about</h2>
+<p>All four are extensions of the working engine, not new inventions.</p>
+<ol>
+<li><strong>Construction modes.</strong> Every parcel carries a mode: rehab, new
+   construction, or demolition plus new. Rehab prices on the existing
+   building square footage of record. New construction prices on proposed
+   square footage. Historic preservation runs as a rehab variant that carries
+   the federal and state historic credit lines in the capital stack.</li>
+<li><strong>Sustainability option.</strong> A toggle per scenario: a cost premium
+   assumption, sustainability outcome metrics on the pillars, and the funding
+   sources a green scope unlocks in the stack.</li>
+<li><strong>Market calibration.</strong> Alabama and Atlanta each get their own named cost
+   profile: construction costs, value factors, and effective tax rates set to
+   that market. Every assumption stays visible and editable, so your team can
+   tune them as real bids come in.</li>
+<li><strong>Partner exports.</strong> Your team keeps the instrument. Partners get the
+   paper: a branded brief per scenario with the recommendation, the numbers,
+   and the corridor picture. No partner logins, no tool access, nothing to
+   train.</li>
+</ol>
+<p>Pillars remain fully editable throughout. Your team adds, renames, and
+reprices them as each deal requires.</p>
+<h2>Engagement shape</h2>
+<p><strong>Phase 1. Discovery and data.</strong> One working session per site with your
+team. I assemble the parcel records and boundaries for all three sites and
+stand up the three decision environments. [X weeks]</p>
+<p><strong>Phase 2. Build.</strong> The site-level extensions above, applied across all
+three environments: structure scenarios, construction modes, market
+profiles, partner brief export. [X weeks]</p>
+<p><strong>Phase 3. Decision workshops.</strong> One working session per site where your
+team runs the scenarios live, documents the direction, and leaves with the
+partner briefs in hand. [X weeks]</p>
+<p><strong>Investment.</strong> [Phase pricing placeholder. Recommended architecture:
+base build covering the first site at full value, per-site activation for
+sites two and three, and an optional monthly internal-use arrangement that
+keeps the environments current as HCDC's pipeline grows. Money is Christa's
+call.]</p>
+<p>The tool your team uses stays current as the deals move. The analysis is
+yours. The data is yours. The instrument remains Connecting Dots and
+Strategies work product, licensed for HCDC's internal use.</p>
+<p>The next step is a thirty-minute call to confirm which site goes first and
+who needs to sign. I will bring the agreement so a yes can move to paper the
+same week.</p>
+<p>Warm regards,</p>
+<p>Christa D. Stoneham
+Connecting Dots and Strategies</p>
+<hr />
+<h2>Internal notes (not client-facing)</h2>
+<ul>
+<li>Deliver within 24 hours of the 2026-09-30 call per the standard. Follow up
+  day 3 and day 10. Close file day 21.</li>
+<li>Before building anything new for HCDC: file the provisional. The new
+  mechanisms (deal-structure scenarios, subdivision modeling, market
+  profiles, sustainability toggle) are claimable embodiments; most are
+  already described in ip-disclosure/TECHNICAL-DISCLOSURE.md section 12,
+  which is exactly where they should stay until filed.</li>
+<li>Agreement must carry: confidentiality both ways, CDS retains all tool and
+  method IP, client licensed for internal use, client owns their data and
+  the exported briefs, no sublicensing or partner access to the instrument.</li>
+<li>Georgia and Alabama both have state historic tax credit programs and PACE
+  enabling law; verify current program status per site during Phase 1, not
+  in the proposal.</li>
+</ul></section><section id="s2"><h1 class="sh">3. Pipeline Card</h1><ul>
+<li><strong>Prospect:</strong> HCDC, Atlanta, GA</li>
+<li><strong>Decision maker:</strong> Sheneh Joseph (role/title to confirm; signing authority to confirm)</li>
+<li><strong>Tier:</strong> Project (upgrade path to Partnership if the internal-use arrangement lands)</li>
+<li><strong>Stage:</strong> Secure — discovery call held 2026-09-30; proposal in drafting</li>
+<li><strong>Source:</strong> Direct conversation with Christa</li>
+<li><strong>Next touchpoint:</strong> Proposal delivery within 24 hours of the call (standard). Then day 3 and day 10 follow-ups; close file day 21 if no yes.</li>
+</ul>
+<h2>Qualification gate (from the 2026-09-30 call)</h2>
+<ul>
+<li>Budget range: NOT YET CONFIRMED — surface in proposal call</li>
+<li>Signer in the room: TO CONFIRM — is Sheneh the signature, or does this go to a board/principal?</li>
+<li>Scope nameable: YES — Investment Map as internal analysis instrument across three live deals (see below)</li>
+<li>Red flags: none observed</li>
+<li>Conflict screen: CLEAR — Atlanta GA and Alabama; no business before Houston Land Bank or City of Houston</li>
+</ul>
+<h2>What they want (their words, from the call)</h2>
+<p>Internal analysis tool for deals in discussion with their own clientele. Three live use cases:</p>
+<ol>
+<li><strong>Alabama district creation.</strong> Partner wants to create/revitalize a district. HCDC deciding between advisory role and equity partner. Partner has no capital but has resources (likely city/public alignment) that could feed the capital stack.</li>
+<li><strong>Alabama 5-acre site.</strong> One parcel. Decision: buy outright vs fee developer vs other structures. They asked Christa to bring the fuller menu of structures.</li>
+<li><strong>Atlanta/Decatur 20-acre bank-owned site.</strong> Whether to buy, how to attack it, highest and best use, keep as one parcel or subdivide.</li>
+</ol>
+<p>Feature asks: new construction vs historic preservation/rehab modes; a sustainability option; regional cost calibration (Alabama rehab prices differently than Atlanta); export recommendations/data to partners WITHOUT giving partners tool access; pillars stay editable/customizable.</p>
+<h2>The one question the proposal must answer</h2>
+<p>Is HCDC buying analysis for one decision, or standing decision capacity across their whole pipeline? (One-site project pricing vs multi-site build + internal-use arrangement with per-site activation. The answer sets the price architecture.)</p>
+<h2>Notes</h2>
+<ul>
+<li>All three use cases fit the engine; two require the site-level extensions already on the CDS roadmap (development modes, market cost profiles, deal-structure scenarios, partner brief export). Nothing requires a rearchitecture.</li>
+<li>IP: file the provisional BEFORE building the new mechanisms for HCDC; include confidentiality + CDS-retains-tool-IP language in the agreement (client owns their data and outputs, CDS owns the instrument).</li>
+<li>Proposal draft staged beside this card: <code>2026-09-30_HCDC-Proposal-Draft.md</code>. Draft only; nothing sent. Pricing left as placeholders for Christa.</li>
+</ul></section>
+<footer>Connecting Dots and Strategies · Reclaiming the map. · Internal draft for Christa's review; pricing and all client-facing language subject to her approval.</footer>
+</div></body></html>
