@@ -1,0 +1,340 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>The Investment Map Feasibility Service</title><style>
+body{margin:0;color:#101C28;background:#fff;font:13px/1.55 Georgia,serif}
+.band{background:#101C28;color:#fff;text-align:center;font:700 10.5px Arial;letter-spacing:1.5px;padding:7px;text-transform:uppercase}
+.wrap{max-width:900px;margin:0 auto;padding:24px 32px 56px}
+.dots span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+h1.t{font-size:24px;margin:10px 0 4px;line-height:1.25} .rule{height:4px;background:linear-gradient(90deg,#D95448,#F1BA4B,#47AB4F,#00BCC5);margin:12px 0 18px}
+h2{font-size:17px;margin:24px 0 8px;page-break-after:avoid} h3{font-size:14px;margin:16px 0 6px;page-break-after:avoid}
+p,li{max-width:84ch} code{font:11px Consolas,monospace;background:#f2efe3;padding:1px 4px;border-radius:3px}
+pre{background:#FCFAF1;border:1px solid #E3DECD;border-radius:5px;padding:10px 12px;white-space:pre-wrap;font:10.5px/1.45 Consolas,monospace;page-break-inside:avoid} pre code{background:none;padding:0}
+table{border-collapse:collapse;margin:10px 0;font:11px/1.4 Arial;width:100%}
+th,td{border:1px solid #E3DECD;padding:5px 7px;text-align:left;vertical-align:top} th{background:#FCFAF1;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px}
+tr{page-break-inside:avoid}
+.flow{display:flex;align-items:stretch;gap:6px;margin:14px 0 18px;font-family:Arial,sans-serif;page-break-inside:avoid}
+.stage{flex:1;background:#FCFAF1;border:1px solid #E3DECD;border-top:5px solid;border-radius:8px;padding:10px 11px;font-size:11px}
+.stage.wide{flex:1.9} .sn{font:700 14px Georgia,serif} .sw{color:#5C6470;font-size:10px;margin-bottom:6px}
+.stage ul{margin:4px 0;padding-left:16px} .out{margin-top:6px;font-size:10px;color:#101C28;font-weight:700}
+.arrow{align-self:center;font-size:22px;color:#00BCC5}
+.chips{display:flex;flex-wrap:wrap;gap:4px} .chips span{background:#fff;border:1px solid #E3DECD;border-radius:6px;padding:3px 6px;font-size:10px;font-weight:700}
+.chips em{display:block;font-style:normal;font-weight:400;color:#5C6470;font-size:9px}
+.ledger{margin-top:8px;background:#101C28;color:#FCFAF1;border-radius:6px;padding:6px 8px;font-size:10px;text-align:center}
+footer{margin-top:34px;border-top:1px solid #E3DECD;padding-top:10px;font:10px Arial;color:#5C6470}
+</style></head><body><div class="band">Connecting Dots and Strategies · Internal · Confidential · October 6, 2026</div><div class="wrap">
+<div class="dots"><span style="background:#D95448"></span><span style="background:#F1BA4B"></span><span style="background:#47AB4F"></span><span style="background:#00BCC5"></span></div>
+<h1 class="t">The Investment Map Feasibility Service</h1><div class="rule"></div><p>Prepared 2026-10-06 for Christa D. Stoneham, Connecting Dots and Strategies. Internal. Confidential.</p>
+<p>Source note: the conversation with Ahmed is not in any file available to this session. This design is built from Christa's description (a full feasibility study, the attorney's role, the specialist's role) and the Investment Map record in this repository. Correct anything that differs from what was discussed.</p>
+<h2>1. The advice in brief</h2>
+<ol>
+<li><strong>Today the instrument answers "what could we do here, and what would it return." A feasibility study answers "can we actually do it."</strong> The gap is the evidence the instrument does not yet hold: title and legal, environmental, physical site, market value, real construction cost, and a full pro forma.</li>
+<li><strong>Do not make the instrument do the specialists' work. Make it the place where their findings land and change the answer.</strong> That is the central design move: a Findings Ledger feeding Feasibility Gates. It also turns out to be your strongest protection anchor yet (section 5).</li>
+<li><strong>Your original build already had the skeleton.</strong> The readiness checklist removed on 2026-06-29 scored each parcel on five dimensions: funding, policy and zoning, stakeholder, environmental and title, timeline (<code>const READINESS</code>, commit 913a55a). Bring it back, upgraded from hand-checked boxes to gates set by evidence.</li>
+<li><strong>Every number should show how much it can be trusted.</strong> Mark each figure as Planning placeholder, Specialist estimate, or Verified. Funders and boards will see at a glance what is assumption and what is fact. No conventional tool does this, and it is the feature most likely to win the room.</li>
+</ol>
+<h2>2. Service architecture: Screen, Verify, Decide</h2>
+
+<div class="flow">
+  <div class="stage" style="border-top-color:#D95448"><div class="sn">1 · Screen</div><div class="sw">CDS alone · days</div>
+    <ul><li>Records of record</li><li>Pillar + structure scenarios</li><li>Environmental flags</li><li>First-pass value + tax base</li></ul>
+    <div class="out">Out: shortlist + the questions each specialist must answer</div></div>
+  <div class="arrow">&#8594;</div>
+  <div class="stage wide" style="border-top-color:#F1BA4B"><div class="sn">2 · Verify</div><div class="sw">CDS leads · specialists per site · weeks</div>
+    <div class="chips">
+      <span>Title + Legal<em>Attorney</em></span><span>Zoning + Entitlement<em>Attorney / planner</em></span>
+      <span>Environmental<em>Phase I / II</em></span><span>Physical Site<em>Survey, civil, architect</em></span>
+      <span>Value + Market<em>Appraiser, analyst</em></span><span>Cost<em>Estimator / GC</em></span>
+      <span>Financial + Community<em>CDS</em></span></div>
+    <div class="ledger">Findings &#8594; <b>Findings Ledger</b> &#8594; model recomputes &#8594; <b>6 Gates</b> + <b>Confidence ladder</b></div></div>
+  <div class="arrow">&#8594;</div>
+  <div class="stage" style="border-top-color:#47AB4F"><div class="sn">3 · Decide</div><div class="sw">CDS · one workshop per site</div>
+    <ul><li>Verified scenarios, run live</li><li>Decision log</li><li>Roadmap</li><li>Partner briefs</li></ul>
+    <div class="out">Out: a decision the board and funders stand behind</div></div>
+</div>
+<p><strong>Stage 1 · Screen (CDS alone, days).</strong> The instrument runs on records of record. Pillar and structure scenarios, use-based environmental flags, first-pass value and tax base. Output: a shortlist of sites and scenarios, plus the specific questions each specialist must answer. This is the Investment Map as it exists today, sharpened.</p>
+<p><strong>Stage 2 · Verify (CDS leads, specialists engaged per site, weeks).</strong> Seven workstreams, each owned by a named role:</p>
+<table>
+<thead>
+<tr>
+<th>Workstream</th>
+<th>Owner</th>
+<th>What it settles</th>
+<th>How it moves the model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Title and legal</td>
+<td>Attorney</td>
+<td>Ownership chain, liens, easements, deal-structure documents, credit eligibility</td>
+<td>Can block a structure, add cost or months, clear the Site Control gate</td>
+</tr>
+<tr>
+<td>Zoning and entitlement</td>
+<td>Attorney, with planner</td>
+<td>Permitted uses, variances needed, entitlement path and timeline</td>
+<td>Can block a pillar on a parcel, add months, clear the Entitlement gate</td>
+</tr>
+<tr>
+<td>Environmental</td>
+<td>Environmental professional</td>
+<td>Phase I ESA; Phase II if triggered</td>
+<td>Adds a remediation cost line, clears or fails the Environmental gate</td>
+</tr>
+<tr>
+<td>Physical site</td>
+<td>Surveyor, civil engineer, architect (Christa)</td>
+<td>Survey, utilities, access, buildable envelope, test fit</td>
+<td>Replaces assumed building area with the tested area</td>
+</tr>
+<tr>
+<td>Value and market</td>
+<td>Appraiser, market analyst</td>
+<td>As-is value, absorption, rents, comparables</td>
+<td>Replaces the planning value factor with a defended number</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Cost estimator or general contractor</td>
+<td>Priced construction estimate</td>
+<td>Replaces the $/sqft placeholder</td>
+</tr>
+<tr>
+<td>Financial and community</td>
+<td>CDS</td>
+<td>Pro forma, capital stack, gap, stakeholder map</td>
+<td>Clears the Financial and Community gates</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Stage 3 · Decide (CDS, one workshop per site).</strong> The team runs verified scenarios live, records the decision in a decision log, and leaves with the roadmap and partner briefs.</p>
+<h3>How a specialist finding enters the instrument</h3>
+<p>Each finding is a structured record: site and parcel, workstream, specialist, date, finding type (constraint, cost, value, timeline, pass or fail), the model effect, and the attached report. Effects the instrument applies:</p>
+<ul>
+<li><strong>Adjust a cost line</strong> (remediation, demolition, utility extension)</li>
+<li><strong>Set a value</strong> (appraised as-is value replaces assessed value as the baseline)</li>
+<li><strong>Add timeline months</strong> (entitlement path, title cure)</li>
+<li><strong>Block an option</strong> (zoning prohibits a pillar on this parcel; title defect blocks a structure)</li>
+<li><strong>Set a gate status</strong> (Clear, Conditional, Fail)</li>
+</ul>
+<p>Each affected figure then rises one step on the confidence ladder, from Planning to Specialist to Verified, and the change is logged with its source.</p>
+<h3>The six Feasibility Gates (readiness, reborn)</h3>
+<p>Site Control and Title · Entitlement and Zoning · Environmental · Physical Feasibility · Financial (the gap closes) · Community and Partners. Each gate reads Not started, In review, Clear, Conditional, or Fail, and is set by findings, not by hand. The rules for when a gate clears are yours alone (section 5).</p>
+<h2>3. Feature evaluation</h2>
+<p>Ranked by value to a feasibility service. Effort is relative to the current engine. Protection is the layer that guards each feature.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Feature</th>
+<th>What it adds</th>
+<th>Value</th>
+<th>Effort</th>
+<th>Protection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Findings Ledger</td>
+<td>Specialist findings become structured inputs that move the model</td>
+<td>Very high</td>
+<td>Medium</td>
+<td>Patent anchor + trade secret (finding taxonomy)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Feasibility Gates</td>
+<td>Readiness reborn, driven by evidence</td>
+<td>Very high</td>
+<td>Low to medium (prior code exists)</td>
+<td>Trade secret (gate rules) + patent embodiment</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Confidence ladder</td>
+<td>Every figure marked Planning, Specialist, or Verified</td>
+<td>High</td>
+<td>Low</td>
+<td>Patent embodiment; strongest differentiator</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Specialist work-order generator</td>
+<td>Produces each specialist's scope of work, pre-filled with site data and the exact questions the model needs answered</td>
+<td>High</td>
+<td>Low to medium</td>
+<td>Trade secret (scope templates) + patent anchor</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Full pro forma, capital stack, gap</td>
+<td>The financial answer a feasibility study must give</td>
+<td>Very high</td>
+<td>Medium</td>
+<td>Template as trade secret; math is conventional</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Development modes incl. historic</td>
+<td>Rehab vs new vs demo plus new; historic credits</td>
+<td>High</td>
+<td>Low to medium</td>
+<td>Already in Addendum A4</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Invalidation alerts</td>
+<td>A saved scenario is flagged when a new finding or an outside record contradicts its assumptions</td>
+<td>High</td>
+<td>Medium</td>
+<td>Patent anchor (the "outside the software" element)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Environmental screening ring</td>
+<td>Regulated-site layer from state databases, with proximity</td>
+<td>High</td>
+<td>Medium</td>
+<td>Patent anchor; already designed</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Market profiles</td>
+<td>Alabama prices differently than Atlanta</td>
+<td>High</td>
+<td>Low</td>
+<td>Trade secret (the values)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Deal structures + role toggle</td>
+<td>Buy, option, ground lease, fee developer, JV, and more</td>
+<td>High</td>
+<td>Medium</td>
+<td>Addendum A2</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Subdivision concepts</td>
+<td>One site, several lot plans compared</td>
+<td>Medium to high</td>
+<td>Medium</td>
+<td>Addendum A7</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Partner brief and funder packet</td>
+<td>Paper for partners, the instrument stays with the client</td>
+<td>Medium to high</td>
+<td>Low to medium</td>
+<td>Addendum A8</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Decision log + weighted criteria</td>
+<td>Why the choice was made, on record</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Conventional</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Phasing view</td>
+<td>Year 1, 2, 3 capital needs</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Conventional</td>
+</tr>
+<tr>
+<td>15</td>
+<td>AMI-aware housing pillar</td>
+<td>Units and rents by income band</td>
+<td>High for housing clients</td>
+<td>Medium</td>
+<td>Already designed</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Calibration loop</td>
+<td>Actual outcomes tune the coefficients over time</td>
+<td>High, long term</td>
+<td>High</td>
+<td>Trade secret + patent anchor</td>
+</tr>
+<tr>
+<td>17</td>
+<td>External record monitoring</td>
+<td>Watches assessor and regulatory changes</td>
+<td>Medium</td>
+<td>Medium to high (needs hosting)</td>
+<td>Patent anchor</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Build next: features 1 through 5.</strong> Together they turn the demonstration into a feasibility service. Everything else is already designed, already in your disclosure addenda, or can follow.</p>
+<h2>4. Roles and how the money flows</h2>
+<p><strong>The attorney.</strong> A named workstream in Verify. Legal findings enter the ledger as findings, and CDS never states legal conclusions itself. Consider having the client retain the attorney directly while CDS coordinates: attorney-client privilege belongs to the client, and so does the liability. This is a structure question for your own attorney to confirm.</p>
+<p><strong>The specialists.</strong> There are two ways to engage them:</p>
+<ul>
+<li><strong>Client engages, CDS coordinates.</strong> Use this for the appraiser, the environmental professional, and the surveyor. Lenders typically require reliance on appraisals and Phase I reports addressed to them, so the client or the lender usually needs to be the party engaging these specialists.</li>
+<li><strong>CDS subcontracts.</strong> Use this for soft studies such as the cost estimator, the market analyst, and test fits. CDS holds the contract, controls the timeline, and can carry a coordination margin, but it also carries more responsibility.</li>
+</ul>
+<p><strong>Specialists as buyers and referrers.</strong> Land use attorneys, appraisers, environmental firms, CDFIs, and lenders see many deals. They could refer clients or license screening capacity. This is an interpretation of "a specialist who needs this service" and is worth confirming against the Ahmed conversation.</p>
+<p>Fees, margins, and pricing are Christa's call. This design sets the structure only.</p>
+<h2>5. Protecting the methodology</h2>
+<p><strong>Name the method.</strong> Use "The Investment Map" for the instrument and a named method for the service, for example Screen · Verify · Decide. One trademark filing covers the instrument name, and the method name can follow. The name is what the market remembers, and the trademark protects it.</p>
+<p><strong>Trade secret: the core protection of the methodology.</strong> This layer guards the rules, which the patent never would:</p>
+<ul>
+<li>the coefficient library and market profile values</li>
+<li>the gate rules (what clears, what fails, what is conditional)</li>
+<li>the finding taxonomy and model-effect rules</li>
+<li>the specialist scope-of-work templates</li>
+<li>the pro forma and capital stack template</li>
+</ul>
+<p>Practices that keep them secret: store them in one restricted location marked Confidential; demonstrations use stylized numbers only; never place them in a patent filing (a patent publishes everything in it); client deliverables show outputs, never the rules that produced them.</p>
+<p><strong>Contracts.</strong> Two documents, both reviewed by your attorney:</p>
+<ul>
+<li><strong>Client license.</strong> Internal use only, no reverse engineering, no sublicensing, no partner access to the instrument. The client owns its data and its outputs. CDS owns the instrument, the method, and the templates.</li>
+<li><strong>Specialist teaming terms.</strong> Confidentiality. CDS owns the instrument and its templates. The specialist owns their professional report and licenses CDS to enter its findings into the instrument. Non-circumvention of the client for a set period. No reuse of CDS templates.</li>
+</ul>
+<p><strong>Copyright.</strong> Register the code (you are doing this yourself). The scope-of-work templates and report formats are also copyrighted works.</p>
+<p><strong>Patent.</strong> The Findings Ledger, gates set by findings, the confidence ladder, the work-order generator, and invalidation alerts are the strongest "outside the software" anchors yet. The system sends structured work orders to outside professionals, takes in their findings, and changes scenario state and alerts as a result. That interaction with real-world professional processes is the kind of element your attorney described. These are written up as patent embodiments in <code>ip-disclosure/ADDENDUM-2026-10-06b-FEASIBILITY-EMBODIMENTS.md</code>. They are still subject to the section 101 question, so the specialist opinion governs.</p>
+<h2>6. Recommended sequence</h2>
+<ol>
+<li><strong>Protect first.</strong> Hand the specialist patent practitioner the August package plus both October addenda. If there is a path, file the provisional before building or showing any of this. The deadline is about 2027-05-04.</li>
+<li><strong>Build features 1 through 5 into the Portfolio demonstration.</strong> A paste-ready addition to the build prompt is below.</li>
+<li><strong>Pilot one real feasibility engagement.</strong> HCDC's 20-acre Atlanta and Decatur site is the natural candidate. Real specialists and real findings make it the first full Screen · Verify · Decide engagement, and they also reduce the invention to practice.</li>
+<li><strong>Paper the roles.</strong> Get the specialist teaming terms and the client license language drafted and reviewed by your attorney before the pilot starts.</li>
+</ol>
+<h2>7. Build prompt addition (paste after the Shared Engine section of the Portfolio build prompt)</h2>
+<pre><code>FEASIBILITY LAYER (add to all three workspaces)
+- Findings Ledger: a panel listing structured findings per site. Each finding
+  has: parcel or lot, workstream (Title and Legal, Zoning and Entitlement,
+  Environmental, Physical Site, Value and Market, Cost, Financial and
+  Community), specialist role, date, type (constraint, cost, value,
+  timeline, pass or fail), and a model effect. Supported effects: add or
+  change a cost line, set a value, add timeline months, block a pillar or a
+  deal structure on a parcel, set a gate status. Adding a finding
+  recomputes everything immediately. Preload 4 sample findings per
+  workspace with stylized demonstration data.
+- Feasibility Gates: six gates per site (Site Control and Title,
+  Entitlement and Zoning, Environmental, Physical Feasibility, Financial,
+  Community and Partners), each reading Not started, In review, Clear,
+  Conditional, or Fail, set by findings, shown as a row of status chips at
+  the top of each workspace. Financial clears automatically when the
+  capital stack gap is zero or less.
+- Confidence ladder: every displayed cost, value, and outcome figure
+  carries a small marker: Planning (grey), Specialist (gold), Verified
+  (grove green). A figure rises when a finding sets it. A legend explains
+  the three levels.
+- Work orders: for any workstream, a &quot;Prepare work order&quot; button produces
+  a print-ready one-page scope for that specialist, pre-filled with the
+  site data and the specific questions whose answers the model needs.
+- Invalidation alerts: when a new finding contradicts an assumption a
+  saved scenario relied on, that scenario shows an alert badge in the
+  Scenarios list with a one-line reason.
+Acceptance: add a zoning finding that blocks a pillar on one parcel and
+show the pillar becomes unavailable there and a saved scenario using it is
+flagged; add an environmental finding with a remediation cost and show the
+cost line, the gap, and the Environmental gate all change; show a figure
+moving from Planning to Verified.
+</code></pre><footer>Planning support for Christa D. Stoneham. Roles, fees, and legal structure are hers and her attorney's to decide. Not legal advice.</footer></div></body></html>

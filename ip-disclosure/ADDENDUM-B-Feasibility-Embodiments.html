@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Addendum B: Feasibility Service Embodiments (for the provisional)</title><style>
+body{margin:0;color:#101C28;background:#fff;font:13px/1.55 Georgia,serif}
+.band{background:#8a1f1f;color:#fff;text-align:center;font:700 10.5px Arial;letter-spacing:1.5px;padding:7px;text-transform:uppercase}
+.wrap{max-width:900px;margin:0 auto;padding:24px 32px 56px}
+.dots span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+h1.t{font-size:24px;margin:10px 0 4px;line-height:1.25} .rule{height:4px;background:linear-gradient(90deg,#D95448,#F1BA4B,#47AB4F,#00BCC5);margin:12px 0 18px}
+h2{font-size:17px;margin:24px 0 8px;page-break-after:avoid} h3{font-size:14px;margin:16px 0 6px;page-break-after:avoid}
+p,li{max-width:84ch} code{font:11px Consolas,monospace;background:#f2efe3;padding:1px 4px;border-radius:3px}
+pre{background:#FCFAF1;border:1px solid #E3DECD;border-radius:5px;padding:10px 12px;white-space:pre-wrap;font:10.5px/1.45 Consolas,monospace;page-break-inside:avoid} pre code{background:none;padding:0}
+table{border-collapse:collapse;margin:10px 0;font:11px/1.4 Arial;width:100%}
+th,td{border:1px solid #E3DECD;padding:5px 7px;text-align:left;vertical-align:top} th{background:#FCFAF1;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px}
+tr{page-break-inside:avoid}
+.flow{display:flex;align-items:stretch;gap:6px;margin:14px 0 18px;font-family:Arial,sans-serif;page-break-inside:avoid}
+.stage{flex:1;background:#FCFAF1;border:1px solid #E3DECD;border-top:5px solid;border-radius:8px;padding:10px 11px;font-size:11px}
+.stage.wide{flex:1.9} .sn{font:700 14px Georgia,serif} .sw{color:#5C6470;font-size:10px;margin-bottom:6px}
+.stage ul{margin:4px 0;padding-left:16px} .out{margin-top:6px;font-size:10px;color:#101C28;font-weight:700}
+.arrow{align-self:center;font-size:22px;color:#00BCC5}
+.chips{display:flex;flex-wrap:wrap;gap:4px} .chips span{background:#fff;border:1px solid #E3DECD;border-radius:6px;padding:3px 6px;font-size:10px;font-weight:700}
+.chips em{display:block;font-style:normal;font-weight:400;color:#5C6470;font-size:9px}
+.ledger{margin-top:8px;background:#101C28;color:#FCFAF1;border-radius:6px;padding:6px 8px;font-size:10px;text-align:center}
+footer{margin-top:34px;border-top:1px solid #E3DECD;padding-top:10px;font:10px Arial;color:#5C6470}
+</style></head><body><div class="band">Privileged &amp; Confidential · Attorney Work Product</div><div class="wrap">
+<div class="dots"><span style="background:#D95448"></span><span style="background:#F1BA4B"></span><span style="background:#47AB4F"></span><span style="background:#00BCC5"></span></div>
+<h1 class="t">Addendum B: Feasibility Service Embodiments (for the provisional)</h1><div class="rule"></div><p>Prepared 2026-10-06. Attorney work product. Supplements <code>TECHNICAL-DISCLOSURE.md</code> §11-12 and <code>ADDENDUM-2026-10-06-PORTFOLIO-EMBODIMENTS.md</code> (A1-A8). Source: the feasibility service design of record (<code>investment-map-service/2026-10-06_Feasibility-Service-Design.md</code>). Status of every item: SPECIFIED IN WRITING, NOT YET REDUCED TO PRACTICE.</p>
+<p>These embodiments are offered specifically in response to counsel's observation that the invention should engage something outside the computation itself. Each one couples the projection engine to external professional processes or external records: the system emits structured requests to outside professionals, ingests their findings as typed records, and changes scenario state, gate status, figure confidence, and alerts as a result.</p>
+<h2>B1. Findings Ledger: typed external findings that mutate scenario state</h2>
+<p>A store of structured finding records, each comprising: site and parcel or lot identifier; workstream (title and legal; zoning and entitlement; environmental; physical site; value and market; cost; financial and community); originating professional role; date; finding type (constraint, cost, value, timeline, pass or fail); a model-effect specification; and a reference to the source document. On insertion, the system applies the model effect to the projection engine (TECHNICAL-DISCLOSURE §1) as one of: (a) adding or modifying a cost line in <code>parcelCost</code>/<code>totalInvestment</code>; (b) replacing a baseline value (for example, an appraised as-is value replaces the assessed value of record in the value-created computation, §1.5); (c) adding schedule duration; (d) removing a use type (pillar) or deal structure (A2) from the permissible set for that parcel; (e) setting a gate status (B2). Recomputation follows the existing recompute-on-render path (§6), so every view and every saved scenario reflects the finding immediately.</p>
+<h2>B2. Feasibility gates set by evidence</h2>
+<p>A fixed set of gates per site (site control and title; entitlement and zoning; environmental; physical feasibility; financial; community and partners), each in one of {not started, in review, clear, conditional, fail}, whose status is computed from the findings in B1 by gate rules rather than set by hand. The financial gate is computed from the capital stack (A3): clear when gap ≤ 0. This is the evidence-driven successor to the five-dimension readiness scoring implemented in commit 913a55a (<code>const READINESS</code>: funding, policy, stakeholder, environment, timeline; <code>rdScore</code>; <code>rdColor</code> thresholds 70/40) and removed in 336bbf3, which is preserved as an alternative embodiment (TECHNICAL-DISCLOSURE §11.1). The specific gate rules are maintained as a trade secret and are not disclosed here; the embodiment claimed is the mechanism of computing gate status from typed findings.</p>
+<h2>B3. Per-figure confidence ladder</h2>
+<p>Each displayed figure (cost, value, outcome) carries a provenance state in {planning, specialist, verified}, initialized to planning when the figure derives from pillar coefficients or assumptions (§2) and promoted when a B1 finding sets or confirms it. Aggregates display the lowest confidence of their inputs, or the share of the total that is verified. Provenance propagates through <code>aggregateOutcomes</code> and <code>totalInvestment</code> alongside the values.</p>
+<h2>B4. Specialist work-order generation</h2>
+<p>For a given site and workstream, the system generates a structured scope-of-work document pre-populated with the parcel data of record and with the specific open questions whose answers the model requires. The questions are derived from which figures for that site remain at planning confidence (B3) and which gates remain unresolved (B2). The scope templates are maintained as a trade secret; the embodiment claimed is generating the request from the model's own unresolved state, and then closing the loop when the returned finding is entered in B1.</p>
+<h2>B5. Scenario invalidation alerts</h2>
+<p>Each saved scenario records the assumptions it depends on (the parcels, pillars, structures, and baseline values it uses). When a new B1 finding, or a change detected in an external record (assessor data, a regulatory database such as the environmental screening layer of TECHNICAL-DISCLOSURE §12.5), contradicts one of those assumptions, the system flags the scenario with an alert stating the reason. Examples: a pillar is now blocked on a parcel the scenario uses; a baseline value the scenario's value-created figure relied on has been replaced.</p>
+<h2>Filing notes for counsel</h2>
+<ol>
+<li>B1-B5 are described embodiments only. None is built as of 2026-10-06. The enabling detail is the mechanisms above, the implemented engine they extend, and the build specification in the design document of record, section 7.</li>
+<li>Trade secret carve-out: the gate rules (B2), finding taxonomy details and model-effect rules (B1), scope templates (B4), and all coefficient and market-profile values are deliberately withheld from this disclosure and should remain withheld from any filing. The claims should be directed to the mechanisms, not the values.</li>
+<li>A pilot engagement with real outside professionals, potentially the HCDC Atlanta and Decatur site, would constitute reduction to practice of B1-B5. It should occur after filing, or under written confidentiality.</li>
+<li>UNVERIFIED: nothing in this addendum has been tested in code.</li>
+</ol><footer>Supplements the IP Disclosure Package of August 3, 2026 and Addendum A of October 6, 2026. Christa D. Stoneham, inventor. Documentation support, not legal advice.</footer></div></body></html>
