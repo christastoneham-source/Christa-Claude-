@@ -1,0 +1,117 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Addendum — Portfolio Embodiments — PRIVILEGED</title><style>
+body{margin:0;color:#101C28;font:13.5px/1.55 Georgia,serif}
+.band{background:#8a1f1f;color:#fff;text-align:center;font:700 10.5px Arial;letter-spacing:1.5px;padding:7px;text-transform:uppercase}
+.wrap{max-width:840px;margin:0 auto;padding:26px 34px 60px}
+h1.t{font-size:24px;color:#101C28;border-bottom:3px solid #101C28;padding-bottom:10px}
+h2{font-size:16px;margin:22px 0 8px;color:#101C28}
+code{font:11.5px Consolas,monospace;background:#f2efe3;padding:1px 4px;border-radius:3px}
+p,li{max-width:80ch} @media print{h2{page-break-after:avoid}}
+footer{margin-top:36px;border-top:1px solid #d9d4c4;padding-top:10px;font:10.5px Arial;color:#5C6470}
+</style></head><body>
+<div class="band">Privileged &amp; Confidential — Attorney Work Product</div>
+<div class="wrap"><h1 class="t">Addendum — Portfolio Edition Embodiments (for the provisional)</h1>
+<p>Prepared 2026-10-06. Attorney work product. Supplements
+<code>TECHNICAL-DISCLOSURE.md</code> §12 (Not yet built — intended embodiments) and
+<code>NOVELTY-CANDIDATES.md</code>. Source: prospective-client requirements gathered
+2026-09-30 (HCDC, Atlanta) and the build specification committed the same day
+(<code>hcdc-atlanta/2026-09-30_Portfolio-Demo-Build-Prompt.md</code>). Status of every
+item: SPECIFIED IN WRITING, NOT YET REDUCED TO PRACTICE. Include these in the
+provisional as described embodiments so the filing covers them before any
+demonstration or client build exists.</p>
+<p>These embodiments extend the implemented engine (TECHNICAL-DISCLOSURE §§1-10)
+from one corridor to a portfolio of decision workspaces, and add a second
+scenario axis: the DEAL STRUCTURE under which the operator enters a site, in
+addition to the existing axis of WHAT USE goes on each parcel.</p>
+<h2>A1. Multi-workspace portfolio architecture</h2>
+<p>A single decision instrument holding a plurality of workspaces, each bound to
+its own parcel set (a district of many parcels, a single parcel, or one large
+site subdivided into candidate lots), all powered by one shared projection
+engine (the coefficient engine of §1.1-1.2), with per-workspace state
+persisted under separate storage namespaces and a landing view enumerating
+the workspaces. Mechanism: the existing <code>state</code> object (§3.2) becomes a map
+of workspace states; <code>persist()/restore()</code> (§3.3) key on workspace id; all
+compute functions (<code>parcelCost</code>, <code>impactFor</code>, <code>aggregateOutcomes</code>,
+<code>totalInvestment</code>) operate unchanged on the active workspace's parcels.</p>
+<h2>A2. Deal-structure scenario axis with role toggle</h2>
+<p>For a given site, a set of alternative entry structures (fee-simple purchase;
+option contract with entitlement period; ground lease; fee-developer
+engagement; joint venture with land contributed as owner equity; phased
+takedown; seller financing; public conveyance) each modeled as a scenario on
+the SAME parcel record, where the structure selection parameterizes: capital
+required at day one and at completion, the operator's role, a control
+timeline, a categorical risk level, an income type (fee, equity return, or
+both), and the composition of the capital stack. A role toggle (advisor vs
+equity partner) re-renders the stack and the operator's return line without
+changing the underlying site program. Mechanism: a <code>structure</code> object per
+scenario carrying coefficient overrides consumed by the same
+recompute-on-render loop (§6.4); the compare table reuses the scenario
+comparison pattern (§7) with structures as columns.</p>
+<h2>A3. Capital stack with live gap computation</h2>
+<p>Per scenario, an editable list of funding source lines (public partner
+resources, grants, debt, partner equity, operator equity, credit-derived
+sources), where the instrument continuously displays GAP = projected total
+development cost (the engine's <code>totalInvestment</code>) minus the sum of committed
+source lines, recomputed on every edit, and where the gap figure drives the
+advisory-vs-equity role analysis of A2. Historic-preservation and
+sustainability variants (A4, A5) inject additional credit lines into the same
+stack. This extends the funding fill-in tracking embodiment already described
+in TECHNICAL-DISCLOSURE §12.4.</p>
+<h2>A4. Construction-mode cost basis switching (per parcel)</h2>
+<p>Per parcel or lot, a mode selector in {rehabilitation, new construction,
+demolition plus new construction, historic preservation}, where the mode
+selects the COST BASIS: rehabilitation prices on the existing building floor
+area of record (already carried per parcel, §3.1); new construction prices on
+a user-entered proposed building area; demolition adds a per-sqft demolition
+line; historic preservation is a rehabilitation variant that adds federal and
+state historic tax credit lines to the A3 stack. This sharpens the §12.1
+development-modes embodiment with the credit-line mechanics.</p>
+<h2>A5. Sustainability scenario modifier</h2>
+<p>A per-scenario toggle that simultaneously (a) applies an editable cost
+premium multiplier to the A4 cost computation, (b) appends sustainability
+outcome metrics (annual energy savings in dollars, green building area) to
+the pillar's metric set via the existing arbitrary-metric engine (§1.1,
+§2.2), and (c) appends sustainability-contingent funding lines (assessed
+clean-energy financing, energy credits) to the A3 capital stack — so one
+toggle consistently moves cost, outcomes, and funding together.</p>
+<h2>A6. Named market assumption profiles</h2>
+<p>Switchable, named assumption sets ("market profiles"), each carrying a
+construction cost multiplier, a value factor, and an effective property tax
+rate, applied at the workspace level so the same program priced in two
+regions yields calibrated, comparable results. Mechanism: generalization of
+the existing <code>state.assume</code> object (§2.3) from one anonymous set to named,
+selectable sets, with the active profile displayed persistently. Directly
+motivated by multi-state use (costs in one region price differently than
+another).</p>
+<h2>A7. Subdivision-concept comparison on a single site</h2>
+<p>For one large site of record, a plurality of stored subdivision concepts
+(single parcel single use; N lots mixed use with per-lot pillar assignment;
+phased takedown), each concept generating candidate lots as virtual parcel
+records fed to the unchanged projection engine, with a compare table across
+concepts (investment, outcomes, value created, new annual tax) answering
+highest-and-best-use and subdivide-or-not questions quantitatively.
+Acquisition price basis (market, distressed/REO, seller-financed) is a
+scenario parameter flowing into every concept.</p>
+<h2>A8. Partner brief export (output without instrument access)</h2>
+<p>A per-scenario, print-formatted one-page brief (recommendation line, key
+projections, capital stack, site diagram) generated client-side from the
+active scenario state, enabling the operating team to distribute conclusions
+to counterparties WITHOUT granting access to the instrument, its assumption
+set, or its full dataset. Extends the §12 funder-packet embodiment with the
+access-asymmetry purpose stated explicitly.</p>
+<h2>Filing notes for counsel</h2>
+<ol>
+<li>A1-A8 are described embodiments only; none is built as of 2026-10-06. The
+   enabling detail is the mechanisms above plus the build specification of
+   record (<code>2026-09-30_Portfolio-Demo-Build-Prompt.md</code>, committed to the
+   repository 2026-09-30) and the implemented engine they extend.</li>
+<li>The commercial driver is documented: a prospective client requested these
+   capabilities on 2026-09-30 (pipeline card of record). No disclosure of
+   these mechanisms has been made outside privileged and internal documents;
+   the client conversation described needs, not mechanisms.</li>
+<li>Claim-drafting posture: tie each claim to the concrete computational
+   mechanism (cost-basis switching, label-keyed aggregation, gap recompute on
+   edit, virtual-parcel generation from subdivision concepts) rather than the
+   business outcome, consistent with the §101 framing in NOVELTY-CANDIDATES.</li>
+<li>UNVERIFIED: nothing in this addendum has been tested in code; effort
+   estimates and feasibility rest on the architecture mapping stated per item.</li>
+</ol><footer>Supplements the IP Disclosure Package of August 3, 2026. Christa D. Stoneham, inventor. Documentation support, not legal advice.</footer></div></body></html>
