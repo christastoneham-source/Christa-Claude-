@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Investment Map · Portfolio Demonstration</title>
+<meta name="description" content="One decision engine. Three live deal types. Demonstration data." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'%3E%3Ccircle cx='5' cy='5' r='4' fill='%23D95448'/%3E%3Ccircle cx='15' cy='5' r='4' fill='%23F1BA4B'/%3E%3Ccircle cx='25' cy='5' r='4' fill='%2347AB4F'/%3E%3Ccircle cx='35' cy='5' r='4' fill='%2300BCC5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FCFAF1; --panel:#ffffff; --panel2:#FCFAF1; --line:#E3DECD; --line2:#D2CBB6;
+    --text:#101C28; --muted:#5C6470; --navy:#101C28;
+    --brick:#D95448; --gold:#F1BA4B; --grove:#47AB4F; --turq:#00BCC5;
+    --turq-soft:rgba(0,188,197,.12); --brick-soft:rgba(217,84,72,.10); --grove-soft:rgba(71,171,79,.12); --gold-soft:rgba(241,186,75,.18);
+    --road:#D7D1C0; --shadow:0 8px 30px rgba(16,28,40,.08);
+    --serif:Fraunces,Georgia,"Times New Roman",serif;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.45}
+  h1,h2,h3,h4,.logo,.serif{font-family:var(--serif);font-weight:600;letter-spacing:.1px}
+  h2{font-size:22px;margin:0} h3{font-size:16px;margin:0 0 8px} h4{font-size:14px;margin:0 0 6px}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--text);text-decoration:underline;text-decoration-color:var(--turq);text-decoration-thickness:2px;text-underline-offset:3px}
+  a:hover{color:var(--turq)}
+  .hidden{display:none !important}
+  .muted{color:var(--muted)} .small{font-size:12px} .tiny{font-size:11px}
+  .right{text-align:right} .center{text-align:center}
+  .mono{font-variant-numeric:tabular-nums}
+
+  /* header and brand */
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--navy);position:sticky;top:0;z-index:50;flex-wrap:wrap}
+  .brandmark{display:flex;align-items:center;gap:11px;background:none;border:0;padding:0;text-align:left;color:#FCFAF1}
+  .dots{display:flex;gap:4px} .dots i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .dots.big i{width:16px;height:16px;gap:6px} .dots.big{gap:7px}
+  .logo{font-size:19px;color:#FCFAF1;line-height:1.1}
+  .logo small{display:block;font-family:var(--sans);font-weight:600;font-size:10.5px;letter-spacing:.5px;color:rgba(250,247,239,.75);text-transform:uppercase;margin-top:2px}
+  .header-spacer{flex:1}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap}
+  .tab{background:transparent;border:1px solid rgba(250,247,239,.35);color:#FCFAF1;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:600}
+  .tab:hover{border-color:var(--turq)}
+  .tab.active{background:var(--turq);border-color:var(--turq);color:var(--navy)}
+  .iconbtn{background:transparent;border:1px solid rgba(250,247,239,.4);color:#FCFAF1;width:34px;height:34px;border-radius:50%;font-weight:700;font-size:15px}
+  .iconbtn:hover{border-color:var(--turq);color:var(--turq)}
+  #spectrum{height:4px;background:linear-gradient(90deg,#D95448,#F1BA4B,#47AB4F,#00BCC5)}
+  .hdr-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid var(--turq);background:rgba(0,188,197,.14);color:#FCFAF1}
+  .hdr-chip i{width:8px;height:8px;border-radius:50%;background:var(--turq);display:inline-block}
+
+  /* chips, badges, buttons */
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+  .chip.profile{border-color:var(--turq);background:var(--turq-soft);cursor:pointer}
+  .chip.profile i{width:8px;height:8px;border-radius:50%;background:var(--turq);display:inline-block}
+  .ro-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:1px 6px;margin-left:5px;vertical-align:middle}
+  .est-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#6b5d2e;background:#FBF1D6;border:1px solid #E7D49E;border-radius:10px;padding:1px 6px;margin-left:5px;vertical-align:middle}
+  .btn{background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:7px 13px;border-radius:8px;font-size:12.5px;font-weight:600;line-height:1.2}
+  .btn:hover{border-color:var(--turq)}
+  .btn.primary{background:var(--turq);border-color:var(--turq);color:var(--navy)}
+  .btn.primary:hover{background:#13c9d1}
+  .btn.sm{padding:5px 10px;font-size:11.5px}
+  .btn.danger:hover{border-color:var(--brick);color:var(--brick)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .seg{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .seg button{background:transparent;border:0;border-right:1px solid var(--line);padding:7px 13px;font-size:12.5px;font-weight:600;color:var(--text)}
+  .seg button:last-child{border-right:0}
+  .seg button.active{background:var(--turq);color:var(--navy)}
+  .seg button:hover:not(.active){background:var(--turq-soft)}
+  .risk{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.3px}
+  .risk.low{background:var(--grove);color:#fff} .risk.medium{background:var(--gold);color:var(--navy)} .risk.high{background:var(--brick);color:#fff}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:12px;font-size:11.5px;font-weight:700;border:1px solid var(--line);background:var(--panel2)}
+  .pill .dot,.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+  .toggle{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 11px;border:1px solid var(--line2);border-radius:8px;background:var(--panel);cursor:pointer;user-select:none}
+  .toggle input{width:auto;margin:0;accent-color:var(--turq)}
+  .toggle.on{border-color:var(--grove);background:var(--grove-soft)}
+
+  /* forms */
+  input,select,textarea{background:var(--panel);border:1px solid var(--line2);color:var(--text);border-radius:6px;padding:6px 8px;font-size:12.5px;font-family:inherit;width:100%}
+  input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--turq);outline-offset:1px;border-color:var(--turq)}
+  input[type=number]{font-variant-numeric:tabular-nums}
+  input[type=color]{padding:0;height:32px;width:40px}
+  .field{margin-bottom:10px} .field label{display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px} .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px} .row4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+  /* layout */
+  #app{min-height:calc(100vh - 150px)}
+  .view{display:none} .view.active{display:block}
+  .ws{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:0;align-items:start}
+  .ws-main{padding:16px 18px 30px;min-width:0}
+  .ws-side{border-left:1px solid var(--line);background:var(--panel);padding:16px;position:sticky;top:59px;max-height:calc(100vh - 59px);overflow:auto}
+  @media (max-width:1040px){.ws{grid-template-columns:1fr}.ws-side{position:static;max-height:none;border-left:0;border-top:1px solid var(--line)}}
+  .wsbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .wsbar .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .wsctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .card h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card h3 .spacer{flex:1}
+  .ph{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin:16px 0 8px;font-weight:700} .ph:first-child{margin-top:0}
+  .kv{font-size:13px;margin:4px 0;color:var(--text);display:flex;justify-content:space-between;gap:10px} .kv b{color:var(--muted);font-weight:600}
+  .kv span.v{text-align:right;font-variant-numeric:tabular-nums}
+  .assume{background:#FBF1D6;border:1px solid #E7D49E;border-radius:8px;padding:9px 12px;font-size:12px;color:#6b5d2e;margin:10px 0;line-height:1.5}
+  .note{color:var(--muted);font-size:12px;line-height:1.5}
+
+  /* tally */
+  .tally{display:flex;gap:0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow-x:auto;margin-bottom:14px}
+  .tally-cell{flex:1 1 auto;min-width:120px;text-align:left;padding:12px 16px;border-right:1px solid var(--line)} .tally-cell:last-child{border-right:none}
+  .tally-cell .n{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+  .tally-cell .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
+  .tally-cell.gapcell.open .n{color:var(--brick)} .tally-cell.gapcell.closed .n{color:var(--grove)}
+  .outgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+  .outcell{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  .outcell .n{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums} .outcell .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+  .outcell.green{border-color:var(--grove);background:var(--grove-soft)}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.5px}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.sel td{background:var(--turq-soft)}
+  tr.clickable{cursor:pointer} tr.clickable:hover td{background:var(--panel2)}
+  .tablewrap{overflow-x:auto}
+
+  /* capital stack */
+  .stackbar{display:flex;height:16px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--panel2);margin:8px 0 10px}
+  .stackbar i{display:block;min-width:2px}
+  .stackbar i.gapseg{background:repeating-linear-gradient(45deg,#D95448,#D95448 4px,#F6D3CF 4px,#F6D3CF 8px)}
+  .stackline{display:grid;grid-template-columns:1fr 118px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .stackline .lab{display:flex;align-items:center;gap:7px;min-width:0} .stackline .lab span{overflow:hidden;text-overflow:ellipsis}
+  .stackline .lab i{width:10px;height:10px;border-radius:2px;flex:none;display:inline-block}
+  .stackline .amt{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .stackline input{text-align:right;padding:4px 6px}
+  .autotag{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--grove);border:1px solid var(--grove);border-radius:8px;padding:0 5px;flex:none}
+  .stacktotal{display:flex;justify-content:space-between;padding:8px 0 2px;font-weight:700;font-size:13px}
+  .gapbox{border-radius:12px;padding:14px 16px;text-align:center;border:2px solid;margin:12px 0 6px}
+  .gapbox.open{border-color:var(--brick);background:var(--brick-soft)} .gapbox.closed{border-color:var(--grove);background:var(--grove-soft)}
+  .gapbox .t{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;font-weight:800}
+  .gapbox.open .t{color:var(--brick)} .gapbox.closed .t{color:var(--grove)}
+  .gapbox .n{font-family:var(--serif);font-size:36px;font-weight:600;line-height:1.1;margin:4px 0;font-variant-numeric:tabular-nums}
+  .gapbox.open .n{color:var(--brick)} .gapbox.closed .n{color:var(--grove)}
+  .gapbox .s{font-size:11.5px;color:var(--muted)}
+  .rolebox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2);font-size:12.5px;margin-top:10px}
+  .rolebox b{display:block;font-family:var(--serif);font-size:15px;margin-bottom:4px}
+
+  /* landing */
+  .landing{max-width:1040px;margin:0 auto;padding:54px 20px 40px;text-align:center}
+  .landing h1{font-size:46px;margin:14px 0 6px;line-height:1.05}
+  .landing .tag{display:inline-block;font:700 11px var(--sans);letter-spacing:1.8px;text-transform:uppercase;color:var(--navy);background:var(--gold);padding:4px 12px;border-radius:20px}
+  .landing .lede{font-size:17px;color:var(--muted);margin:16px 0 34px}
+  .landing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;text-align:left}
+  .wscard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .wscard::before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:var(--c)}
+  .wscard .num{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted)}
+  .wscard h2{font-size:24px} .wscard p{margin:0;color:var(--muted);font-size:13.5px;flex:1;line-height:1.5}
+  .wscard .mini{height:70px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);overflow:hidden}
+  .wscard .mini svg{width:100%;height:100%;display:block}
+  .wscard .btn{align-self:flex-start}
+  .engine-strip{margin-top:34px;border-top:1px solid var(--line);padding-top:18px;font-size:12.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .engine-strip .chip{font-weight:600}
+
+  /* district schematic */
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+  .plan svg{width:100%;height:auto;display:block}
+  .plan .parcel{cursor:pointer}
+  .plan .parcel rect.body{stroke:#101C28;stroke-width:.7;transition:opacity .12s}
+  .plan .parcel:hover rect.body{stroke-width:2}
+  .plan .parcel.selected rect.body{stroke:var(--turq);stroke-width:3.5}
+  .plan text{font-family:var(--sans);pointer-events:none}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;padding:8px 2px 0;font-size:11px;color:var(--muted)}
+  .legend .li{display:flex;align-items:center;gap:5px} .legend .li i{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.2)}
+  .brushbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .brush{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);font-size:12px;font-weight:600}
+  .brush.active{outline:2px solid var(--turq);border-color:var(--turq)}
+  .brush .dot{width:11px;height:11px}
+  .modeseg button{padding:6px 9px;font-size:11.5px}
+
+  /* structures */
+  .structs{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
+  .struct{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px;cursor:pointer;text-align:left;position:relative;display:flex;flex-direction:column;gap:5px;transition:border-color .12s}
+  .struct:hover{border-color:var(--turq)}
+  .struct.active{outline:3px solid var(--turq);border-color:var(--turq)}
+  .struct .n{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--muted)}
+  .struct h4{font-family:var(--serif);font-size:15px;margin:0}
+  .struct .short{font-size:11.5px;color:var(--muted)}
+  .struct .fig{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+  .struct .fig small{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  .struct .foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  .timeline{display:flex;gap:4px;margin:8px 0}
+  .timeline span{flex:1;padding:6px 8px;border-radius:6px;font-size:11px;background:var(--panel2);border:1px solid var(--line);text-align:center}
+  .timeline span.on{background:var(--turq-soft);border-color:var(--turq);font-weight:700}
+
+  /* concepts and basis */
+  .basis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .basiscard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+  .basiscard.active{outline:3px solid var(--turq);border-color:var(--turq)}
+  .basiscard h4{font-family:var(--serif);font-size:15px;margin:0 0 4px}
+  .basiscard .fig{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+  .basiscard .field{margin:8px 0 0}
+  .lotrow{display:grid;grid-template-columns:52px 1fr 150px 130px 110px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .lotrow .lid{font-weight:800} .lotrow .lmeta{color:var(--muted);font-size:11.5px}
+  @media (max-width:760px){.lotrow{grid-template-columns:1fr 1fr}}
+  .reco{border-left:4px solid var(--turq);background:var(--panel);border-radius:0 10px 10px 0;padding:12px 14px;font-size:13.5px;line-height:1.55;margin-bottom:14px}
+  .reco b{font-family:var(--serif);font-size:15px}
+
+  /* scenarios */
+  .scn-list{display:flex;flex-direction:column;gap:10px}
+  .scn{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .scn .meta{flex:1;min-width:0} .scn .meta b{font-size:14px} .scn .meta span{display:block;color:var(--muted);font-size:11.5px}
+  .scn .strip{width:120px;height:44px;flex:none;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel2)}
+  .scn .strip svg{width:100%;height:100%;display:block}
+  .strip-inline{display:inline-block;width:96px;height:36px;vertical-align:middle;border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--panel2)}
+  .strip-inline svg{width:100%;height:100%;display:block}
+
+  /* pillars editor */
+  .editwrap{max-width:1100px;margin:0 auto;padding:20px 18px 40px}
+  .pillar-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;border-top:5px solid var(--c)}
+  .pillar-card .top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .pillar-card .top input.name{font-weight:700;font-size:15px;flex:1;min-width:180px}
+  .pillar-card .top input.icon{width:48px;text-align:center;font-size:18px}
+  .metricrow{display:grid;grid-template-columns:1fr 130px 90px 60px;gap:8px;align-items:center;margin:6px 0}
+  .metricrow label{display:flex;gap:5px;align-items:center;font-size:11.5px;margin:0}
+  .metricrow label input{width:auto}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(16,28,40,.5);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto}
+  .modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:1060px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(16,28,40,.3);position:relative}
+  .modal .box h2{margin-bottom:4px}
+  .modal .close{position:absolute;top:12px;right:12px}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+
+  /* popover */
+  .pop{position:absolute;z-index:120;background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:14px;box-shadow:0 12px 40px rgba(16,28,40,.18);width:320px;max-width:calc(100vw - 24px)}
+  .pop .ph{margin-top:0}
+  .popwrap{position:relative;display:inline-block}
+
+  /* tour */
+  #tourLayer{position:fixed;inset:0;z-index:400;background:rgba(16,28,40,.42)}
+  .tour-highlight{position:relative;z-index:401;box-shadow:0 0 0 4px var(--turq),0 0 0 9999px rgba(16,28,40,.42);border-radius:10px}
+  #tourCard{position:fixed;z-index:402;max-width:330px;background:var(--panel);border:1px solid var(--turq);border-radius:12px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+  #tourCard h4{margin:0 0 6px;font-size:16px;font-family:var(--serif)} #tourCard p{margin:0 0 12px;font-size:13px;color:var(--text);line-height:1.5}
+  #tourCard .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  #tourCard .step{font-size:11px;color:var(--muted)}
+  #tourCard .dots{margin-bottom:8px}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:16px 18px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  footer .dots i{width:8px;height:8px}
+  footer button{background:none;border:0;color:var(--muted);text-decoration:underline;text-decoration-color:var(--turq);text-decoration-thickness:2px;text-underline-offset:3px;font-size:12px;padding:0}
+  footer button:hover{color:var(--turq)}
+
+  /* partner brief */
+  #brief{background:#fff;color:#101C28;font-size:12px;line-height:1.4}
+  #brief .bhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  #brief .bhead h1{font-size:24px;margin:0;line-height:1.1}
+  #brief .bhead .sub{font-size:11px;color:#5C6470;margin-top:3px}
+  #brief .bhead .right{font-size:11px;color:#5C6470;text-align:right}
+  #brief .brule{height:4px;background:linear-gradient(90deg,#D95448,#F1BA4B,#47AB4F,#00BCC5);margin:10px 0 12px}
+  #brief .breco{border-left:4px solid #00BCC5;padding:8px 12px;margin:0 0 12px;font-size:13px;line-height:1.45}
+  #brief .breco b{font-family:var(--serif);font-size:14px}
+  #brief .bcards{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+  #brief .bc{border:1px solid #E3DECD;border-radius:8px;padding:8px 10px}
+  #brief .bc .n{font-family:var(--serif);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+  #brief .bc .l{font-size:9.5px;color:#5C6470;text-transform:uppercase;letter-spacing:.4px;margin-top:3px;font-weight:600}
+  #brief .bcols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  #brief table{font-size:11px} #brief th,#brief td{padding:4px 6px;border-bottom:1px solid #E3DECD}
+  #brief .bgap{display:flex;justify-content:space-between;align-items:center;border:2px solid;border-radius:8px;padding:6px 10px;margin-top:8px;font-weight:800}
+  #brief .bgap.open{border-color:#D95448;color:#D95448} #brief .bgap.closed{border-color:#47AB4F;color:#47AB4F}
+  #brief .bplan{border:1px solid #E3DECD;border-radius:8px;padding:6px;background:#fff}
+  #brief .bplan svg{width:100%;height:auto;max-height:260px;display:block}
+  #brief .bfoot{margin-top:12px;font-size:10px;color:#5C6470;line-height:1.45}
+  #brief .bbrand{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:10px;color:#5C6470}
+  #brief .bbrand .dots i{width:7px;height:7px}
+  #brief h3{font-size:12px;text-transform:uppercase;letter-spacing:.8px;font-family:var(--sans);color:#5C6470;margin:0 0 6px;font-weight:700}
+
+  @page{size:letter;margin:0.45in}
+  @media print{
+    html,body{background:#fff}
+    header,#spectrum,#app,footer,#tourLayer,#tourCard,.noprint,.modal:not(#briefModal){display:none !important}
+    #briefModal{display:block !important;position:static;background:#fff;padding:0;overflow:visible}
+    #briefModal .box{max-width:none;width:auto;padding:0;border:0;box-shadow:none;border-radius:0}
+    #brief{font-size:11px}
+    #brief .bplan svg{max-height:230px}
+    #brief .bcards{gap:6px}
+    #brief .bc .n{font-size:15px}
+    a{text-decoration:none;color:inherit}
+  }
+</style>
+</head>
+<body>
+
+<header id="appHeader">
+  <button class="brandmark" onclick="setView('landing')" title="Back to the three workspaces">
+    <div class="dots"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div>
+    <div class="logo">The Investment Map<small>Portfolio Demonstration</small></div>
+  </button>
+  <div class="header-spacer"></div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-view="landing" onclick="setView('landing')">Workspaces</button>
+    <button class="tab" data-view="district" onclick="setView('district')">The District</button>
+    <button class="tab" data-view="site" onclick="setView('site')">Five Acre Site</button>
+    <button class="tab" data-view="twenty" onclick="setView('twenty')">Twenty Acres</button>
+    <button class="tab" data-view="pillars" onclick="setView('pillars')">Edit Pillars</button>
+  </div>
+  <span id="hdrChip"></span>
+  <div class="popwrap">
+    <button class="iconbtn" id="helpBtn" title="Help and guided tour" onclick="toggleHelp()">?</button>
+    <div class="pop hidden" id="helpPop" style="right:0;top:42px">
+      <div class="ph">Help</div>
+      <p class="note" style="margin:0 0 10px">A decision environment for site level and deal structure analysis. Everything here is demonstration data. All projections are planning estimates with editable assumptions, never an appraisal or a tax determination.</p>
+      <div class="inline">
+        <button class="btn sm primary" onclick="toggleHelp();startTour(0)">Take the guided tour</button>
+        <button class="btn sm" onclick="toggleHelp();setView('pillars')">Edit pillars and assumptions</button>
+        <button class="btn sm danger" onclick="resetDemo()">Reset demonstration data</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div id="spectrum"></div>
+
+<div id="app">
+  <div class="view active" data-view="landing" id="landingView"></div>
+  <div class="view" data-view="district" id="districtView"></div>
+  <div class="view" data-view="site" id="siteView"></div>
+  <div class="view" data-view="twenty" id="twentyView"></div>
+  <div class="view" data-view="pillars" id="pillarsView"></div>
+</div>
+
+<footer>
+  <div class="inline"><div class="dots"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div><span>Connecting Dots and Strategies · Reclaiming the map. · Demonstration data.</span></div>
+  <div class="inline"><span>Planning estimates, editable assumptions. Saved in this browser.</span><button onclick="resetDemo()">Reset</button></div>
+</footer>
+
+<div class="modal hidden" id="scnModal"><div class="box" id="scnBox"></div></div>
+<div class="modal hidden" id="briefModal"><div class="box"><div class="noprint modal-actions" style="margin:0 0 12px;justify-content:space-between;align-items:center"><span class="note">Partner Brief preview. The client team keeps the instrument. Partners receive the paper. Printing uses your browser print dialog and fits one page.</span><span class="inline"><button class="btn primary" onclick="window.print()">Print or save as PDF</button><button class="btn" onclick="closeModal('briefModal')">Close</button></span></div><div id="brief"></div></div></div>
+<div class="modal hidden" id="compareModal"><div class="box" id="compareBox"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" onerror="window.__chartFailed=true"></script>
+<script>
+/* ============================================================
+   The Investment Map · Portfolio Demonstration
+   One shared decision engine. Three workspaces. Demonstration data.
+   All projections are planning estimates with editable assumptions.
+   ============================================================ */
+"use strict";
+const LS_KEY="cds_investment_map_portfolio_v1";
+const STATE_VERSION=1;
+const COLORS={brick:"#D95448",gold:"#F1BA4B",grove:"#47AB4F",turq:"#00BCC5",navy:"#101C28",muted:"#5C6470",line:"#E3DECD",road:"#D7D1C0"};
+const SRC_LABELS={public:"Public partner resources",grants:"Grants",debt:"Debt",partner:"Partner equity",hcdc:"HCDC equity"};
+const SRC_COLORS={public:"#101C28",grants:"#F1BA4B",debt:"#8A94A0",partner:"#47AB4F",hcdc:"#00BCC5",fedCredit:"#E89A92",stateCredit:"#D95448",pace:"#8FCF94",energy:"#F7D78F",seller:"#B5443A",landowner:"#C9C2AD",conveyance:"#6B7A8A"};
+const MODES={
+  rehab:{label:"Rehab",letter:"R",basis:"existing",hint:"Cost basis is the existing building square footage."},
+  historic:{label:"Historic Preservation",letter:"H",basis:"existing",hint:"Rehab variant. Adds federal and state historic tax credit lines to the capital stack."},
+  new:{label:"New Construction",letter:"N",basis:"proposed",hint:"Cost basis is the proposed building square footage, editable."},
+  demo:{label:"Demolition plus New",letter:"D",basis:"proposed",hint:"Adds a demolition cost line on the existing building, then new construction on the proposed square footage."}
+};
+const MODE_ORDER=["rehab","historic","new","demo"];
+const RISK_CLASS={Low:"low",Medium:"medium",High:"high"};
+
+/* ---------- defaults ---------- */
+function defaultPillars(){return [
+ {id:"housing",name:"Housing",color:"#D95448",icon:"🏠",cost:{rehab:165,new:235},
+  metrics:[{label:"Housing units",factor:950},{label:"Residents housed",factor:420},{label:"Annual rent revenue",factor:18,money:true}]},
+ {id:"commercial",name:"Commercial",color:"#F1BA4B",icon:"🏬",cost:{rehab:140,new:210},
+  metrics:[{label:"Jobs",factor:350},{label:"Storefronts",factor:2500},{label:"Annual sales",factor:220,money:true}]},
+ {id:"community",name:"Community and Education",color:"#00BCC5",icon:"🎓",cost:{rehab:175,new:260},
+  metrics:[{label:"People served each year",factor:25},{label:"Program seats",factor:90},{label:"Annual program value",factor:40,money:true}]},
+ {id:"green",name:"Green and Public Realm",color:"#47AB4F",icon:"🌳",cost:{rehab:45,new:70},
+  metrics:[{label:"Public realm sqft",factor:1},{label:"Trees planted",factor:400},{label:"Households within reach",factor:300}]}
+];}
+function defaultProfiles(){return {
+  small:{name:"Small Southern City",costMult:0.92,valueFactor:1.10,taxRate:0.031},
+  metro:{name:"Large Metro",costMult:1.25,valueFactor:1.35,taxRate:0.022}
+};}
+function defaultGlobals(){return {
+  modeAdj:{rehab:1.0,historic:1.15,new:1.0,demo:1.0},
+  demoCostPerSqft:12,
+  historicFederalPct:20,historicStatePct:25,
+  sustainPremiumPct:6,energySavingsPerSqft:1.25,pacePctOfCost:20,energyCreditPctOfPremium:30,
+  advisoryFeePct:3,
+  defaultFar:1.2,siteFloors:3,twentyFar:0.35
+};}
+
+/* ---------- district parcels (stylized, deterministic) ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+const DISTRICT_ROWS=[{key:"nb",label:"North block"},{key:"nf",label:"North frontage"},{key:"sf",label:"South frontage"},{key:"sb",label:"South block"}];
+function buildDistrictParcels(){
+  const rnd=mulberry32(20261);
+  const withBldg=["Vacant retail","Occupied retail","Warehouse","Office, partly vacant","Single family home","Auto repair","Mixed retail and apartments","Corner store","Small office"];
+  const noBldg=["Vacant lot","Surface parking","Overgrown lot","Gravel lot"];
+  const parcels=[];let n=0;
+  DISTRICT_ROWS.forEach(row=>{for(let c=0;c<10;c++){n++;
+    const id="D-"+String(n).padStart(2,"0");
+    const front=Math.round(40+rnd()*80);
+    const depth=Math.round(100+rnd()*50);
+    const land=front*depth;
+    const hasB=rnd()>0.35;
+    const floors=hasB?(rnd()>0.7?2:1):0;
+    const cover=0.3+rnd()*0.5;
+    const bldg=hasB?Math.max(1200,Math.round(land*cover*floors/100)*100):0;
+    const year=hasB?Math.round(1905+rnd()*93):null;
+    const use=hasB?withBldg[Math.floor(rnd()*withBldg.length)]:noBldg[Math.floor(rnd()*noBldg.length)];
+    const assessed=Math.round((land*(4+rnd()*5)+bldg*(25+rnd()*35))/1000)*1000;
+    parcels.push({id,row:row.key,col:c,front,depth,land,bldg,year,use,assessed,exempt:false});
+  }});
+  const o=(id,patch)=>Object.assign(parcels.find(p=>p.id===id),patch);
+  o("D-07",{use:"Church",exempt:true,assessed:null,bldg:9800,year:1948});
+  o("D-15",{use:"Former department store",bldg:36000,year:1928,front:110,depth:140,land:15400,assessed:1120000});
+  o("D-18",{use:"Former bank branch",bldg:7200,year:1922,assessed:410000});
+  o("D-24",{use:"City owned lot",exempt:true,assessed:null,bldg:0,year:null});
+  o("D-25",{use:"Vacant lot",bldg:0,year:null,front:96,depth:140,land:13440,assessed:98000});
+  o("D-26",{use:"Surface parking",bldg:0,year:null,front:88,depth:140,land:12320,assessed:91000});
+  o("D-28",{use:"Former theater",bldg:14800,year:1931,assessed:520000});
+  o("D-33",{use:"School annex",exempt:true,assessed:null,bldg:12500,year:1961});
+  return parcels;
+}
+const DISTRICT=buildDistrictParcels();
+const SITE={id:"S-01",land:217800,bldg:14500,year:1979,assessed:1850000,use:"Light industrial, vacant two years",owner:"Private owner, anonymized"};
+const TWENTY={id:"T-01",land:871200,bldg:0,year:null,assessed:7400000,use:"Vacant, formerly distribution, bank owned (REO)",owner:"Regional bank, anonymized"};
+
+/* ---------- deal structures (five acre site) ---------- */
+const STRUCTURES=[
+ {id:"buy",n:1,name:"Buy outright",short:"Cash or debt at closing",role:"Owner and developer",control:"Full control at closing",controlSteps:["Close","Entitle","Build","Operate"],risk:"High",income:"Equity return",
+  fields:[["acqDebtPct","Acquisition debt (% of price, 0 for all cash)",60],["closingPct","Closing costs (% of price)",2]],
+  pct:{public:0,grants:0,debt:60,partner:10,hcdc:25}},
+ {id:"option",n:2,name:"Option contract",short:"Entitlement period before purchase",role:"Optionee, then owner and developer",control:"Contingent control through the option period, full control at exercise",controlSteps:["Option","Entitle","Exercise","Build"],risk:"Low",income:"Equity return",
+  fields:[["optionFeePct","Option fee (% of price)",2],["entitlement","Entitlement budget ($)",150000],["optionMonths","Option period (months)",18]],
+  pct:{public:0,grants:5,debt:60,partner:15,hcdc:20}},
+ {id:"lease",n:3,name:"Ground lease",short:"Landowner keeps the fee",role:"Leasehold developer",control:"Leasehold control for the lease term, the fee stays with the landowner",controlSteps:["Sign lease","Build","Operate","Revert"],risk:"Medium",income:"Equity return",
+  fields:[["rentYield","Ground rent (% of land value per year)",6],["prepaidYears","Prepaid rent at closing (years)",1],["deposit","Lease deposit ($)",50000],["termYears","Lease term (years)",65]],
+  pct:{public:0,grants:5,debt:65,partner:10,hcdc:20}},
+ {id:"fee",n:4,name:"Fee developer",short:"Owner funds, HCDC delivers",role:"Fee developer for the owner",control:"No ownership, control limited to the development agreement",controlSteps:["Agreement","Entitle","Build","Hand over"],risk:"Low",income:"Fee",
+  fields:[["pursuit","Pursuit budget ($)",75000],["devFeePct","Development fee (% of development cost)",4]],
+  pct:{public:10,grants:5,debt:60,partner:25,hcdc:0}},
+ {id:"jv",n:5,name:"Joint venture",short:"Owner contributes land as equity",role:"Managing partner in the venture",control:"Shared control under the venture agreement",controlSteps:["Form venture","Entitle","Build","Share returns"],risk:"Medium",income:"Both",
+  fields:[["landCreditPct","Land credited as owner equity (% of price)",100],["predev","Predevelopment budget ($)",250000],["hcdcPredevPct","HCDC share of predevelopment (%)",50],["promotePct","HCDC promote (% of value created)",15]],
+  pct:{public:0,grants:5,debt:60,partner:25,hcdc:10}},
+ {id:"phased",n:6,name:"Phased takedown",short:"Buy the land in phases",role:"Owner and developer, phase by phase",control:"Control of each phase at its takedown, on a contract schedule",controlSteps:["Phase 1","Phase 2","Phase 3","Complete"],risk:"Medium",income:"Equity return",
+  fields:[["phase1Pct","First takedown (% of land)",40],["takedownPremiumPct","Price premium on later phases (%)",3],["closingPct","Closing costs (% of price)",2]],
+  pct:{public:0,grants:0,debt:60,partner:15,hcdc:20}},
+ {id:"seller",n:7,name:"Seller financing",short:"Seller carries a note",role:"Owner and developer, seller holds a note",control:"Full control at closing, subject to the seller note",controlSteps:["Close","Build","Pay note","Own clear"],risk:"Medium",income:"Equity return",
+  fields:[["downPct","Down payment (% of price)",15],["ratePct","Note interest rate (% per year)",6],["termYears","Note term (years, interest only)",5],["closingPct","Closing costs (% of price)",2]],
+  pct:{public:0,grants:0,debt:45,partner:10,hcdc:15}},
+ {id:"public",n:8,name:"Public conveyance",short:"Authority partnership",role:"Development partner to the authority",control:"Conditional control under public purpose covenants and a reverter",controlSteps:["Apply","Convey","Build","Covenant term"],risk:"Low",income:"Both",
+  fields:[["conveyPct","Conveyance price (% of market price)",10],["application","Application and predevelopment ($)",60000],["covenantYears","Public purpose covenant (years)",30]],
+  pct:{public:20,grants:15,debt:50,partner:5,hcdc:10}}
+];
+function structById(id){return STRUCTURES.find(s=>s.id===id)||STRUCTURES[0];}
+
+/* ---------- subdivision concepts (twenty acres) ---------- */
+const CONCEPTS=[
+ {id:"single",name:"One parcel, single use",short:"Hold it whole",rects:[{id:"A",x:0,y:0,w:100,h:50,share:100}]},
+ {id:"mixed",name:"Mixed use lots",short:"Six lots, a pillar per lot",rects:[
+   {id:"L1",x:0,y:0,w:50,h:25,share:25},{id:"L2",x:50,y:0,w:30,h:25,share:15},{id:"L3",x:80,y:0,w:20,h:25,share:10},
+   {id:"L4",x:0,y:25,w:40,h:25,share:20},{id:"L5",x:40,y:25,w:25,h:25,share:12.5},{id:"L6",x:65,y:25,w:35,h:25,share:17.5}]},
+ {id:"phased",name:"Three phase takedown",short:"Buy and build in three phases",rects:[
+   {id:"P1",x:0,y:0,w:40,h:50,share:40,year:1},{id:"P2",x:40,y:0,w:35,h:50,share:35,year:3},{id:"P3",x:75,y:0,w:25,h:50,share:25,year:5}]}
+];
+function conceptById(id){return CONCEPTS.find(c=>c.id===id)||CONCEPTS[0];}
+
+/* ---------- workspace defaults ---------- */
+function defaultDistrict(){return {
+  profile:"small",role:"advisor",sustain:false,brush:"inspect",selected:"D-15",acqPctOfAssessed:0,
+  lots:{
+    "D-15":{pillar:"commercial",mode:"historic",proposed:36000},
+    "D-18":{pillar:"community",mode:"rehab",proposed:7200},
+    "D-24":{pillar:"green",mode:"new",proposed:0},
+    "D-25":{pillar:"housing",mode:"new",proposed:16100},
+    "D-26":{pillar:"housing",mode:"new",proposed:14800},
+    "D-28":{pillar:"community",mode:"rehab",proposed:14800}
+  },
+  stack:{public:2500000,grants:1500000,debt:6000000,partner:2000000,hcdc:1000000},
+  scenarios:[]
+};}
+function defaultSite(){
+  const assume={},pct={};
+  STRUCTURES.forEach(s=>{assume[s.id]={};s.fields.forEach(f=>assume[s.id][f[0]]=f[2]);pct[s.id]={...s.pct};});
+  return {profile:"small",sustain:false,structure:"option",compare:true,landPrice:2400000,pillar:"housing",mode:"demo",proposed:160000,floors:3,assume,pct,scenarios:[]};
+}
+function defaultTwenty(){
+  const lots={single:{A:{pillar:"housing",mode:"new",proposed:305000}},
+    mixed:{L1:{pillar:"housing",mode:"new",proposed:76000},L2:{pillar:"housing",mode:"new",proposed:46000},L3:{pillar:"commercial",mode:"new",proposed:30000},
+           L4:{pillar:"commercial",mode:"new",proposed:61000},L5:{pillar:"community",mode:"new",proposed:38000},L6:{pillar:"green",mode:"new",proposed:152460}},
+    phased:{P1:{pillar:"housing",mode:"new",proposed:122000},P2:{pillar:"commercial",mode:"new",proposed:107000},P3:{pillar:"housing",mode:"new",proposed:76000}}};
+  return {profile:"metro",role:"equity",sustain:false,concept:"mixed",basis:"reo",
+    prices:{market:9600000,reo:6400000,sellerPrice:8200000,sellerDownPct:10,sellerRatePct:5.5,sellerTermYears:5},
+    lots,stack:{public:3000000,grants:4000000,debt:52000000,partner:12000000,hcdc:6000000},scenarios:[]};
+}
+function defaultState(){return {version:STATE_VERSION,view:"landing",tourDone:false,pillars:defaultPillars(),profiles:defaultProfiles(),globals:defaultGlobals(),district:defaultDistrict(),site:defaultSite(),twenty:defaultTwenty()};}
+
+/* ---------- state and persistence ---------- */
+let S=defaultState();
+function persist(){try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){}}
+function deepMerge(base,patch){
+  if(Array.isArray(patch))return patch;
+  if(patch&&typeof patch==="object"){const out={...base};Object.keys(patch).forEach(k=>{out[k]=(base&&typeof base[k]==="object"&&!Array.isArray(base[k])&&patch[k]&&typeof patch[k]==="object"&&!Array.isArray(patch[k]))?deepMerge(base[k],patch[k]):patch[k];});return out;}
+  return patch===undefined?base:patch;
+}
+function restore(){try{
+  const o=JSON.parse(localStorage.getItem(LS_KEY)||"null");
+  if(!o||o.version!==STATE_VERSION)return;
+  S=deepMerge(defaultState(),o);
+  if(!Array.isArray(S.pillars)||!S.pillars.length)S.pillars=defaultPillars();
+}catch(e){}}
+function resetDemo(){
+  const btn=document.querySelector("#helpPop .danger");
+  if(btn&&btn.dataset.armed!=="1"){btn.dataset.armed="1";btn.textContent="Confirm reset";setTimeout(()=>{btn.dataset.armed="";btn.textContent="Reset demonstration data";},4000);return;}
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+  S=defaultState();S.tourDone=true;persist();location.reload();
+}
+function uid(prefix){return prefix+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);}
+
+/* ---------- formatting ---------- */
+function fmtN(v){return Math.round(Number(v)||0).toLocaleString("en-US");}
+function fmt$(v){const n=Math.round(Number(v)||0);return (n<0?"-$":"$")+Math.abs(n).toLocaleString("en-US");}
+function fmtC(v){const n=Number(v)||0,a=Math.abs(n),s=n<0?"-":"";
+  if(a>=1e9)return s+"$"+(a/1e9).toFixed(2).replace(/\.?0+$/,"")+"B";
+  if(a>=1e6)return s+"$"+(a/1e6).toFixed(a>=1e7?1:2).replace(/\.?0+$/,"")+"M";
+  if(a>=1e3)return s+"$"+Math.round(a/1e3)+"K";
+  return s+"$"+Math.round(a);}
+function fmtPct(v,d){return (Number(v)||0).toFixed(d==null?1:d)+"%";}
+function fmtOut(v,money){return money?fmtC(v):fmtN(v);}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function acres(sqft){return (sqft/43560).toFixed(2)+" acres";}
+
+/* ---------- engine ---------- */
+function pillarById(id){return S.pillars.find(p=>p.id===id)||null;}
+function profileFor(ws){return S.profiles[ws.profile]||S.profiles.small||Object.values(S.profiles)[0];}
+function unitCost(pl,mode){return (mode==="rehab"||mode==="historic")?(Number(pl.cost&&pl.cost.rehab)||0):(Number(pl.cost&&pl.cost.new)||0);}
+function calcLot(lot,ws){
+  const pl=pillarById(lot.pillar);if(!pl)return null;
+  const g=S.globals,pr=profileFor(ws);
+  const mode=MODES[lot.mode]?lot.mode:"new";
+  const existing=Number(lot.existing)||0,proposed=Number(lot.proposed)||0;
+  const basis=MODES[mode].basis==="existing"?existing:proposed;
+  const unit=unitCost(pl,mode);
+  const adj=Number(g.modeAdj[mode])||1;
+  const hard=basis*unit*adj*pr.costMult;
+  const demo=mode==="demo"?existing*(Number(g.demoCostPerSqft)||0)*pr.costMult:0;
+  const premium=ws.sustain?(hard+demo)*(Number(g.sustainPremiumPct)||0)/100:0;
+  const cost=hard+demo+premium;
+  const outcomes=(pl.metrics||[]).map(m=>{const f=Number(m.factor)||0;return {label:m.label,money:!!m.money,value:m.money?basis*f:(f>0?Math.floor(basis/f):0)};});
+  return {pillar:pl,mode,basis,unit,adj,hard,demo,premium,cost,historicQualified:mode==="historic"?hard:0,
+    energy:ws.sustain?basis*(Number(g.energySavingsPerSqft)||0):0,greenSqft:ws.sustain?basis:0,outcomes,assessed:Number(lot.assessed)||0};
+}
+function aggregateLots(lots,ws){
+  const t={count:0,basis:0,hard:0,demo:0,premium:0,cost:0,historicQualified:0,energy:0,greenSqft:0,assessed:0,outcomes:{},byPillar:{},calcs:[]};
+  lots.forEach(l=>{const c=calcLot(l,ws);if(!c)return;t.count++;t.calcs.push({lot:l,calc:c});
+    ["basis","hard","demo","premium","cost","historicQualified","energy","greenSqft","assessed"].forEach(k=>t[k]+=c[k]);
+    c.outcomes.forEach(o=>{const k=o.label;t.outcomes[k]=t.outcomes[k]||{v:0,money:o.money};t.outcomes[k].v+=o.value;});
+    const bp=t.byPillar[c.pillar.id]=t.byPillar[c.pillar.id]||{id:c.pillar.id,name:c.pillar.name,color:c.pillar.color,icon:c.pillar.icon,cost:0,count:0,basis:0};bp.cost+=c.cost;bp.count++;bp.basis+=c.basis;});
+  return t;
+}
+function valueMath(totalInvestment,assessed,ws){const pr=profileFor(ws);const valueAfter=totalInvestment*pr.valueFactor;return {valueAfter,valueCreated:valueAfter-assessed,newTax:valueAfter*pr.taxRate};}
+function autoLines(ws,agg){const g=S.globals,L=[];
+  if(agg.historicQualified>0){
+    L.push({key:"fedCredit",label:"Federal historic tax credit ("+g.historicFederalPct+"%)",amount:agg.historicQualified*g.historicFederalPct/100,auto:true,note:"placeholder"});
+    L.push({key:"stateCredit",label:"State historic tax credit ("+g.historicStatePct+"%)",amount:agg.historicQualified*g.historicStatePct/100,auto:true,note:"placeholder"});}
+  if(ws.sustain){
+    L.push({key:"pace",label:"PACE financing ("+g.pacePctOfCost+"% of cost)",amount:agg.cost*g.pacePctOfCost/100,auto:true,note:"sustainability"});
+    L.push({key:"energy",label:"Energy credits ("+g.energyCreditPctOfPremium+"% of premium)",amount:agg.premium*g.energyCreditPctOfPremium/100,auto:true,note:"sustainability"});}
+  return L;}
+function buildStack(totalCost,lines){const committed=lines.reduce((a,l)=>a+(Number(l.amount)||0),0);return {lines,committed,gap:totalCost-committed,totalCost};}
+function roleSummary(ws,total,fee,vm){
+  if(ws.role!=="equity")return {key:"advisor",label:"Advisor",fee,exposure:0,share:0,shareValue:0,
+    text:"HCDC advises the public partner and earns an advisory fee of "+S.globals.advisoryFeePct+"% of total cost. No capital on the HCDC balance sheet. Zero exposure."};
+  const hcdc=Number(ws.stack.hcdc)||0,equity=(Number(ws.stack.partner)||0)+hcdc;
+  const share=equity>0?hcdc/equity:0;
+  return {key:"equity",label:"Equity Partner",fee:0,exposure:hcdc,share,shareValue:share*vm.valueCreated,
+    text:"HCDC places "+fmtC(hcdc)+" of equity in the stack, carries that as balance sheet exposure, and holds "+fmtPct(share*100,0)+" of the equity, the same share of projected value created."};
+}
+
+/* district */
+function districtLots(ws){return Object.entries(ws.lots||{}).map(([id,a])=>{const p=DISTRICT.find(x=>x.id===id);if(!p||!a||!a.pillar||!pillarById(a.pillar))return null;
+  return {id,pillar:a.pillar,mode:a.mode||"new",existing:p.bldg,proposed:a.proposed,land:p.land,assessed:p.exempt?0:(p.assessed||0),parcel:p};}).filter(Boolean);}
+function computeDistrict(ws){
+  const lots=districtLots(ws);
+  const agg=aggregateLots(lots,ws);
+  const acquisition=agg.assessed*(Number(ws.acqPctOfAssessed)||0)/100;
+  const devCost=agg.cost+acquisition;
+  const fee=ws.role!=="equity"?devCost*(Number(S.globals.advisoryFeePct)||0)/100:0;
+  const total=devCost+fee;
+  const lines=["public","grants","debt","partner"].map(k=>({key:k,label:SRC_LABELS[k],amount:Number(ws.stack[k])||0,editable:true}));
+  if(ws.role==="equity")lines.push({key:"hcdc",label:SRC_LABELS.hcdc,amount:Number(ws.stack.hcdc)||0,editable:true});
+  lines.push(...autoLines(ws,agg));
+  const stack=buildStack(total,lines);
+  const vm=valueMath(total,agg.assessed,ws);
+  const role=roleSummary(ws,total,fee,vm);
+  const pillarsUsed=Object.keys(agg.byPillar).length;
+  return {kind:"district",lots,agg,acquisition,devCost,fee,total,investment:total,stack,role,pillarsUsed,dayOne:null,...vm};
+}
+
+/* five acre site */
+function siteLot(ws){return {pillar:ws.pillar,mode:ws.mode,existing:SITE.bldg,proposed:ws.proposed,land:SITE.land,assessed:SITE.assessed};}
+function computeSite(ws,structId){
+  const st=structById(structId||ws.structure);
+  const a={};st.fields.forEach(f=>{const v=ws.assume&&ws.assume[st.id]?ws.assume[st.id][f[0]]:undefined;a[f[0]]=Number(v==null?f[2]:v)||0;});
+  const price=Number(ws.landPrice)||0;
+  const agg=aggregateLots([siteLot(ws)],ws);
+  const dev=agg.cost;
+  let dayOne=0,landBasis=0,carry=0,extra=[],info=[],incomeNote="",hcdcAtCompletion=null,timelineNote="";
+  switch(st.id){
+    case "buy":{const closing=price*a.closingPct/100;landBasis=price+closing;dayOne=price*(1-a.acqDebtPct/100)+closing;
+      incomeNote="Equity return on the whole project.";timelineNote=a.acqDebtPct>0?"Acquisition debt of "+fmtC(price*a.acqDebtPct/100)+" at closing.":"All cash at closing.";break;}
+    case "option":{const optFee=price*a.optionFeePct/100;landBasis=price+optFee+a.entitlement;dayOne=optFee+a.entitlement;
+      incomeNote="Equity return after exercise.";timelineNote=a.optionMonths+" month option period. Land is paid at exercise, after entitlement.";break;}
+    case "lease":{const annual=price*a.rentYield/100;landBasis=annual*a.prepaidYears+a.deposit;dayOne=landBasis;
+      info.push({key:"landowner",label:"Land kept in fee by the landowner (not in the stack)",amount:price});
+      incomeNote="Equity return on the leasehold. Ground rent of "+fmtC(annual)+" each year is an operating cost.";timelineNote=a.termYears+" year leasehold.";break;}
+    case "fee":{landBasis=price;dayOne=a.pursuit;hcdcAtCompletion=a.pursuit;
+      incomeNote="Development fee of "+fmtC(dev*a.devFeePct/100)+" ("+a.devFeePct+"% of development cost). No equity.";timelineNote="Owner funds land and construction. HCDC recovers the pursuit budget through the fee.";break;}
+    case "jv":{landBasis=price;const landCredit=price*a.landCreditPct/100;dayOne=a.predev*a.hcdcPredevPct/100;
+      extra.push({key:"landowner",label:"Owner land contribution (equity credit)",amount:landCredit});
+      incomeNote="Development fee plus a promote of "+a.promotePct+"% of value created.";timelineNote="Owner contributes the land. HCDC funds "+a.hcdcPredevPct+"% of predevelopment day one.";break;}
+    case "phased":{const closing=price*a.closingPct/100;const later=price*(1-a.phase1Pct/100)*a.takedownPremiumPct/100;landBasis=price+closing+later;
+      dayOne=(price+closing)*a.phase1Pct/100;incomeNote="Equity return, phase by phase.";timelineNote="First takedown is "+a.phase1Pct+"% of the land. Later phases carry a "+a.takedownPremiumPct+"% premium.";break;}
+    case "seller":{const closing=price*a.closingPct/100;const note=price*(1-a.downPct/100);carry=note*a.ratePct/100*a.termYears;landBasis=price+closing+carry;
+      dayOne=price*a.downPct/100+closing;extra.push({key:"seller",label:"Seller note ("+a.ratePct+"% over "+a.termYears+" years)",amount:note});
+      incomeNote="Equity return. Interest carry of "+fmtC(carry)+" is added to total cost.";timelineNote="Seller note of "+fmtC(note)+" due in "+a.termYears+" years.";break;}
+    case "public":{const conv=price*a.conveyPct/100;landBasis=conv+a.application;dayOne=landBasis;
+      info.push({key:"conveyance",label:"Land value conveyed below market (not in the stack)",amount:price-conv});
+      incomeNote="Development fee plus a modest equity return under the covenant.";timelineNote=a.covenantYears+" year public purpose covenant with a reverter.";break;}
+  }
+  const total=landBasis+dev;
+  const pct=(ws.pct&&ws.pct[st.id])||st.pct;
+  const lines=["public","grants","debt","partner","hcdc"].map(k=>({key:k,label:SRC_LABELS[k],amount:total*(Number(pct[k])||0)/100,pct:Number(pct[k])||0,editable:true}));
+  extra.forEach(e=>lines.push(e));
+  lines.push(...autoLines(ws,agg));
+  const stack=buildStack(total,lines);
+  const vm=valueMath(total,SITE.assessed,ws);
+  if(hcdcAtCompletion==null)hcdcAtCompletion=total*(Number(pct.hcdc)||0)/100;
+  return {kind:"site",st,a,price,agg,dev,landBasis,dayOne,total,investment:total,carry,extra,info,stack,incomeNote,timelineNote,hcdcAtCompletion,...vm};
+}
+
+/* twenty acres */
+function acquisitionBasis(ws){const p=ws.prices;
+  if(ws.basis==="reo")return {kind:"reo",label:"Distressed or REO price",price:Number(p.reo)||0,carry:0,note:0,downPct:100};
+  if(ws.basis==="seller"){const price=Number(p.sellerPrice)||0,down=Number(p.sellerDownPct)||0,note=price*(1-down/100);
+    return {kind:"seller",label:"Seller financing terms",price,carry:note*(Number(p.sellerRatePct)||0)/100*(Number(p.sellerTermYears)||0),note,downPct:down};}
+  return {kind:"market",label:"Market price",price:Number(p.market)||0,carry:0,note:0,downPct:100};}
+function twentyLots(ws,conceptId){const concept=conceptById(conceptId||ws.concept);const bag=(ws.lots&&ws.lots[concept.id])||{};
+  return concept.rects.map(r=>{const a=bag[r.id]||{};const land=TWENTY.land*r.share/100;
+    return {id:r.id,pillar:a.pillar||null,mode:a.mode||"new",existing:0,proposed:a.proposed,land,assessed:TWENTY.assessed*r.share/100,share:r.share,year:r.year,rect:r};});}
+function computeTwenty(ws,conceptId){
+  const concept=conceptById(conceptId||ws.concept);
+  const lots=twentyLots(ws,concept.id);
+  const agg=aggregateLots(lots.filter(l=>l.pillar),ws);
+  const basis=acquisitionBasis(ws);
+  const acquisition=basis.price+basis.carry;
+  const devCost=acquisition+agg.cost;
+  const fee=ws.role!=="equity"?devCost*(Number(S.globals.advisoryFeePct)||0)/100:0;
+  const total=devCost+fee;
+  const phase1=concept.id==="phased"?concept.rects[0].share/100:1;
+  const dayOne=basis.kind==="seller"?basis.price*basis.downPct/100*phase1:basis.price*phase1;
+  const lines=["public","grants","debt","partner"].map(k=>({key:k,label:SRC_LABELS[k],amount:Number(ws.stack[k])||0,editable:true}));
+  if(ws.role==="equity")lines.push({key:"hcdc",label:SRC_LABELS.hcdc,amount:Number(ws.stack.hcdc)||0,editable:true});
+  if(basis.kind==="seller")lines.push({key:"seller",label:"Seller note ("+ws.prices.sellerRatePct+"% over "+ws.prices.sellerTermYears+" years)",amount:basis.note,auto:true,note:"price basis"});
+  lines.push(...autoLines(ws,agg));
+  const stack=buildStack(total,lines);
+  const vm=valueMath(total,TWENTY.assessed,ws);
+  const role=roleSummary(ws,total,fee,vm);
+  return {kind:"twenty",concept,lots,agg,basis,acquisition,devCost,fee,total,investment:total,dayOne,stack,role,...vm};
+}
+function computeFor(wsKey,ws){ws=ws||S[wsKey];return wsKey==="district"?computeDistrict(ws):wsKey==="site"?computeSite(ws):computeTwenty(ws);}
+
+/* ============================================================
+   Shared UI: views, header chip, capital stack panel, outcomes,
+   profile popover, sustainability toggle, charts with fallback
+   ============================================================ */
+const WS_META={
+  district:{title:"The District",sub:"District revitalization study · small Southern city · 40 stylized parcels",tab:"The District"},
+  site:{title:"The Five Acre Site",sub:"One parcel, 217,800 sqft · the scenario axis is deal structure",tab:"Five Acre Site"},
+  twenty:{title:"The Twenty Acres",sub:"One bank owned site, 871,200 sqft · large metro · subdivide or hold whole",tab:"Twenty Acres"}
+};
+let charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
+function chartsReady(){return typeof Chart!=="undefined"&&!window.__chartFailed;}
+
+function setView(v){
+  if(!document.querySelector('.view[data-view="'+v+'"]'))v="landing";
+  S.view=v;closeAllPops();
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===v));
+  document.querySelectorAll(".view").forEach(el=>el.classList.toggle("active",el.dataset.view===v));
+  renderAll();
+  window.scrollTo({top:0,behavior:"auto"});
+}
+function renderAll(){
+  destroyCharts();
+  renderHeaderChip();
+  const v=S.view;
+  if(v==="landing")renderLanding();
+  else if(v==="district")renderDistrict();
+  else if(v==="site")renderSite();
+  else if(v==="twenty")renderTwenty();
+  else if(v==="pillars")renderPillars();
+  persist();
+}
+function renderHeaderChip(){const el=document.getElementById("hdrChip");
+  if(!WS_META[S.view]){el.innerHTML="";return;}
+  const pr=profileFor(S[S.view]);
+  el.innerHTML=`<span class="hdr-chip" title="Active market profile for this workspace"><i></i>${esc(pr.name)}</span>`;}
+function toggleHelp(){const p=document.getElementById("helpPop");const show=p.classList.contains("hidden");closeAllPops();if(show)p.classList.remove("hidden");}
+function closeAllPops(){document.querySelectorAll(".pop").forEach(p=>p.classList.add("hidden"));}
+document.addEventListener("click",e=>{if(!e.target.closest(".popwrap"))closeAllPops();});
+function closeModal(id){document.getElementById(id).classList.add("hidden");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"));closeAllPops();}});
+
+/* workspace header bar */
+function wsBarHTML(wsKey){const ws=S[wsKey],m=WS_META[wsKey],pr=profileFor(ws);
+  const n=(ws.scenarios||[]).length;
+  return `<div class="wsbar">
+    <div><h2>${m.title}</h2><div class="sub">${m.sub} <span class="ro-badge">demonstration data</span></div></div>
+    <div class="wsctl">
+      <div class="popwrap"><button class="chip profile profile-chip" onclick="toggleProfilePop('${wsKey}')" title="Market profile: switch or edit"><i></i>${esc(pr.name)} ▾</button>
+        <div class="pop hidden" id="profilePop-${wsKey}" style="right:0;top:34px">${profilePopHTML(wsKey)}</div></div>
+      <label class="toggle sustain-toggle ${ws.sustain?'on':''}" title="Adds a cost premium, green outcome metrics, and unlockable funding lines. Planning assumptions."><input type="checkbox" ${ws.sustain?'checked':''} onchange="setWs('${wsKey}','sustain',this.checked)"> Sustainability</label>
+      <button class="btn sm scn-btn" onclick="openScenarios('${wsKey}')">Scenarios${n?' ('+n+')':''}</button>
+      <button class="btn sm primary brief-btn" onclick="openBrief('${wsKey}')">Partner Brief</button>
+    </div></div>`;}
+function profilePopHTML(wsKey){const ws=S[wsKey];
+  return `<div class="ph">Market profile</div>
+   <div class="seg" style="margin-bottom:10px">${Object.entries(S.profiles).map(([k,p])=>`<button class="${ws.profile===k?'active':''}" onclick="setWs('${wsKey}','profile','${k}')">${esc(p.name)}</button>`).join("")}</div>
+   ${profileFieldsHTML(ws.profile,wsKey)}
+   <div class="note">Named assumption set. Switch per workspace. All values editable here or under Edit Pillars.</div>`;}
+function profileFieldsHTML(pk,wsKey){const p=S.profiles[pk];if(!p)return "";
+  return `<div class="row3">
+    <div class="field"><label>Cost multiplier</label><input type="number" step="0.01" value="${p.costMult}" onchange="setProfile('${pk}','costMult',this.value,'${wsKey||''}')"></div>
+    <div class="field"><label>Value factor</label><input type="number" step="0.01" value="${p.valueFactor}" onchange="setProfile('${pk}','valueFactor',this.value,'${wsKey||''}')"></div>
+    <div class="field"><label>Effective tax rate</label><input type="number" step="0.001" value="${p.taxRate}" onchange="setProfile('${pk}','taxRate',this.value,'${wsKey||''}')"></div></div>`;}
+function toggleProfilePop(wsKey){const p=document.getElementById("profilePop-"+wsKey);const show=p.classList.contains("hidden");closeAllPops();if(show)p.classList.remove("hidden");}
+function setProfile(pk,k,v,wsKey){S.profiles[pk][k]=Number(v)||0;renderAll();if(wsKey){const p=document.getElementById("profilePop-"+wsKey);if(p)p.classList.remove("hidden");}}
+function setWs(wsKey,k,v){S[wsKey][k]=v;renderAll();}
+function setWsNum(wsKey,k,v){S[wsKey][k]=Number(v)||0;renderAll();}
+function setStack(wsKey,k,v){S[wsKey].stack[k]=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);renderAll();}
+
+/* tally strip */
+function tallyHTML(cells){return `<div class="tally">${cells.map(c=>`<div class="tally-cell ${c.cls||''}"><div class="n">${c.n}</div><div class="l">${c.l}</div></div>`).join("")}</div>`;}
+function gapCell(stack){const open=stack.gap>0.5;return {n:open?fmtC(stack.gap):"Closed",l:"The gap",cls:"gapcell "+(open?"open":"closed")};}
+
+/* outcomes grid */
+function outcomesHTML(agg,ws){
+  const cells=Object.entries(agg.outcomes).map(([l,o])=>`<div class="outcell"><div class="n">${fmtOut(o.v,o.money)}</div><div class="l">${esc(l)}</div></div>`);
+  if(ws.sustain){cells.push(`<div class="outcell green"><div class="n">${fmtC(agg.energy)}</div><div class="l">Annual energy savings</div></div>`);cells.push(`<div class="outcell green"><div class="n">${fmtN(agg.greenSqft)}</div><div class="l">Green building sqft</div></div>`);}
+  if(!cells.length)return `<div class="note">Assign a pillar to see projected outcomes.</div>`;
+  return `<div class="outgrid">${cells.join("")}</div><div class="note" style="margin-top:6px">Count outcomes = floor(basis sqft ÷ sqft per unit). Dollar outcomes = basis sqft × dollars per sqft. Planning estimate, editable assumptions.</div>`;}
+
+/* value block */
+function valueRowsHTML(comp,assessedLabel){return `<table><tbody>
+  <tr><td>${assessedLabel||"Current assessed value"} <span class="ro-badge">reference</span></td><td class="num">${fmt$(comp.agg.assessed)}</td></tr>
+  <tr><td>Total investment <span class="est-badge">estimate</span></td><td class="num">${fmt$(comp.total)}</td></tr>
+  <tr><td>Value after investment (× ${profileFor(S[comp.kind]).valueFactor})</td><td class="num">${fmt$(comp.valueAfter)}</td></tr>
+  <tr><td><b>Value created</b></td><td class="num"><b>${fmt$(comp.valueCreated)}</b></td></tr>
+  <tr><td>New annual property tax (× ${profileFor(S[comp.kind]).taxRate})</td><td class="num">${fmt$(comp.newTax)}</td></tr>
+ </tbody></table><div class="assume" style="margin-bottom:0">Planning estimate, editable assumptions. Value after investment = total investment × value factor. New annual property tax = value after investment × effective tax rate. Not an appraisal or a tax determination.</div>`;}
+
+/* capital stack panel */
+function stackPanelHTML(wsKey,comp,opts){opts=opts||{};const st=comp.stack;
+  const segs=st.lines.filter(l=>l.amount>0).map(l=>`<i style="flex:${l.amount};background:${SRC_COLORS[l.key]||'#999'}" title="${esc(l.label)}: ${fmt$(l.amount)}"></i>`).join("")+(st.gap>0?`<i class="gapseg" style="flex:${st.gap}" title="The gap: ${fmt$(st.gap)}"></i>`:"");
+  const rows=st.lines.map(l=>{
+    let amt;
+    if(l.editable&&opts.mode==="pct")amt=`<div class="inline" style="gap:4px;justify-content:flex-end"><input type="number" step="1" min="0" style="width:58px" value="${l.pct}" onchange="setSitePct('${opts.structId}','${l.key}',this.value)" title="${esc(l.label)} as % of total"><span class="tiny muted">%</span></div><div class="right tiny mono">${fmt$(l.amount)}</div>`;
+    else if(l.editable)amt=`<input type="text" inputmode="numeric" value="${Math.round(l.amount).toLocaleString('en-US')}" onchange="setStack('${wsKey}','${l.key}',this.value)" title="Edit ${esc(l.label)}">`;
+    else amt=`<div class="amt">${fmt$(l.amount)}</div>`;
+    const tag=l.auto?`<span class="autotag">${l.note||'auto'}</span>`:(l.editable?"":`<span class="autotag" style="color:var(--muted);border-color:var(--line2)">structure</span>`);
+    return `<div class="stackline"><div class="lab"><i style="background:${SRC_COLORS[l.key]||'#999'}"></i><span>${esc(l.label)}</span>${tag}</div>${amt}</div>`;}).join("");
+  const open=st.gap>0.5;
+  const infoRows=(comp.info||[]).map(i=>`<div class="kv"><b>${esc(i.label)}</b><span class="v">${fmt$(i.amount)}</span></div>`).join("");
+  return `<div class="stackbar">${segs||'<i style="flex:1;background:var(--panel2)"></i>'}</div>
+    ${rows}
+    <div class="stacktotal"><span>Committed sources</span><span class="mono">${fmt$(st.committed)}</span></div>
+    <div class="stacktotal" style="padding-top:0"><span>Total cost</span><span class="mono">${fmt$(st.totalCost)}</span></div>
+    <div class="gapbox ${open?'open':'closed'}" id="gapbox-${wsKey}"><div class="t">The gap</div><div class="n">${open?fmtC(st.gap):"Closed"}</div><div class="s">${open?"Total cost minus committed sources. "+fmt$(st.gap)+" still to find.":"Sources cover total cost"+(st.gap<-0.5?" with "+fmtC(-st.gap)+" to spare.":".")}</div></div>
+    ${infoRows?`<div class="ph">Not in the stack</div>${infoRows}`:""}
+    <div class="note" style="margin-top:8px">Planning estimate, editable assumptions. Auto lines come from the construction mode and the sustainability toggle. Historic credit percentages are placeholders.</div>`;}
+
+/* role toggle and summary */
+function roleHTML(wsKey,comp){const ws=S[wsKey],r=comp.role;
+  return `<div class="seg" id="roleSeg-${wsKey}" style="width:100%;display:flex"><button style="flex:1" class="${ws.role!=='equity'?'active':''}" onclick="setWs('${wsKey}','role','advisor')">Advisor</button><button style="flex:1" class="${ws.role==='equity'?'active':''}" onclick="setWs('${wsKey}','role','equity')">Equity Partner</button></div>
+   <div class="rolebox"><b>HCDC role: ${r.label}</b>${esc(r.text)}
+     <div class="kv" style="margin-top:8px"><b>Advisory fee (in total cost)</b><span class="v">${r.key==="advisor"?fmt$(r.fee):"none"}</span></div>
+     <div class="kv"><b>Balance sheet exposure</b><span class="v">${fmt$(r.exposure)}</span></div>
+     <div class="kv"><b>Ownership share of equity</b><span class="v">${r.key==="equity"?fmtPct(r.share*100,0):"none"}</span></div>
+     <div class="kv"><b>HCDC share of value created</b><span class="v">${r.key==="equity"?fmt$(r.shareValue):"none"}</span></div>
+     <div class="note" style="margin-top:6px">${r.key==="advisor"?"What closes the gap under this role: more public, grant, debt, or partner equity. HCDC brings advice, not capital.":"What closes the gap under this role: HCDC equity enters the stack. Raise it until the gap closes, then read the exposure that implies."}</div>
+   </div>`;}
+
+/* construction mode segmented control */
+function modeSegHTML(current,onpick,hasExisting){return `<div class="seg modeseg">${MODE_ORDER.map(m=>`<button class="${current===m?'active':''}" ${(!hasExisting&&MODES[m].basis==="existing")?'disabled title="No existing building on this parcel"':''} onclick="${onpick.replace('MODE',m)}" title="${esc(MODES[m].hint)}">${MODES[m].label}</button>`).join("")}</div>`;}
+
+/* chart with graceful fallback (table) */
+function chartOrTable(id,cfg,tableHTML){
+  if(!chartsReady())return `<div class="tablewrap">${tableHTML}</div><div class="tiny muted" style="margin-top:4px">Table view. Charts load from a content network when online.</div>`;
+  setTimeout(()=>{const c=document.getElementById(id);if(!c||!chartsReady())return;try{charts[id]=new Chart(c,cfg);}catch(e){}},0);
+  return `<canvas id="${id}" style="max-height:220px"></canvas>`;}
+function barCfg(labels,data,colors,money){return {type:"bar",data:{labels,datasets:[{data,backgroundColor:colors}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#5C6470",font:{size:10}},grid:{display:false}},y:{ticks:{color:"#5C6470",font:{size:10},callback:v=>money?fmtC(v):fmtN(v)},grid:{color:"#E3DECD"}}}}};}
+
+/* reference parcel facts */
+function parcelFactsHTML(p){return `
+  <div class="kv"><b>Land</b><span class="v">${fmtN(p.land)} sqft <span class="ro-badge">reference</span></span></div>
+  <div class="kv"><b>Existing building</b><span class="v">${p.bldg?fmtN(p.bldg)+" sqft":"none"} <span class="ro-badge">reference</span></span></div>
+  <div class="kv"><b>Year built</b><span class="v">${p.year||"none"} <span class="ro-badge">reference</span></span></div>
+  <div class="kv"><b>Assessed value</b><span class="v">${p.exempt||p.assessed==null?"Exempt":fmt$(p.assessed)} <span class="ro-badge">reference</span></span></div>
+  <div class="kv"><b>Existing use</b><span class="v">${esc(p.use)} <span class="ro-badge">reference</span></span></div>`;}
+
+/* ============================================================
+   Landing view
+   ============================================================ */
+function dotsHTML(cls){return `<div class="dots ${cls||''}"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div>`;}
+function renderLanding(){
+  const el=document.getElementById("landingView");
+  const cards=[
+    {key:"district",c:COLORS.brick,num:"Workspace 01",title:"The District",text:"A small Southern city. About 40 stylized parcels on a schematic grid, four editable investment pillars, and a capital stack that keeps the gap in view. Advisor or Equity Partner.",mini:districtSVG(S.district,true)},
+    {key:"site",c:COLORS.gold,num:"Workspace 02",title:"The Five Acre Site",text:"One parcel, 217,800 sqft, with a small existing building. Eight deal structures compared on capital day one, capital at completion, control, risk, and income.",mini:siteSVG(S.site,true)},
+    {key:"twenty",c:COLORS.grove,num:"Workspace 03",title:"The Twenty Acres",text:"One bank owned site in a large metro, 871,200 sqft. Three subdivision concepts and three price bases answer: buy it, highest and best use, one parcel or subdivide.",mini:twentySVG(S.twenty,null,true)}
+  ];
+  el.innerHTML=`<section class="landing">
+    ${dotsHTML("big").replace('class="dots big"','class="dots big" style="justify-content:center"')}
+    <h1>The Investment Map</h1>
+    <div class="tag">Portfolio Demonstration</div>
+    <p class="lede">One decision engine. Three live deal types. Demonstration data.</p>
+    <div class="landing-cards" id="landingCards">${cards.map(c=>`<div class="wscard" style="--c:${c.c}"><div class="num">${c.num}</div><h2>${c.title}</h2><div class="mini">${c.mini}</div><p>${c.text}</p><button class="btn primary" onclick="setView('${c.key}')">Open</button></div>`).join("")}</div>
+    <div class="engine-strip"><span>Shared decision engine:</span>
+      <span class="chip">Construction modes</span><span class="chip">Historic credits</span><span class="chip">Sustainability</span><span class="chip">Market profiles</span><span class="chip">Capital stack and the gap</span><span class="chip">Scenarios</span><span class="chip">Partner Brief</span><span class="chip">Edit Pillars</span>
+    </div>
+    <p class="note" style="margin-top:14px">Every figure of record carries a reference badge. Every projection is a planning estimate with editable assumptions, never an appraisal or a tax determination.</p>
+  </section>`;
+}
+
+/* ============================================================
+   Workspace 1 · The District
+   ============================================================ */
+function districtGeom(mini){
+  const colW=[];for(let c=0;c<10;c++)colW[c]=Math.max(...DISTRICT.filter(p=>p.col===c).map(p=>p.front));
+  const gap=3,cross=36,margin=mini?2:12,labelH=mini?0:14;
+  const xs=[];let x=margin;for(let c=0;c<10;c++){xs[c]=x;x+=colW[c]+gap;if(c===4)x+=cross;}
+  const totalW=x-gap+margin;
+  const rowH={nb:70,nf:94,sf:94,sb:70},alley=8,road=34;
+  const ys={};let y=margin+labelH;ys.nb=y;y+=rowH.nb+alley;ys.nf=y;y+=rowH.nf;const roadY=y;y+=road;ys.sf=y;y+=rowH.sf+alley;ys.sb=y;y+=rowH.sb;
+  const totalH=y+margin+labelH;
+  return {colW,xs,ys,rowH,roadY,road,cross,crossX:xs[4]+colW[4]+gap,margin,labelH,totalW,totalH,gap};
+}
+function districtSVG(ws,mini){
+  const g=districtGeom(mini);
+  let s=`<svg viewBox="0 0 ${g.totalW} ${g.totalH}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic district grid of 40 stylized parcels">
+   <defs><pattern id="hatch${mini?'m':''}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#F1EDDF"/><line x1="0" y1="0" x2="0" y2="6" stroke="#B9B2A0" stroke-width="1.6"/></pattern></defs>
+   <rect x="0" y="0" width="${g.totalW}" height="${g.totalH}" fill="#FCFAF1"/>
+   <rect x="${g.margin}" y="${g.roadY}" width="${g.totalW-2*g.margin}" height="${g.road}" fill="${COLORS.road}"/>
+   <line x1="${g.margin}" y1="${g.roadY+g.road/2}" x2="${g.totalW-g.margin}" y2="${g.roadY+g.road/2}" stroke="#B59A3A" stroke-width="1.5" stroke-dasharray="10 8"/>
+   <rect x="${g.crossX}" y="${g.margin+g.labelH}" width="${g.cross}" height="${g.totalH-2*g.margin-2*g.labelH}" fill="${COLORS.road}"/>`;
+  if(!mini){s+=`<text x="${g.totalW/2}" y="${g.roadY+g.road/2+4}" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="3" fill="#6b6450">MAIN STREET</text>
+   <text transform="translate(${g.crossX+g.cross/2+4} ${g.ys.nb+g.rowH.nb/2}) rotate(-90)" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="2" fill="#6b6450">OAK ST</text>
+   <text x="${g.margin}" y="${g.margin+9}" font-size="9" font-weight="700" letter-spacing="1" fill="#5C6470">NORTH BLOCK · 40 PARCELS · SCHEMATIC, NO REAL ADDRESSES</text>
+   <text x="${g.margin}" y="${g.totalH-g.margin-3}" font-size="9" font-weight="700" letter-spacing="1" fill="#5C6470">SOUTH BLOCK</text>`;}
+  DISTRICT.forEach(p=>{
+    const a=ws.lots[p.id],pl=a&&pillarById(a.pillar);
+    const x=g.xs[p.col],y=g.ys[p.row],w=p.front,h=g.rowH[p.row];
+    const fill=pl?pl.color:(p.bldg?"#DDD7C6":`url(#hatch${mini?'m':''})`);
+    const sel=!mini&&ws.selected===p.id;
+    s+=`<g class="parcel ${sel?'selected':''}" ${mini?'':`onclick="districtClick('${p.id}')"`}><title>${p.id} · ${esc(p.use)}</title>
+      <rect class="body" x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" rx="2"/>`;
+    if(p.bldg&&!pl){const cov=Math.min(.85,(p.bldg/Math.max(1,p.land))*(p.bldg>p.land?0.5:1));const bw=w*0.72,bh=Math.max(8,h*Math.min(.8,cov+.15));const by=(p.row==="nf"||p.row==="nb")?y+h-bh-5:y+5;s+=`<rect x="${x+(w-bw)/2}" y="${by}" width="${bw}" height="${bh}" fill="#B9B2A0" opacity=".75"/>`;}
+    if(!mini){
+      s+=`<text x="${x+3}" y="${y+h-4}" font-size="8.5" font-weight="700" fill="${pl?'#fff':'#101C28'}" style="${pl?'text-shadow:0 1px 2px rgba(0,0,0,.5)':''}">${p.id}</text>`;
+      if(pl){s+=`<text x="${x+w/2}" y="${y+h/2+5}" text-anchor="middle" font-size="${Math.min(16,w/3)}">${pl.icon||""}</text>`;
+        s+=`<circle cx="${x+w-8}" cy="${y+8}" r="6.5" fill="#101C28"/><text x="${x+w-8}" y="${y+11}" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff">${MODES[a.mode]?MODES[a.mode].letter:"N"}</text>`;}
+      if(p.exempt)s+=`<text x="${x+3}" y="${y+9}" font-size="7" font-weight="700" fill="#5C6470">EXEMPT</text>`;
+    }
+    s+=`</g>`;
+  });
+  return s+`</svg>`;
+}
+function districtClick(id){const ws=S.district;
+  if(ws.brush==="clear"){delete ws.lots[id];ws.selected=id;}
+  else if(ws.brush!=="inspect"&&pillarById(ws.brush)){assignDistrict(id,ws.brush);ws.selected=id;}
+  else ws.selected=id;
+  renderAll();}
+function defaultProposed(land,pl){return pl&&pl.id==="green"?land:Math.round(land*(Number(S.globals.defaultFar)||1)/100)*100;}
+function assignDistrict(id,pillarId){const ws=S.district,p=DISTRICT.find(x=>x.id===id);if(!p)return;const prev=ws.lots[id]||{};const pl=pillarById(pillarId);
+  const mode=prev.mode||(p.bldg?"rehab":"new");
+  const proposed=prev.proposed||defaultProposed(p.land,pl);
+  ws.lots[id]={pillar:pillarId,mode,proposed};}
+function setBrush(b){S.district.brush=b;renderAll();}
+function districtAssign(id,pillarId){if(pillarId==="none"){delete S.district.lots[id];}else assignDistrict(id,pillarId);S.district.selected=id;renderAll();}
+function districtMode(id,mode){const a=S.district.lots[id];if(!a)return;a.mode=mode;renderAll();}
+function districtProposed(id,v){const a=S.district.lots[id];if(!a)return;a.proposed=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);renderAll();}
+
+function renderDistrict(){
+  const ws=S.district,comp=computeDistrict(ws);
+  const el=document.getElementById("districtView");
+  const pillarsUsed=Object.values(comp.agg.byPillar);
+  const invTable=`<table><thead><tr><th>Pillar</th><th class="num">Parcels</th><th class="num">Basis sqft</th><th class="num">Estimated cost</th></tr></thead><tbody>${pillarsUsed.map(b=>`<tr><td><span class="dot" style="background:${b.color};margin-right:6px"></span>${esc(b.name)}</td><td class="num">${b.count}</td><td class="num">${fmtN(b.basis)}</td><td class="num">${fmt$(b.cost)}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">No parcels assigned yet.</td></tr>'}</tbody></table>`;
+  el.innerHTML=`<div class="ws"><div class="ws-main">
+    ${wsBarHTML("district")}
+    ${tallyHTML([{n:comp.agg.count,l:"Parcels assigned"},{n:comp.pillarsUsed,l:"Pillars in use"},{n:fmtC(comp.total),l:"Estimated investment"},{n:fmtC(comp.valueCreated),l:"Value created"},{n:fmtC(comp.newTax),l:"New annual property tax"},gapCell(comp.stack)])}
+    <div class="reco" id="districtReco">${recommendation("district",comp)}</div>
+    <div class="card" id="districtPlanCard">
+      <h3>Schematic district grid <span class="spacer"></span><span class="tiny muted">Click a parcel to inspect it. Pick a pillar brush to assign parcels in one click each.</span></h3>
+      <div class="brushbar" id="brushBar"><span class="tiny muted" style="font-weight:700;letter-spacing:.5px;text-transform:uppercase">Brush</span>
+        <button class="brush ${ws.brush==='inspect'?'active':''}" onclick="setBrush('inspect')">Inspect</button>
+        ${S.pillars.map(p=>`<button class="brush ${ws.brush===p.id?'active':''}" onclick="setBrush('${p.id}')"><span class="dot" style="background:${p.color}"></span>${p.icon||""} ${esc(p.name)}</button>`).join("")}
+        <button class="brush ${ws.brush==='clear'?'active':''}" onclick="setBrush('clear')">Clear</button></div>
+      <div class="plan" id="districtPlan">${districtSVG(ws,false)}</div>
+      <div class="legend"><span class="li"><i style="background:repeating-linear-gradient(45deg,#F1EDDF,#F1EDDF 3px,#B9B2A0 3px,#B9B2A0 4px)"></i>Vacant land</span><span class="li"><i style="background:#DDD7C6"></i>Existing building, unassigned</span>${S.pillars.map(p=>`<span class="li"><i style="background:${p.color}"></i>${esc(p.name)}</span>`).join("")}<span class="li"><i style="background:#101C28;border-radius:50%"></i>Mode: R rehab · H historic · N new · D demolition plus new</span></div>
+    </div>
+    <div class="card" id="districtDetail">${districtDetailHTML(ws,comp)}</div>
+    <div class="card" id="districtOutcomes"><h3>Projected outcomes <span class="est-badge">planning estimate</span></h3>${outcomesHTML(comp.agg,ws)}</div>
+    <div class="row2">
+      <div class="card"><h3>Investment by pillar</h3>${chartOrTable("cDistrictInv",barCfg(pillarsUsed.map(b=>b.name),pillarsUsed.map(b=>Math.round(b.cost)),pillarsUsed.map(b=>b.color),true),invTable)}</div>
+      <div class="card"><h3>Value and tax base</h3>${valueRowsHTML(comp,"Assessed value, assigned parcels")}</div>
+    </div>
+  </div>
+  <aside class="ws-side">
+    <div class="ph">HCDC role</div>${roleHTML("district",comp)}
+    <div class="ph" style="margin-top:18px">Capital stack</div>
+    <div id="districtStack">${stackPanelHTML("district",comp,{mode:"dollar"})}</div>
+    <div class="ph">Cost build up</div>
+    <div class="kv"><b>Construction (hard)</b><span class="v">${fmt$(comp.agg.hard)}</span></div>
+    ${comp.agg.demo?`<div class="kv"><b>Demolition</b><span class="v">${fmt$(comp.agg.demo)}</span></div>`:""}
+    ${comp.agg.premium?`<div class="kv"><b>Sustainability premium (${S.globals.sustainPremiumPct}%)</b><span class="v">${fmt$(comp.agg.premium)}</span></div>`:""}
+    <div class="kv"><b>Acquisition</b><span class="v">${fmt$(comp.acquisition)}</span></div>
+    ${comp.fee?`<div class="kv"><b>Advisory fee (${S.globals.advisoryFeePct}%)</b><span class="v">${fmt$(comp.fee)}</span></div>`:""}
+    <div class="kv" style="font-weight:700"><b style="color:var(--text)">Total cost</b><span class="v">${fmt$(comp.total)}</span></div>
+    <div class="field" style="margin-top:10px"><label>Acquisition assumption (% of assessed value of assigned parcels)</label><input type="number" min="0" step="5" value="${ws.acqPctOfAssessed}" onchange="setWsNum('district','acqPctOfAssessed',this.value)"></div>
+    <div class="note">0% assumes site control through the public partner. 100% assumes purchase at assessed value. Planning assumption.</div>
+  </aside></div>`;
+}
+function districtDetailHTML(ws,comp){
+  const p=DISTRICT.find(x=>x.id===ws.selected);
+  if(!p)return `<h3>Parcel</h3><div class="note">Click any parcel on the grid to read its reference data and assign a pillar.</div>`;
+  const a=ws.lots[p.id],pl=a&&pillarById(a.pillar);
+  const lot=pl?{pillar:a.pillar,mode:a.mode,existing:p.bldg,proposed:a.proposed,land:p.land,assessed:p.exempt?0:p.assessed}:null;
+  const c=lot?calcLot(lot,ws):null;
+  const pr=profileFor(ws);
+  let right=`<div class="ph">Investment pillar</div><div class="inline" style="gap:6px">${S.pillars.map(x=>`<button class="pill" style="${pl&&pl.id===x.id?'outline:2px solid var(--turq);border-color:var(--turq)':''}" onclick="districtAssign('${p.id}','${x.id}')"><span class="dot" style="background:${x.color}"></span>${x.icon||""} ${esc(x.name)}</button>`).join("")}${pl?`<button class="btn sm danger" onclick="districtAssign('${p.id}','none')">Clear</button>`:""}</div>`;
+  if(pl&&c){
+    right+=`<div class="ph">Construction mode</div>${modeSegHTML(a.mode,`districtMode('${p.id}','MODE')`,p.bldg>0)}<div class="note" style="margin-top:6px">${esc(MODES[c.mode].hint)}</div>`;
+    if(MODES[c.mode].basis==="proposed")right+=`<div class="field" style="margin-top:8px;max-width:260px"><label>Proposed building sqft (editable)</label><input type="text" inputmode="numeric" value="${fmtN(a.proposed)}" onchange="districtProposed('${p.id}',this.value)"></div>`;
+    right+=`<div class="ph">Cost for this parcel <span class="est-badge">planning estimate</span></div>
+      <div class="kv"><b>Basis sqft (${MODES[c.mode].basis})</b><span class="v">${fmtN(c.basis)}</span></div>
+      <div class="kv"><b>Cost per sqft (${c.mode==="rehab"||c.mode==="historic"?"rehab":"new"})</b><span class="v">${fmt$(c.unit)}</span></div>
+      <div class="kv"><b>Mode adjustment × market multiplier</b><span class="v">${c.adj} × ${pr.costMult}</span></div>
+      <div class="kv"><b>Construction</b><span class="v">${fmt$(c.hard)}</span></div>
+      ${c.demo?`<div class="kv"><b>Demolition (${fmtN(p.bldg)} sqft × ${fmt$(S.globals.demoCostPerSqft)})</b><span class="v">${fmt$(c.demo)}</span></div>`:""}
+      ${c.premium?`<div class="kv"><b>Sustainability premium</b><span class="v">${fmt$(c.premium)}</span></div>`:""}
+      <div class="kv" style="font-weight:700"><b style="color:var(--text)">Parcel cost</b><span class="v">${fmt$(c.cost)}</span></div>
+      ${c.historicQualified?`<div class="note">Historic variant: adds federal (${S.globals.historicFederalPct}%) and state (${S.globals.historicStatePct}%) credit lines to the capital stack on ${fmt$(c.historicQualified)} of qualified rehab cost.</div>`:""}
+      <div class="ph">Outcomes for this parcel</div><div class="outgrid">${c.outcomes.map(o=>`<div class="outcell"><div class="n">${fmtOut(o.value,o.money)}</div><div class="l">${esc(o.label)}</div></div>`).join("")}</div>`;
+  }else right+=`<div class="note" style="margin-top:10px">Choose a pillar to price this parcel. Parcels with an existing building default to Rehab, vacant land defaults to New Construction.</div>`;
+  return `<h3>Parcel ${p.id} <span class="tiny muted" style="font-weight:500">${esc(p.use)}</span><span class="spacer"></span>${pl?`<span class="pill"><span class="dot" style="background:${pl.color}"></span>${esc(pl.name)} · ${MODES[c.mode].label}</span>`:'<span class="pill">Unassigned</span>'}</h3>
+   <div class="row2" style="gap:24px"><div><div class="ph">Reference data</div>${parcelFactsHTML(p)}<div class="kv"><b>Location</b><span class="v">${DISTRICT_ROWS.find(r=>r.key===p.row).label}, column ${p.col+1}</span></div><div class="note" style="margin-top:8px">Figures of record for this stylized parcel. Read only.</div></div><div>${right}</div></div>`;
+}
+
+/* ============================================================
+   Workspace 2 · The Five Acre Site (deal structure axis)
+   ============================================================ */
+function siteSVG(ws,mini){
+  const W=600,H=340,m=20,pw=560,ph=270,roadY=m+ph+8;
+  const pl=pillarById(ws.pillar);const col=pl?pl.color:"#C9C2AD";
+  const mode=MODES[ws.mode]?ws.mode:"new";
+  const eShare=SITE.bldg/SITE.land,eArea=eShare*pw*ph,ew=Math.sqrt(eArea*1.5),eh=eArea/ew,ex=m+pw-ew-26,ey=m+ph-eh-26;
+  const floors=Math.max(1,Number(ws.floors)||1);
+  const foot=(Number(ws.proposed)||0)/floors,pShare=Math.min(.8,foot/SITE.land),pArea=pShare*pw*ph;
+  let pw2=Math.min(pw-80,Math.sqrt(pArea*1.6)),ph2=pArea/Math.max(1,pw2);if(ph2>ph-80){ph2=ph-80;pw2=pArea/ph2;}
+  const px=m+34,py=m+34;
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five acre site diagram">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="#FCFAF1"/>
+    <rect x="${m}" y="${m}" width="${pw}" height="${ph}" fill="#F4F0E2" stroke="#101C28" stroke-width="1.5" rx="3"/>
+    <rect x="${m}" y="${roadY}" width="${pw}" height="26" fill="${COLORS.road}"/>`;
+  if(!mini)s+=`<text x="${m+pw/2}" y="${roadY+17}" text-anchor="middle" font-size="10" font-weight="700" letter-spacing="3" fill="#6b6450">ACCESS ROAD</text>
+    <text x="${m+8}" y="${m+16}" font-size="10" font-weight="700" fill="#5C6470">${SITE.id} · ${fmtN(SITE.land)} SQFT · ${acres(SITE.land).toUpperCase()}</text>`;
+  if(mode==="rehab"||mode==="historic"){
+    s+=`<rect x="${ex}" y="${ey}" width="${ew}" height="${eh}" fill="${col}" stroke="#101C28" stroke-width="1"/>`;
+    if(!mini)s+=`<text x="${ex+ew/2}" y="${ey-6}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#101C28">${MODES[mode].label} · ${fmtN(SITE.bldg)} sqft</text>`;
+  }else{
+    if(mode==="demo"){s+=`<rect x="${ex}" y="${ey}" width="${ew}" height="${eh}" fill="none" stroke="#D95448" stroke-width="1.5" stroke-dasharray="5 4"/><line x1="${ex}" y1="${ey}" x2="${ex+ew}" y2="${ey+eh}" stroke="#D95448" stroke-width="1.5"/><line x1="${ex+ew}" y1="${ey}" x2="${ex}" y2="${ey+eh}" stroke="#D95448" stroke-width="1.5"/>`;
+      if(!mini)s+=`<text x="${ex+ew/2}" y="${ey-6}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#D95448">Demolished · ${fmtN(SITE.bldg)} sqft</text>`;}
+    else{s+=`<rect x="${ex}" y="${ey}" width="${ew}" height="${eh}" fill="#B9B2A0" stroke="#101C28" stroke-width="1"/>`;if(!mini)s+=`<text x="${ex+ew/2}" y="${ey-6}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#5C6470">Existing · ${fmtN(SITE.bldg)} sqft</text>`;}
+    if(pw2>4&&ph2>4){s+=`<rect x="${px}" y="${py}" width="${pw2}" height="${ph2}" fill="${col}" opacity=".9" stroke="#101C28" stroke-width="1" stroke-dasharray="6 4" rx="2"/>`;
+      if(!mini)s+=`<text x="${px+pw2/2}" y="${py+ph2/2+4}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" style="text-shadow:0 1px 2px rgba(0,0,0,.5)">${esc(pl?pl.name:"")} · ${fmtN(ws.proposed)} sqft · ${floors} floors</text>`;}
+  }
+  return s+`</svg>`;
+}
+function setSiteAssume(stId,k,v){S.site.assume[stId]=S.site.assume[stId]||{};S.site.assume[stId][k]=Number(v)||0;renderAll();}
+function setSitePct(stId,k,v){S.site.pct[stId]=S.site.pct[stId]||{...structById(stId).pct};S.site.pct[stId][k]=Math.max(0,Number(v)||0);renderAll();}
+function setSiteNum(k,v){S.site[k]=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);renderAll();}
+function pickStructure(id){S.site.structure=id;renderAll();}
+function toggleSiteCompare(){S.site.compare=(S.site.compare===false);renderAll();}
+
+function renderSite(){
+  const ws=S.site,comp=computeSite(ws);const all=STRUCTURES.map(s=>computeSite(ws,s.id));
+  const el=document.getElementById("siteView");const st=comp.st;
+  const cards=all.map(c=>`<button class="struct ${ws.structure===c.st.id?'active':''}" onclick="pickStructure('${c.st.id}')">
+     <div class="n">STRUCTURE ${c.st.n}</div><h4>${esc(c.st.name)}</h4><div class="short">${esc(c.st.short)}</div>
+     <div class="fig">${fmtC(c.dayOne)}<small>Capital required day one</small></div>
+     <div class="fig" style="font-size:13px">${fmtC(c.total)}<small>Total capital at completion</small></div>
+     <div class="foot"><span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk} risk</span><span class="tiny muted">${esc(c.st.income)}</span></div></button>`).join("");
+  const compareTable=`<div class="tablewrap"><table id="siteCompareTable"><thead><tr><th>#</th><th>Structure</th><th class="num">Capital day one</th><th class="num">Total at completion</th><th>HCDC role</th><th>Control timeline</th><th>Risk</th><th>Income type</th><th class="num">HCDC equity</th><th class="num">The gap</th></tr></thead><tbody>
+    ${all.map(c=>`<tr class="clickable ${ws.structure===c.st.id?'sel':''}" onclick="pickStructure('${c.st.id}')"><td>${c.st.n}</td><td><b>${esc(c.st.name)}</b></td><td class="num">${fmtC(c.dayOne)}</td><td class="num">${fmtC(c.total)}</td><td>${esc(c.st.role)}</td><td class="small">${esc(c.st.control)}</td><td><span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk}</span></td><td>${esc(c.st.income)}</td><td class="num">${fmtC(c.stack.lines.find(l=>l.key==="hcdc").amount)}</td><td class="num" style="color:${c.stack.gap>0.5?'var(--brick)':'var(--grove)'};font-weight:700">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  const chartTable=`<table><thead><tr><th>Structure</th><th class="num">Day one</th><th class="num">At completion</th></tr></thead><tbody>${all.map(c=>`<tr><td>${c.st.n}. ${esc(c.st.name)}</td><td class="num">${fmtC(c.dayOne)}</td><td class="num">${fmtC(c.total)}</td></tr>`).join("")}</tbody></table>`;
+  const chartCfg={type:"bar",data:{labels:all.map(c=>c.st.n+". "+c.st.name),datasets:[{label:"Capital day one",data:all.map(c=>Math.round(c.dayOne)),backgroundColor:COLORS.turq},{label:"Total at completion",data:all.map(c=>Math.round(c.total)),backgroundColor:COLORS.navy}]},options:{plugins:{legend:{labels:{color:"#101C28",font:{size:10}}}},scales:{x:{ticks:{color:"#5C6470",font:{size:9}},grid:{display:false}},y:{ticks:{color:"#5C6470",font:{size:10},callback:v=>fmtC(v)},grid:{color:"#E3DECD"}}}}};
+  const pl=pillarById(ws.pillar);
+  el.innerHTML=`<div class="ws"><div class="ws-main">
+    ${wsBarHTML("site")}
+    ${tallyHTML([{n:fmtC(comp.dayOne),l:"Capital required day one"},{n:fmtC(comp.total),l:"Total capital at completion"},{n:`<span class="serif" style="font-size:16px">${esc(st.role)}</span>`,l:"HCDC role"},{n:`<span class="risk ${RISK_CLASS[st.risk]}" style="font-size:13px">${st.risk}</span>`,l:"Risk level"},{n:`<span class="serif" style="font-size:16px">${esc(st.income)}</span>`,l:"Income type"},gapCell(comp.stack)])}
+    <div class="reco" id="siteReco">${recommendation("site",comp,all)}</div>
+    <div class="card" id="siteProgram"><h3>Site and program <span class="spacer"></span><span class="pill">${pl?`<span class="dot" style="background:${pl.color}"></span>${esc(pl.name)}`:"No pillar"} · ${MODES[ws.mode]?MODES[ws.mode].label:""}</span></h3>
+      <div class="row2" style="gap:20px;align-items:start">
+        <div class="plan" id="sitePlan">${siteSVG(ws,false)}</div>
+        <div>
+          <div class="ph">Reference data</div>${parcelFactsHTML({land:SITE.land,bldg:SITE.bldg,year:SITE.year,assessed:SITE.assessed,use:SITE.use})}<div class="kv"><b>Owner</b><span class="v">${esc(SITE.owner)} <span class="ro-badge">reference</span></span></div>
+          <div class="ph">Program (editable)</div>
+          <div class="field"><label>Pillar</label><select onchange="setWs('site','pillar',this.value)">${S.pillars.map(x=>`<option value="${x.id}" ${ws.pillar===x.id?'selected':''}>${esc(x.name)}</option>`).join("")}</select></div>
+          <div class="field"><label>Construction mode</label>${modeSegHTML(ws.mode,"setWs('site','mode','MODE')",SITE.bldg>0)}<div class="note" style="margin-top:4px">${esc(MODES[ws.mode]?MODES[ws.mode].hint:"")}</div></div>
+          <div class="row3">
+            <div class="field"><label>Proposed building sqft</label><input type="text" inputmode="numeric" value="${fmtN(ws.proposed)}" onchange="setSiteNum('proposed',this.value)" ${MODES[ws.mode]&&MODES[ws.mode].basis==="existing"?'disabled title="Basis is the existing building under this mode"':''}></div>
+            <div class="field"><label>Floors (diagram)</label><input type="number" min="1" value="${ws.floors}" onchange="setSiteNum('floors',this.value)"></div>
+            <div class="field"><label>Land price assumption ($)</label><input type="text" inputmode="numeric" value="${fmtN(ws.landPrice)}" onchange="setSiteNum('landPrice',this.value)"></div>
+          </div>
+          <div class="kv"><b>Development cost <span class="est-badge">estimate</span></b><span class="v">${fmt$(comp.dev)}</span></div>
+          <div class="kv"><b>Land basis under ${esc(st.name)}</b><span class="v">${fmt$(comp.landBasis)}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="structCard"><h3>Deal structure <span class="est-badge">the scenario axis</span><span class="spacer"></span><span class="tiny muted">Select a card. Every figure recomputes.</span></h3>
+      <div class="structs" id="structGrid">${cards}</div></div>
+    <div class="card" id="siteCompare"><h3>Compare all eight <span class="spacer"></span><button class="btn sm" id="siteCompareBtn" onclick="toggleSiteCompare()">${ws.compare===false?"Show table":"Hide table"}</button></h3>
+      ${ws.compare===false?'<div class="note">Table hidden.</div>':compareTable}
+      <div style="margin-top:14px">${chartOrTable("cSiteCompare",chartCfg,chartTable)}</div></div>
+    <div class="row2">
+      <div class="card"><h3>Projected outcomes <span class="est-badge">planning estimate</span></h3>${outcomesHTML(comp.agg,ws)}</div>
+      <div class="card"><h3>Value and tax base</h3>${valueRowsHTML(comp,"Assessed value of record")}</div>
+    </div>
+  </div>
+  <aside class="ws-side" id="siteSide">
+    <div class="ph">Active structure</div>
+    <h3 style="margin:0">${st.n}. ${esc(st.name)}</h3><div class="note">${esc(st.short)}</div>
+    <div class="kv" style="margin-top:8px"><b>HCDC role</b><span class="v">${esc(st.role)}</span></div>
+    <div class="kv"><b>Risk level</b><span class="v"><span class="risk ${RISK_CLASS[st.risk]}">${st.risk}</span></span></div>
+    <div class="kv"><b>Income type</b><span class="v">${esc(st.income)}</span></div>
+    <div class="kv"><b>Capital day one</b><span class="v">${fmt$(comp.dayOne)}</span></div>
+    <div class="kv"><b>HCDC capital at completion</b><span class="v">${fmt$(comp.hcdcAtCompletion)}</span></div>
+    <div class="kv"><b>Total capital at completion</b><span class="v">${fmt$(comp.total)}</span></div>
+    <div class="ph">Control timeline</div>
+    <div class="timeline">${st.controlSteps.map((c,i)=>`<span class="${i===0?'on':''}">${esc(c)}</span>`).join("")}</div>
+    <div class="note">${esc(st.control)}. ${esc(comp.timelineNote)}</div>
+    <div class="note" style="margin-top:4px"><b>Income:</b> ${esc(comp.incomeNote)}</div>
+    <div class="ph">Structure assumptions (editable)</div>
+    ${st.fields.map(f=>`<div class="field"><label>${esc(f[1])}</label><input type="number" step="any" value="${comp.a[f[0]]}" onchange="setSiteAssume('${st.id}','${f[0]}',this.value)"></div>`).join("")}
+    <div class="ph">Capital stack under this structure</div>
+    <div id="siteStack">${stackPanelHTML("site",comp,{mode:"pct",structId:st.id})}</div>
+  </aside></div>`;
+}
+
+/* ============================================================
+   Workspace 3 · The Twenty Acres (bank owned, large metro)
+   ============================================================ */
+function twentySVG(ws,conceptId,mini){
+  const concept=conceptById(conceptId||ws.concept);const lots=twentyLots(ws,concept.id);
+  const W=1000,H=520,m=20,sw=960,sh=430,roadY=m+sh+10;
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Twenty acre site plan, ${esc(concept.name)}">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="#FCFAF1"/>
+    <rect x="${m}" y="${m}" width="${sw}" height="${sh}" fill="#F4F0E2" stroke="#101C28" stroke-width="2" rx="3"/>
+    <rect x="${m}" y="${roadY}" width="${sw}" height="40" fill="${COLORS.road}"/>`;
+  if(!mini)s+=`<text x="${m+sw/2}" y="${roadY+25}" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="4" fill="#6b6450">BOULEVARD</text>`;
+  lots.forEach((l,i)=>{const r=l.rect;const pl=l.pillar?pillarById(l.pillar):null;
+    const x=m+r.x/100*sw,y=m+r.y/50*sh,w=r.w/100*sw,h=r.h/50*sh;
+    const op=concept.id==="phased"?[0.95,0.68,0.42][i]||0.4:0.92;
+    const fill=pl?pl.color:"#E6E0CE";
+    s+=`<g><title>${l.id}${pl?" · "+esc(pl.name):""} · ${acres(l.land)}</title><rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" fill="${fill}" opacity="${op}" stroke="#101C28" stroke-width="1.5" rx="3"/>`;
+    if(!mini){const dark=!pl||op<0.6;const tc=dark?"#101C28":"#fff";const sh2=dark?"":"text-shadow:0 1px 2px rgba(0,0,0,.45)";
+      s+=`<text x="${x+14}" y="${y+26}" font-size="18" font-weight="800" fill="${tc}" style="${sh2}">${l.id}${concept.id==="phased"?`  <tspan font-size="13" font-weight="700">Phase ${i+1} · Year ${l.year}</tspan>`:""}</text>
+        <text x="${x+14}" y="${y+48}" font-size="13" font-weight="700" fill="${tc}" style="${sh2}">${pl?esc(pl.icon+" "+pl.name):"Unassigned"}</text>
+        <text x="${x+14}" y="${y+68}" font-size="12" fill="${tc}" style="${sh2}">${acres(l.land)} · ${fmtN(l.land)} sqft land</text>
+        <text x="${x+14}" y="${y+86}" font-size="12" fill="${tc}" style="${sh2}">${pl?fmtN(l.proposed)+" sqft proposed":""}</text>`;}
+    s+=`</g>`;});
+  if(!mini)s+=`<text x="${m+10}" y="${m-5}" font-size="11" font-weight="700" letter-spacing="1" fill="#5C6470">${TWENTY.id} · ${fmtN(TWENTY.land)} SQFT · ${acres(TWENTY.land).toUpperCase()} · ${esc(concept.name).toUpperCase()}</text>`;
+  return s+`</svg>`;
+}
+function setTwentyLot(conceptId,lotId,k,v){const ws=S.twenty;ws.lots[conceptId]=ws.lots[conceptId]||{};const l=ws.lots[conceptId][lotId]=ws.lots[conceptId][lotId]||{mode:"new"};
+  if(k==="pillar"){l.pillar=v||null;if(v&&!l.proposed){const r=conceptById(conceptId).rects.find(x=>x.id===lotId);const land=TWENTY.land*r.share/100;l.proposed=pillarById(v)&&pillarById(v).id==="green"?Math.round(land):Math.round(land*(Number(S.globals.twentyFar)||0.35)/1000)*1000;}}
+  else if(k==="proposed")l.proposed=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);
+  else l[k]=v;
+  renderAll();}
+function setPrice(k,v){S.twenty.prices[k]=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);renderAll();}
+function pickBasis(b){S.twenty.basis=b;renderAll();}
+function pickConcept(c){S.twenty.concept=c;renderAll();}
+
+function renderTwenty(){
+  const ws=S.twenty,comp=computeTwenty(ws);const allC=CONCEPTS.map(c=>computeTwenty(ws,c.id));
+  const el=document.getElementById("twentyView");const p=ws.prices;
+  const basisCards=[
+    {k:"market",title:"Market price",fig:fmtC(p.market),body:`<div class="field"><label>Market price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.market)}" onchange="setPrice('market',this.value)"></div><div class="note">Broker guidance for a clean sale.</div>`},
+    {k:"reo",title:"Distressed or REO price",fig:fmtC(p.reo),body:`<div class="field"><label>REO price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.reo)}" onchange="setPrice('reo',this.value)"></div><div class="note">Bank owned, motivated to clear the asset.</div>`},
+    {k:"seller",title:"Seller financing terms",fig:fmtC(p.sellerPrice),body:`<div class="row2"><div class="field"><label>Price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.sellerPrice)}" onchange="setPrice('sellerPrice',this.value)"></div><div class="field"><label>Down (%)</label><input type="number" step="1" value="${p.sellerDownPct}" onchange="setPrice('sellerDownPct',this.value)"></div><div class="field"><label>Rate (% per year)</label><input type="number" step="0.1" value="${p.sellerRatePct}" onchange="setPrice('sellerRatePct',this.value)"></div><div class="field"><label>Term (years)</label><input type="number" step="1" value="${p.sellerTermYears}" onchange="setPrice('sellerTermYears',this.value)"></div></div><div class="note">Bank carries a note. Interest carry is added to total cost.</div>`}
+  ].map(c=>`<div class="basiscard ${ws.basis===c.k?'active':''}" onclick="if(!event.target.closest('input'))pickBasis('${c.k}')"><h4>${c.title}</h4><div class="fig">${c.fig}</div>${c.body}</div>`).join("");
+  const lotRows=comp.lots.map((l,i)=>{const pl=l.pillar?pillarById(l.pillar):null;const c=pl?calcLot(l,ws):null;
+    return `<div class="lotrow"><div><span class="lid">${l.id}</span>${l.year?`<div class="lmeta">Yr ${l.year}</div>`:""}</div>
+      <div><div class="lmeta">${acres(l.land)} · ${fmtN(l.land)} sqft land</div>${c?`<div class="small"><b>${fmt$(c.cost)}</b> <span class="tiny muted">cost</span></div>`:'<div class="tiny muted">Unassigned</div>'}</div>
+      <div>${comp.concept.id==="single"||true?`<select onchange="setTwentyLot('${comp.concept.id}','${l.id}','pillar',this.value)"><option value="">Pillar: none</option>${S.pillars.map(x=>`<option value="${x.id}" ${l.pillar===x.id?'selected':''}>${esc(x.name)}</option>`).join("")}</select>`:""}</div>
+      <div><input type="text" inputmode="numeric" value="${fmtN(l.proposed)}" onchange="setTwentyLot('${comp.concept.id}','${l.id}','proposed',this.value)" title="Proposed building sqft" ${pl?"":"disabled"}><div class="tiny muted">proposed sqft</div></div>
+      <div><select onchange="setTwentyLot('${comp.concept.id}','${l.id}','mode',this.value)" ${pl?"":"disabled"}>${MODE_ORDER.map(mm=>`<option value="${mm}" ${l.mode===mm?'selected':''} ${MODES[mm].basis==="existing"?'disabled':''}>${MODES[mm].label}</option>`).join("")}</select><div class="tiny muted">mode</div></div></div>`;}).join("");
+  const outcomeLabels=[...new Set(allC.flatMap(c=>Object.keys(c.agg.outcomes)))];
+  const conceptTable=`<div class="tablewrap"><table id="conceptCompare"><thead><tr><th>Metric</th>${allC.map(c=>`<th class="${ws.concept===c.concept.id?'sel':''}">${esc(c.concept.name)}${ws.concept===c.concept.id?' <span class="autotag">active</span>':''}</th>`).join("")}</tr></thead><tbody>
+    <tr><td>Site plan</td>${allC.map(c=>`<td><span class="strip-inline">${twentySVG(ws,c.concept.id,true)}</span></td>`).join("")}</tr>
+    <tr><td>Lots assigned</td>${allC.map(c=>`<td class="num">${c.agg.count} of ${c.lots.length}</td>`).join("")}</tr>
+    <tr><td>Acquisition (${esc(comp.basis.label)})</td>${allC.map(c=>`<td class="num">${fmtC(c.acquisition)}</td>`).join("")}</tr>
+    <tr><td>Capital day one</td>${allC.map(c=>`<td class="num">${fmtC(c.dayOne)}</td>`).join("")}</tr>
+    <tr><td><b>Total investment</b></td>${allC.map(c=>`<td class="num"><b>${fmtC(c.total)}</b></td>`).join("")}</tr>
+    ${outcomeLabels.map(l=>`<tr><td>${esc(l)}</td>${allC.map(c=>`<td class="num">${c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"}</td>`).join("")}</tr>`).join("")}
+    <tr><td><b>Value created</b></td>${allC.map(c=>`<td class="num"><b>${fmtC(c.valueCreated)}</b></td>`).join("")}</tr>
+    <tr><td>New annual property tax</td>${allC.map(c=>`<td class="num">${fmtC(c.newTax)}</td>`).join("")}</tr>
+    <tr><td>The gap</td>${allC.map(c=>`<td class="num" style="font-weight:700;color:${c.stack.gap>0.5?'var(--brick)':'var(--grove)'}">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</td>`).join("")}</tr>
+    </tbody></table></div>`;
+  const chartCfg=barCfg(allC.map(c=>c.concept.name),allC.map(c=>Math.round(c.valueCreated)),[COLORS.brick,COLORS.gold,COLORS.grove],true);
+  const chartTable=`<table><thead><tr><th>Concept</th><th class="num">Value created</th></tr></thead><tbody>${allC.map(c=>`<tr><td>${esc(c.concept.name)}</td><td class="num">${fmtC(c.valueCreated)}</td></tr>`).join("")}</tbody></table>`;
+  el.innerHTML=`<div class="ws"><div class="ws-main">
+    ${wsBarHTML("twenty")}
+    ${tallyHTML([{n:fmtC(comp.acquisition),l:"Acquisition · "+esc(comp.basis.label)},{n:fmtC(comp.dayOne),l:"Capital day one"},{n:fmtC(comp.total),l:"Total investment"},{n:fmtC(comp.valueCreated),l:"Value created"},{n:fmtC(comp.newTax),l:"New annual property tax"},gapCell(comp.stack)])}
+    <div class="reco" id="twentyReco">${recommendation("twenty",comp,allC)}</div>
+    <div class="card" id="basisCard"><h3>Acquisition scenarios <span class="est-badge">price basis</span><span class="spacer"></span><span class="tiny muted">The selection flows into every concept.</span></h3>
+      <div class="basis" id="basisSeg">${basisCards}</div>
+      <div class="row2" style="margin-top:12px;gap:20px"><div>${parcelFactsHTML({land:TWENTY.land,bldg:TWENTY.bldg,year:TWENTY.year,assessed:TWENTY.assessed,use:TWENTY.use})}<div class="kv"><b>Owner</b><span class="v">${esc(TWENTY.owner)} <span class="ro-badge">reference</span></span></div></div>
+      <div class="note">Acquisition basis under ${esc(comp.basis.label)} is ${fmtPct(comp.basis.price/TWENTY.assessed*100,0)} of the assessed value of record.${comp.basis.kind==="seller"?" The seller note of "+fmtC(comp.basis.note)+" enters the capital stack and its interest carry of "+fmtC(comp.basis.carry)+" is added to total cost.":""} Planning estimate, editable assumptions.</div></div>
+    </div>
+    <div class="card" id="conceptCard"><h3>Subdivision concepts <span class="spacer"></span><div class="seg" id="conceptSeg">${CONCEPTS.map(c=>`<button class="${ws.concept===c.id?'active':''}" onclick="pickConcept('${c.id}')">${esc(c.name)}</button>`).join("")}</div></h3>
+      <div class="note" style="margin-bottom:8px">${esc(comp.concept.short)}. ${comp.concept.id==="mixed"?"Assign a pillar per lot.":comp.concept.id==="phased"?"Phases shaded by order. Day one capital is the first takedown.":"One pillar across the whole site."}</div>
+      <div class="plan" id="twentyPlan">${twentySVG(ws,null,false)}</div>
+      <div class="ph">Lots in this concept</div>
+      <div id="lotRows">${lotRows}</div>
+    </div>
+    <div class="card" id="conceptCompareCard"><h3>Compare across concepts <span class="est-badge">planning estimate</span></h3>${conceptTable}<div style="margin-top:14px">${chartOrTable("cTwentyCompare",chartCfg,chartTable)}</div></div>
+    <div class="row2">
+      <div class="card"><h3>Projected outcomes <span class="est-badge">planning estimate</span></h3>${outcomesHTML(comp.agg,ws)}</div>
+      <div class="card"><h3>Value and tax base</h3>${valueRowsHTML(comp,"Assessed value of record")}</div>
+    </div>
+  </div>
+  <aside class="ws-side">
+    <div class="ph">HCDC role</div>${roleHTML("twenty",comp)}
+    <div class="ph" style="margin-top:18px">Capital stack</div>
+    <div id="twentyStack">${stackPanelHTML("twenty",comp,{mode:"dollar"})}</div>
+    <div class="ph">Cost build up</div>
+    <div class="kv"><b>Acquisition (${esc(comp.basis.label)})</b><span class="v">${fmt$(comp.basis.price)}</span></div>
+    ${comp.basis.carry?`<div class="kv"><b>Seller note interest carry</b><span class="v">${fmt$(comp.basis.carry)}</span></div>`:""}
+    <div class="kv"><b>Construction (hard)</b><span class="v">${fmt$(comp.agg.hard)}</span></div>
+    ${comp.agg.premium?`<div class="kv"><b>Sustainability premium (${S.globals.sustainPremiumPct}%)</b><span class="v">${fmt$(comp.agg.premium)}</span></div>`:""}
+    ${comp.fee?`<div class="kv"><b>Advisory fee (${S.globals.advisoryFeePct}%)</b><span class="v">${fmt$(comp.fee)}</span></div>`:""}
+    <div class="kv" style="font-weight:700"><b style="color:var(--text)">Total cost</b><span class="v">${fmt$(comp.total)}</span></div>
+  </aside></div>`;
+}
+
+/* ============================================================
+   Recommendation lines
+   ============================================================ */
+function recommendation(wsKey,comp,all){
+  const ws=S[wsKey];
+  if(wsKey==="district"){
+    const gap=comp.stack.gap,open=gap>0.5;
+    let t=`<b>Recommendation.</b> ${comp.agg.count} parcel${comp.agg.count===1?"":"s"} across ${comp.pillarsUsed} pillar${comp.pillarsUsed===1?"":"s"}. Investment ${fmtC(comp.total)}, value created ${fmtC(comp.valueCreated)}, new annual property tax ${fmtC(comp.newTax)}. `;
+    if(!comp.agg.count)t+=`Assign parcels to begin.`;
+    else if(open)t+=`The gap is ${fmtC(gap)} under the ${comp.role.label} role. `+(comp.role.key==="advisor"?`Closing it takes ${fmtC(gap)} more from public, grant, debt, or partner sources, or a move to the Equity Partner role.`:`HCDC equity of ${fmtC((Number(ws.stack.hcdc)||0)+gap)} closes it, with that exposure on the balance sheet.`);
+    else t+=`Sources cover total cost under the ${comp.role.label} role${comp.role.key==="equity"?` with ${fmtC(comp.role.exposure)} of HCDC exposure`:""}.`;
+    return t+` <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
+  }
+  if(wsKey==="site"){
+    all=all||STRUCTURES.map(s=>computeSite(ws,s.id));
+    const lowest=all.reduce((a,c)=>c.dayOne<a.dayOne?c:a,all[0]);
+    const open=comp.stack.gap>0.5;
+    return `<b>Recommendation.</b> Under ${esc(comp.st.name)}, HCDC needs ${fmtC(comp.dayOne)} day one and the project needs ${fmtC(comp.total)} at completion, with ${comp.st.risk.toLowerCase()} risk and ${comp.st.income.toLowerCase()} income. ${lowest.st.id===comp.st.id?"This is the lightest day one position of the eight.":`${esc(lowest.st.name)} is the lightest day one position at ${fmtC(lowest.dayOne)}.`} ${open?`The stack leaves a gap of ${fmtC(comp.stack.gap)}.`:"The stack closes under the current percentages."} <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
+  }
+  all=all||CONCEPTS.map(c=>computeTwenty(ws,c.id));
+  const best=all.reduce((a,c)=>c.valueCreated>a.valueCreated?c:a,all[0]);
+  const single=all.find(c=>c.concept.id==="single"),mixed=all.find(c=>c.concept.id==="mixed");
+  const pctAssessed=TWENTY.assessed?comp.basis.price/TWENTY.assessed*100:0;
+  const buy=pctAssessed<=100?`Buy signal: acquisition at ${fmtPct(pctAssessed,0)} of assessed value with ${fmtC(comp.dayOne)} day one.`:`Caution: acquisition sits at ${fmtPct(pctAssessed,0)} of assessed value. Press on price or terms.`;
+  const sub=mixed.valueCreated>single.valueCreated*1.05?`Subdividing into mixed use lots creates ${fmtC(mixed.valueCreated-single.valueCreated)} more value than one parcel.`:single.valueCreated>mixed.valueCreated*1.05?`One parcel holds up: it creates ${fmtC(single.valueCreated-mixed.valueCreated)} more value than the mixed use lots.`:`One parcel and mixed use lots land within five percent of each other on value created.`;
+  return `<b>Recommendation.</b> ${buy} Highest and best use by value created: ${esc(best.concept.name)} at ${fmtC(best.valueCreated)} and ${fmtC(best.newTax)} new annual property tax. ${sub} <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
+}
+
+/* ============================================================
+   Scenarios: save, list with visual strip, load, compare
+   ============================================================ */
+function snapshotWs(ws){const c=JSON.parse(JSON.stringify(ws));delete c.scenarios;delete c.brush;delete c.compare;return c;}
+function scenarioWs(wsKey,snap){return {...JSON.parse(JSON.stringify(S[wsKey])),...JSON.parse(JSON.stringify(snap)),scenarios:[]};}
+function stripSVG(wsKey,ws){
+  if(wsKey==="district"){let s=`<svg viewBox="0 0 108 44" xmlns="http://www.w3.org/2000/svg">`;const rows=["nb","nf","sf","sb"],ys=[2,12,26,36];
+    rows.forEach((r,ri)=>{DISTRICT.filter(p=>p.row===r).forEach(p=>{const a=ws.lots[p.id],pl=a&&pillarById(a.pillar);s+=`<rect x="${2+p.col*10.4+(p.col>4?2:0)}" y="${ys[ri]}" width="9" height="7" rx="1" fill="${pl?pl.color:(p.bldg?'#DDD7C6':'#F1EDDF')}" stroke="#B9B2A0" stroke-width=".4"/>`;});});
+    s+=`<rect x="2" y="20.5" width="104" height="4.5" fill="${COLORS.road}"/></svg>`;return s;}
+  if(wsKey==="site"){const st=structById(ws.structure);let s=`<svg viewBox="0 0 120 44" xmlns="http://www.w3.org/2000/svg">`;
+    STRUCTURES.forEach((x,i)=>{const col=i%4,row=Math.floor(i/4);const on=x.id===st.id;const rc={Low:COLORS.grove,Medium:COLORS.gold,High:COLORS.brick}[x.risk];
+      s+=`<rect x="${3+col*29}" y="${3+row*20}" width="26" height="17" rx="3" fill="${on?rc:'#F1EDDF'}" stroke="${on?'#101C28':'#D2CBB6'}" stroke-width="${on?1.2:.6}"/><text x="${16+col*29}" y="${15+row*20}" text-anchor="middle" font-size="9" font-weight="800" fill="${on?'#fff':'#8A94A0'}" font-family="Inter,sans-serif">${x.n}</text>`;});
+    return s+`</svg>`;}
+  return twentySVG(ws,ws.concept,true);
+}
+function openScenarios(wsKey){renderScenarios(wsKey);document.getElementById("scnModal").classList.remove("hidden");}
+function saveScenarioNamed(wsKey){const ws=S[wsKey];const inp=document.getElementById("scnName");const name=(inp&&inp.value.trim())||("Scenario "+((ws.scenarios||[]).length+1));
+  ws.scenarios=ws.scenarios||[];ws.scenarios.push({id:uid("s"),name,date:new Date().toLocaleDateString("en-US"),snap:snapshotWs(ws)});ws.activeScenario=name;persist();renderScenarios(wsKey);renderAll();flash("Saved scenario: "+name);}
+function loadScenario(wsKey,id){const ws=S[wsKey];const s=(ws.scenarios||[]).find(x=>x.id===id);if(!s)return;
+  const keep=ws.scenarios;S[wsKey]={...ws,...JSON.parse(JSON.stringify(s.snap)),scenarios:keep,activeScenario:s.name};closeModal("scnModal");renderAll();flash("Loaded scenario: "+s.name);}
+function deleteScenario(wsKey,id,btn){if(btn&&btn.dataset.armed!=="1"){btn.dataset.armed="1";btn.textContent="Confirm delete";setTimeout(()=>{btn.dataset.armed="";btn.textContent="Delete";},3500);return;}
+  const ws=S[wsKey];ws.scenarios=(ws.scenarios||[]).filter(x=>x.id!==id);persist();renderScenarios(wsKey);renderAll();}
+function compareRows(wsKey,entries){
+  const comps=entries.map(e=>e.comp);
+  const rows=[];const row=(label,fn,cls)=>rows.push(`<tr><td><b>${label}</b></td>${comps.map((c,i)=>`<td class="${cls||'num'}">${fn(c,entries[i])}</td>`).join("")}</tr>`);
+  row("Picture",(c,e)=>`<span class="strip-inline">${stripSVG(wsKey,e.ws)}</span>`,"");
+  if(wsKey==="district"){row("Parcels assigned",c=>c.agg.count);row("HCDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  if(wsKey==="site"){row("Structure",c=>c.st.n+". "+esc(c.st.name),"");row("Capital day one",c=>fmtC(c.dayOne));row("Risk",c=>`<span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk}</span>`,"");row("Income type",c=>esc(c.st.income),"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  if(wsKey==="twenty"){row("Concept",c=>esc(c.concept.name),"");row("Price basis",c=>esc(c.basis.label),"");row("Capital day one",c=>fmtC(c.dayOne));row("HCDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  row(wsKey==="site"?"Total capital at completion":"Total investment",c=>fmtC(c.total));
+  const labels=[...new Set(comps.flatMap(c=>Object.keys(c.agg.outcomes)))];
+  labels.forEach(l=>row(esc(l),c=>c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"));
+  row("Value created",c=>fmtC(c.valueCreated));row("New annual property tax",c=>fmtC(c.newTax));
+  row("The gap",c=>`<span style="font-weight:700;color:${c.stack.gap>0.5?'var(--brick)':'var(--grove)'}">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</span>`);
+  return rows.join("");
+}
+function renderScenarios(wsKey){const ws=S[wsKey],box=document.getElementById("scnBox");const list=ws.scenarios||[];
+  const entries=[{name:"Current (unsaved)",ws:S[wsKey],comp:computeFor(wsKey)},...list.map(s=>{const w=scenarioWs(wsKey,s.snap);return {name:s.name,ws:w,comp:computeFor(wsKey,w)};})];
+  box.innerHTML=`<button class="btn sm close" onclick="closeModal('scnModal')">Close</button>
+   <h2>Scenarios · ${WS_META[wsKey].title}</h2><p class="note" style="margin:0 0 12px">Save the current state of this workspace under a name, load any saved scenario, and compare side by side. Scenarios persist in this browser.</p>
+   <div class="inline" style="margin-bottom:14px"><input id="scnName" placeholder="Name this scenario" style="max-width:280px" value="" onkeydown="if(event.key==='Enter')saveScenarioNamed('${wsKey}')"><button class="btn primary" onclick="saveScenarioNamed('${wsKey}')">Save current as scenario</button></div>
+   ${list.length?`<div class="scn-list">${list.map(s=>`<div class="scn"><div class="strip">${stripSVG(wsKey,scenarioWs(wsKey,s.snap))}</div><div class="meta"><b>${esc(s.name)}</b><span>${esc(s.date)}${ws.activeScenario===s.name?" · loaded":""}</span></div><button class="btn sm primary" onclick="loadScenario('${wsKey}','${s.id}')">Load</button><button class="btn sm danger" onclick="deleteScenario('${wsKey}','${s.id}',this)">Delete</button></div>`).join("")}</div>`:`<p class="note">No saved scenarios yet for this workspace.</p>`}
+   <h3 style="margin-top:20px">Compare side by side</h3>
+   <div class="tablewrap"><table id="scnCompare"><thead><tr><th>Metric</th>${entries.map(e=>`<th>${esc(e.name)}</th>`).join("")}</tr></thead><tbody>${compareRows(wsKey,entries)}</tbody></table></div>
+   <div class="assume" style="margin-top:12px;margin-bottom:0">Figures recompute from each saved state under today's pillars, profiles, and shared assumptions. Planning estimates, editable assumptions.</div>`;}
+let flashT=null;
+function flash(msg){let el=document.getElementById("flash");if(!el){el=document.createElement("div");el.id="flash";el.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101C28;color:#FCFAF1;padding:10px 16px;border-radius:10px;font-size:13px;z-index:500;box-shadow:0 8px 30px rgba(0,0,0,.3)";document.body.appendChild(el);}
+  el.textContent=msg;el.style.display="block";clearTimeout(flashT);flashT=setTimeout(()=>{el.style.display="none";},2600);}
+
+/* ============================================================
+   Partner Brief (print ready, one page)
+   ============================================================ */
+function openBrief(wsKey){document.getElementById("brief").innerHTML=briefHTML(wsKey);document.getElementById("briefModal").classList.remove("hidden");}
+function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsKey],pr=profileFor(ws);
+  const scn=ws.activeScenario||"Working scenario";const date=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  let cards=[],diagram="",assumptions=[];
+  if(wsKey==="district"){cards=[[comp.agg.count,"Parcels assigned"],[fmtC(comp.total),"Investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.role.label,"HCDC role"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=districtSVG(ws,false);
+    assumptions.push(`${comp.pillarsUsed} pillars in use`,`Acquisition at ${ws.acqPctOfAssessed}% of assessed value`);}
+  if(wsKey==="site"){cards=[[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total at completion"],[comp.st.risk,"Risk level"],[comp.st.income,"Income type"],[fmtC(comp.valueCreated),"Value created"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=siteSVG(ws,false);
+    assumptions.push(`Structure ${comp.st.n}: ${comp.st.name}`,`Program: ${pillarById(ws.pillar)?pillarById(ws.pillar).name:""}, ${MODES[ws.mode].label}, ${fmtN(ws.proposed)} sqft`,`Land price ${fmtC(ws.landPrice)}`,...comp.st.fields.map(f=>f[1].replace(/\s*\(.*\)/,"")+": "+comp.a[f[0]]));}
+  if(wsKey==="twenty"){cards=[[fmtC(comp.acquisition),"Acquisition"],[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=twentySVG(ws,null,false);
+    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,`HCDC role: ${comp.role.label}`);}
+  assumptions.push(`Market profile: ${pr.name} (cost × ${pr.costMult}, value × ${pr.valueFactor}, tax ${(pr.taxRate*100).toFixed(2)}%)`,`Sustainability ${ws.sustain?"on, premium "+S.globals.sustainPremiumPct+"%":"off"}`);
+  const outcomes=Object.entries(comp.agg.outcomes).slice(0,6).map(([l,o])=>`<tr><td>${esc(l)}</td><td class="num">${fmtOut(o.v,o.money)}</td></tr>`).join("");
+  return `<div class="bhead"><div><h1>Partner Brief · ${m.title}</h1><div class="sub">The Investment Map · Portfolio Demonstration · ${esc(scn)}</div></div><div class="right">${date}<br>Demonstration data</div></div>
+   <div class="brule"></div>
+   <div class="breco">${recommendation(wsKey,comp)}</div>
+   <div class="bcards">${cards.map(c=>`<div class="bc"><div class="n">${c[0]}</div><div class="l">${c[1]}</div></div>`).join("")}</div>
+   <div class="bcols">
+     <div><h3>Capital stack</h3><table><tbody>${comp.stack.lines.map(l=>`<tr><td>${esc(l.label)}${l.auto?' <span class="autotag">'+(l.note||'auto')+'</span>':''}</td><td class="num">${fmt$(l.amount)}</td></tr>`).join("")}<tr><td><b>Committed sources</b></td><td class="num"><b>${fmt$(comp.stack.committed)}</b></td></tr><tr><td><b>Total cost</b></td><td class="num"><b>${fmt$(comp.stack.totalCost)}</b></td></tr></tbody></table>
+       <div class="bgap ${comp.stack.gap>0.5?'open':'closed'}"><span>THE GAP</span><span>${comp.stack.gap>0.5?fmt$(comp.stack.gap):"Closed"}</span></div>
+       <h3 style="margin-top:10px">Projected outcomes</h3><table><tbody>${outcomes||'<tr><td>None yet</td></tr>'}</tbody></table></div>
+     <div><h3>Diagram</h3><div class="bplan">${diagram}</div>
+       <h3 style="margin-top:10px">Assumptions</h3><div style="font-size:10.5px;line-height:1.45">${assumptions.map(a=>"· "+esc(a)).join("<br>")}</div></div>
+   </div>
+   <div class="bfoot">Planning estimates with editable assumptions, never an appraisal or a tax determination. Figures of record are stylized demonstration data. Cost = basis sqft × cost per sqft × mode adjustment × market multiplier. Value after investment = total investment × value factor. New annual property tax = value after investment × effective tax rate. The client team keeps the instrument. Partners receive the paper.</div>
+   <div class="bbrand">${dotsHTML()}<span>Connecting Dots and Strategies · Reclaiming the map. · Demonstration data.</span></div>`;}
+
+/* ============================================================
+   Edit Pillars view (pillars, market profiles, shared assumptions)
+   ============================================================ */
+function renderPillars(){const el=document.getElementById("pillarsView");const g=S.globals;
+  el.innerHTML=`<div class="editwrap">
+   <div class="wsbar"><div><h2>Edit pillars and assumptions</h2><div class="sub">Add, rename, recolor, and reprice pillars and their outcome metrics. Changes propagate to every workspace immediately.</div></div><button class="btn primary" onclick="addPillar()">Add pillar</button></div>
+   <div class="assume">Cost = basis sqft × cost per sqft × mode adjustment × market multiplier. Count outcomes = floor(basis sqft ÷ sqft per unit). Dollar outcomes = basis sqft × dollars per sqft. Planning estimates, editable assumptions, never an appraisal or a tax determination.</div>
+   <div id="pillarCards">${S.pillars.map(p=>`<div class="pillar-card" style="--c:${p.color}">
+     <div class="top"><input type="color" value="${p.color}" onchange="updPillar('${p.id}','color',this.value)" title="Pillar color"><input class="icon" value="${esc(p.icon||"")}" onchange="updPillar('${p.id}','icon',this.value)" title="Symbol"><input class="name" value="${esc(p.name)}" onchange="updPillar('${p.id}','name',this.value)"><button class="btn sm danger" onclick="delPillar('${p.id}',this)">Delete pillar</button></div>
+     <div class="row3"><div class="field"><label>Rehab cost ($ per existing sqft)</label><input type="number" value="${p.cost.rehab}" onchange="updPillarCost('${p.id}','rehab',this.value)"></div><div class="field"><label>New construction cost ($ per proposed sqft)</label><input type="number" value="${p.cost.new}" onchange="updPillarCost('${p.id}','new',this.value)"></div><div class="field"><label>Historic and demolition</label><div class="note">Historic uses the rehab cost × ${g.modeAdj.historic}. Demolition plus New uses the new cost plus ${fmt$(g.demoCostPerSqft)} per existing sqft.</div></div></div>
+     <label style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600">Outcome metrics (check $ for dollars per sqft, otherwise sqft per unit)</label>
+     ${(p.metrics||[]).map((mt,i)=>`<div class="metricrow"><input value="${esc(mt.label)}" onchange="updMetric('${p.id}',${i},'label',this.value)" placeholder="Label"><input type="number" step="any" value="${mt.factor}" onchange="updMetric('${p.id}',${i},'factor',this.value)" placeholder="${mt.money?'$ per sqft':'sqft per unit'}"><label><input type="checkbox" ${mt.money?'checked':''} onchange="updMetric('${p.id}',${i},'money',this.checked)"> $ per sqft</label><button class="btn sm" onclick="delMetric('${p.id}',${i})">Remove</button></div>`).join("")}
+     <button class="btn sm" style="margin-top:6px" onclick="addMetric('${p.id}')">Add metric</button></div>`).join("")}</div>
+   <div class="card" id="profilesCard"><h3>Market profiles <span class="est-badge">named assumption sets</span></h3><div class="note" style="margin-bottom:10px">Each profile sets a construction cost multiplier, a value factor, and an effective property tax rate. Switch per workspace from the profile chip.</div>
+     ${Object.entries(S.profiles).map(([k,p])=>`<div class="row4" style="align-items:end"><div class="field"><label>Profile name</label><input value="${esc(p.name)}" onchange="setProfileName('${k}',this.value)"></div>${profileFieldsHTML(k,"").replace('<div class="row3">','').replace(/<\/div>$/,"")}</div>`).join("")}</div>
+   <div class="card" id="globalsCard"><h3>Shared planning assumptions <span class="est-badge">editable</span></h3>
+     <div class="ph">Construction mode adjustments (multiplier on cost per sqft)</div>
+     <div class="row4">${MODE_ORDER.map(mm=>`<div class="field"><label>${MODES[mm].label}</label><input type="number" step="0.01" value="${g.modeAdj[mm]}" onchange="setModeAdj('${mm}',this.value)"></div>`).join("")}</div>
+     <div class="row4">
+       <div class="field"><label>Demolition cost ($ per existing sqft)</label><input type="number" step="1" value="${g.demoCostPerSqft}" onchange="setGlobal('demoCostPerSqft',this.value)"></div>
+       <div class="field"><label>Federal historic credit (%) placeholder</label><input type="number" step="1" value="${g.historicFederalPct}" onchange="setGlobal('historicFederalPct',this.value)"></div>
+       <div class="field"><label>State historic credit (%) placeholder</label><input type="number" step="1" value="${g.historicStatePct}" onchange="setGlobal('historicStatePct',this.value)"></div>
+       <div class="field"><label>Advisory fee (% of total cost)</label><input type="number" step="0.5" value="${g.advisoryFeePct}" onchange="setGlobal('advisoryFeePct',this.value)"></div>
+     </div>
+     <div class="ph">Sustainability (planning assumptions)</div>
+     <div class="row4">
+       <div class="field"><label>Cost premium (%)</label><input type="number" step="0.5" value="${g.sustainPremiumPct}" onchange="setGlobal('sustainPremiumPct',this.value)"></div>
+       <div class="field"><label>Annual energy savings ($ per sqft)</label><input type="number" step="0.05" value="${g.energySavingsPerSqft}" onchange="setGlobal('energySavingsPerSqft',this.value)"></div>
+       <div class="field"><label>PACE financing (% of cost)</label><input type="number" step="1" value="${g.pacePctOfCost}" onchange="setGlobal('pacePctOfCost',this.value)"></div>
+       <div class="field"><label>Energy credits (% of premium)</label><input type="number" step="1" value="${g.energyCreditPctOfPremium}" onchange="setGlobal('energyCreditPctOfPremium',this.value)"></div>
+     </div>
+     <div class="ph">Default building program</div>
+     <div class="row4">
+       <div class="field"><label>District default floor area ratio</label><input type="number" step="0.1" value="${g.defaultFar}" onchange="setGlobal('defaultFar',this.value)"></div>
+       <div class="field"><label>Twenty acres default floor area ratio</label><input type="number" step="0.05" value="${g.twentyFar}" onchange="setGlobal('twentyFar',this.value)"></div>
+     </div>
+   </div></div>`;}
+function updPillar(id,k,v){const p=pillarById(id);if(!p)return;p[k]=v;renderAll();}
+function updPillarCost(id,mode,v){const p=pillarById(id);if(!p)return;p.cost=p.cost||{};p.cost[mode]=Math.max(0,Number(v)||0);renderAll();}
+function updMetric(id,i,k,v){const p=pillarById(id);if(!p||!p.metrics[i])return;p.metrics[i][k]=k==="factor"?(Number(v)||0):v;renderAll();}
+function addMetric(id){const p=pillarById(id);if(!p)return;p.metrics.push({label:"New metric",factor:1000});renderAll();}
+function delMetric(id,i){const p=pillarById(id);if(!p)return;p.metrics.splice(i,1);renderAll();}
+function addPillar(){S.pillars.push({id:uid("p"),name:"New Pillar",color:"#7A5C99",icon:"✦",cost:{rehab:150,new:220},metrics:[{label:"Units",factor:1000}]});renderAll();}
+function delPillar(id,btn){if(btn&&btn.dataset.armed!=="1"){btn.dataset.armed="1";btn.textContent="Confirm delete";setTimeout(()=>{btn.dataset.armed="";btn.textContent="Delete pillar";},3500);return;}
+  if(S.pillars.length<=1){flash("Keep at least one pillar.");return;}
+  S.pillars=S.pillars.filter(p=>p.id!==id);
+  Object.values(S.district.lots).forEach(a=>{if(a.pillar===id)a.pillar=null;});Object.keys(S.district.lots).forEach(k=>{if(!S.district.lots[k].pillar)delete S.district.lots[k];});
+  if(S.site.pillar===id)S.site.pillar=S.pillars[0].id;
+  Object.values(S.twenty.lots).forEach(bag=>Object.values(bag).forEach(a=>{if(a.pillar===id)a.pillar=null;}));
+  if(S.district.brush===id)S.district.brush="inspect";
+  renderAll();}
+function setGlobal(k,v){S.globals[k]=Number(v)||0;renderAll();}
+function setModeAdj(m,v){S.globals.modeAdj[m]=Number(v)||0;renderAll();}
+function setProfileName(k,v){S.profiles[k].name=v||S.profiles[k].name;renderAll();}
+
+/* ============================================================
+   Guided tour (spotlight overlay, one step per major feature)
+   ============================================================ */
+const TOUR=[
+ {view:"landing",sel:null,title:"The Investment Map",body:"A short tour of the portfolio demonstration. One decision engine runs three live deal types. Everything is demonstration data and every projection is a planning estimate with editable assumptions."},
+ {view:"landing",sel:"#landingCards",title:"Three workspaces",body:"The District, The Five Acre Site, and The Twenty Acres. Each card opens one live deal type. The same engine, pillars, market profiles, and capital stack logic run under all three."},
+ {view:"district",sel:"#districtPlan",title:"Read the district",body:"About 40 stylized parcels on a schematic grid. Hatched parcels are vacant land, gray parcels hold an existing building. Click any parcel to open its reference data."},
+ {view:"district",sel:"#brushBar",title:"Assign pillars in one click",body:"Pick a pillar brush, then click parcels to assign them. Totals, outcomes, value created, new annual tax, and the gap update live."},
+ {view:"district",sel:"#districtDetail",title:"Construction modes",body:"Rehab prices the existing building. New Construction prices a proposed square footage you can edit. Demolition plus New adds a demolition line. Historic Preservation adds federal and state credit lines to the stack."},
+ {view:"district",sel:"#districtStack",title:"The capital stack and the gap",body:"Editable source lines: public partner resources, grants, debt, partner equity, and HCDC equity. The gap is total cost minus committed sources. It stays big and unmissable."},
+ {view:"district",sel:"#roleSeg-district",title:"Advisor or Equity Partner",body:"Advisor shows an advisory fee and zero balance sheet exposure. Equity Partner moves HCDC equity into the stack and shows the ownership share of projected value created. What closes the gap, and what role does that imply."},
+ {view:"site",sel:"#structGrid",title:"Eight deal structures",body:"On the five acre site the scenario axis is deal structure, not land use. Select any card: capital day one, capital at completion, role, control, risk, income, and the stack all recompute."},
+ {view:"site",sel:"#siteCompare",title:"Compare all eight",body:"One table puts every structure side by side so the tradeoff is visible at a glance. Every assumption number is editable in the side panel."},
+ {view:"twenty",sel:"#basisSeg",title:"Price basis",body:"Market price, distressed or REO price, or seller financing terms. The selection flows into every concept's numbers and the seller note enters the stack."},
+ {view:"twenty",sel:"#conceptCard",title:"Three subdivision concepts",body:"One parcel, mixed use lots with a pillar per lot, or a three phase takedown with phases shaded. Switching redraws the site plan and recomputes everything. The compare table answers one parcel or subdivide."},
+ {view:"twenty",sel:".profile-chip",title:"Market profile",body:"A named assumption set per workspace: Small Southern City or Large Metro. Each sets a cost multiplier, a value factor, and an effective tax rate. The chip always shows which is active."},
+ {view:"twenty",sel:".sustain-toggle",title:"Sustainability",body:"Adds an editable cost premium, green outcome metrics, and unlockable funding lines: PACE financing and energy credits. Clearly labeled planning assumptions."},
+ {view:"twenty",sel:".scn-btn",title:"Scenarios",body:"Save the current state of any workspace under a name, see it as a small visual strip, load it back, and compare scenarios side by side."},
+ {view:"twenty",sel:".brief-btn",title:"Partner Brief",body:"A print ready one page brief for the active scenario: recommendation line, key numbers, capital stack, and the diagram. The client team keeps the instrument. Partners receive the paper."},
+ {view:"twenty",sel:'[data-view="pillars"]',title:"Edit Pillars",body:"Add, rename, recolor, and reprice pillars and their outcome metrics at any time, plus market profiles and shared assumptions. Everything saves in this browser and restores on reload. Reopen this tour from the help button."}
+];
+let tourI=0,tourActive=false;
+function startTour(i){clearTour();tourI=i||0;tourActive=true;
+  const layer=document.createElement("div");layer.id="tourLayer";layer.style.background="transparent";layer.style.pointerEvents="none";
+  ["t","b","l","r"].forEach(k=>{const d=document.createElement("div");d.className="shade shade-"+k;d.style.cssText="position:fixed;background:rgba(16,28,40,.45);pointer-events:auto";d.onclick=endTour;layer.appendChild(d);});
+  const ring=document.createElement("div");ring.className="ring";ring.style.cssText="position:fixed;border:3px solid #00BCC5;border-radius:10px;box-shadow:0 0 0 3px rgba(0,188,197,.25);pointer-events:none";layer.appendChild(ring);
+  document.body.appendChild(layer);
+  const card=document.createElement("div");card.id="tourCard";document.body.appendChild(card);
+  window.addEventListener("resize",placeTourSoon);window.addEventListener("scroll",placeTourSoon,true);
+  tourStep();}
+let placeT=null;function placeTourSoon(){if(!tourActive)return;clearTimeout(placeT);placeT=setTimeout(()=>placeTour(TOUR[tourI],false),40);}
+function tourStep(){const step=TOUR[tourI];if(step.view&&S.view!==step.view)setView(step.view);setTimeout(()=>placeTour(step,true),80);}
+function placeTour(step,scroll){if(!tourActive)return;const layer=document.getElementById("tourLayer"),card=document.getElementById("tourCard");if(!layer||!card)return;
+  let el=step.sel?document.querySelector(step.sel):null;
+  if(el&&scroll){el.scrollIntoView({block:"center",behavior:"auto"});}
+  const r=el?el.getBoundingClientRect():null;const pad=8;
+  const sh=k=>layer.querySelector(".shade-"+k),ring=layer.querySelector(".ring");
+  const W=window.innerWidth,H=window.innerHeight;
+  if(r){const top=Math.max(0,r.top-pad),bottom=Math.min(H,r.bottom+pad),left=Math.max(0,r.left-pad),right=Math.min(W,r.right+pad);
+    sh("t").style.cssText+=`;left:0;top:0;width:${W}px;height:${top}px`;sh("b").style.cssText+=`;left:0;top:${bottom}px;width:${W}px;height:${Math.max(0,H-bottom)}px`;
+    sh("l").style.cssText+=`;left:0;top:${top}px;width:${left}px;height:${bottom-top}px`;sh("r").style.cssText+=`;left:${right}px;top:${top}px;width:${Math.max(0,W-right)}px;height:${bottom-top}px`;
+    ring.style.display="block";ring.style.left=left+"px";ring.style.top=top+"px";ring.style.width=(right-left)+"px";ring.style.height=(bottom-top)+"px";}
+  else{sh("t").style.cssText+=`;left:0;top:0;width:${W}px;height:${H}px`;["b","l","r"].forEach(k=>sh(k).style.cssText+=";width:0;height:0");ring.style.display="none";}
+  card.innerHTML=`${dotsHTML()}<h4>${esc(step.title)}</h4><p>${esc(step.body)}</p><div class="row"><span class="step">${tourI+1} of ${TOUR.length}</span><span class="inline" style="gap:6px">${tourI>0?'<button class="btn sm" onclick="tourNav(-1)">Back</button>':''}${tourI<TOUR.length-1?'<button class="btn sm primary" onclick="tourNav(1)">Next</button>':'<button class="btn sm primary" onclick="endTour()">Done</button>'}<button class="btn sm" onclick="endTour()">Skip</button></span></div>`;
+  const cw=Math.min(330,W-24),ch=card.offsetHeight||190;
+  let top,left;
+  if(r){top=r.bottom+14;if(top+ch>H-12)top=r.top-ch-14;if(top<12){top=Math.max(12,Math.min(H-ch-12,r.top));left=r.right+14;if(left+cw>W-12)left=r.left-cw-14;}else left=r.left;}
+  else{top=H/2-ch/2;left=W/2-cw/2;}
+  left=Math.min(Math.max(12,left),W-cw-12);top=Math.min(Math.max(12,top),Math.max(12,H-ch-12));
+  card.style.top=top+"px";card.style.left=left+"px";card.style.width=cw+"px";}
+function tourNav(d){tourI=Math.max(0,Math.min(TOUR.length-1,tourI+d));tourStep();}
+function endTour(){clearTour();S.tourDone=true;persist();}
+function clearTour(){tourActive=false;const l=document.getElementById("tourLayer");if(l)l.remove();const c=document.getElementById("tourCard");if(c)c.remove();window.removeEventListener("resize",placeTourSoon);window.removeEventListener("scroll",placeTourSoon,true);}
+
+/* ============================================================
+   Init
+   ============================================================ */
+function init(){restore();setView(S.view||"landing");if(!S.tourDone)setTimeout(()=>startTour(0),600);}
+init();
+</script>
+</body>
+</html>
