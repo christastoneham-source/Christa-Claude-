@@ -1,0 +1,43 @@
+1 landing title: The Investment Map
+1 landing tag: PORTFOLIO DEMONSTRATION
+1 landing line: One decision engine. Three live deal types. Demonstration data.
+1 cards: 3
+2 tally before: 0 PARCELS ASSIGNED | 0 PILLARS IN USE | $0 ESTIMATED INVESTMENT | $0 VALUE CREATED | $0 NEW ANNUAL PROPERTY TAX | Closed THE GAP
+2 tally after 5 parcels: 5 PARCELS ASSIGNED | 2 PILLARS IN USE | $11.1M ESTIMATED INVESTMENT | $10.8M VALUE CREATED | $380K NEW ANNUAL PROPERTY TAX | $636K THE GAP
+2 gap before/after grants 1.5M to 4M: $636K / Closed
+3 advisor gap: $636K
+3 equity gap: Closed
+3 role box: HCDC role: Equity Partner | HCDC places $1M of equity in the stack, carries that as balance sheet exposure, and holds 33% of the equity, the same share of projected value created. | Advisory fee (in total cost) | none | Balance sheet exposure | $1,000,000 | Ownership share of equity | 33% | HCDC sha
+6 D-15 cost by mode: {"Rehab":"$5,464,800","New Construction":"$3,999,700","Demolition plus New":"$4,397,140","Historic Preservation":"$6,284,520"}
+6 historic lines: Federal historic tax credit (20%) PLACEHOLDER $1,256,904 || State historic tax credit (25%) PLACEHOLDER $1,571,130
+7 sustain lines: PACE financing (20% of cost) SUSTAINABILITY $3,624,331 || Energy credits (30% of premium) SUSTAINABILITY $307,726
+7 premium: Sustainability premium (6%)
+$1,025,754
+8 tally small: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $17.1M ESTIMATED INVESTMENT | $16.2M VALUE CREATED | $583K NEW ANNUAL PROPERTY TAX | $2.77M THE GAP
+8 tally metro: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $23.2M ESTIMATED INVESTMENT | $28.8M VALUE CREATED | $690K NEW ANNUAL PROPERTY TAX | $7.89M THE GAP
+4 structures: 
+1 | Buy outright | 1008000 | 37200080 | High | Equity return | 1860004
+2 | Option contract | 198000 | 37350080 | Low | Equity return | 0
+3 | Ground lease | 194000 | 34946080 | Medium | Equity return | 0
+4 | Fee developer | 75000 | 37152080 | Low | Fee | 0
+5 | Joint venture | 125000 | 37152080 | Medium | Both | 200646
+6 | Phased takedown | 979200 | 37243280 | Medium | Equity return | 1862164
+7 | Seller financing | 408000 | 37812080 | Medium | Equity return | 9303624
+8 | Public conveyance | 300000 | 35052080 | Low | Both | 0
+5 concept single: invest 95993750 value created 122191563 tax 2851014
+5 concept mixed: invest 91815250 value created 116550588 tax 2726913
+5 concept phased: invest 92650000 value created 117677500 tax 2751705
+5 market tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PRICE | $9.6M CAPITAL DAY ONE | $95M TOTAL INVESTMENT | $120.9M VALUE CREATED | $2.82M NEW ANNUAL PROPERTY TAX | $18M THE GAP
+5 reo tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR REO PRICE | $6.4M CAPITAL DAY ONE | $91.8M TOTAL INVESTMENT | $116.6M VALUE CREATED | $2.73M NEW ANNUAL PROPERTY TAX | $14.8M THE GAP
+9 after reload: view=district scenarios=Housing first ; Green anchor, advisor parcels=7 role=advisor
+9 after load Housing first: parcels=6 role=equity active=Housing first
+10 pdf pages: 1
+11 tally before edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $17.1M ESTIMATED INVESTMENT | $16.2M VALUE CREATED | $583K NEW ANNUAL PROPERTY TAX | $2.77M THE GAP
+11 tally after edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $26.6M ESTIMATED INVESTMENT | $26.7M VALUE CREATED | $907K NEW ANNUAL PROPERTY TAX | $9.96M THE GAP
+12 banned words: 0
+12 em dashes: 0
+12 body background: rgb(252, 250, 241)
+12 h1 font: Fraunces, Georgia, "Times New Roman", serif
+12 primary button: rgb(0, 188, 197)
+12 footer: Connecting Dots and Strategies · Reclaiming the map. · Demonstration data.
+page errors: none
