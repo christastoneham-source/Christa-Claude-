@@ -30,7 +30,7 @@ $1,025,754
 5 market tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PRICE | $9.6M CAPITAL DAY ONE | $95M TOTAL INVESTMENT | $120.9M VALUE CREATED | $2.82M NEW ANNUAL PROPERTY TAX | $18M THE GAP
 5 reo tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR REO PRICE | $6.4M CAPITAL DAY ONE | $91.8M TOTAL INVESTMENT | $116.6M VALUE CREATED | $2.73M NEW ANNUAL PROPERTY TAX | $14.8M THE GAP
 9 after reload: view=district scenarios=Housing first ; Green anchor, advisor parcels=7 role=advisor
-9 after load Housing first: parcels=6 role=equity active=Housing first
+9 after load Housing first: parcels=6 role=equity active=undefined
 10 pdf pages: 1
 11 tally before edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $17.1M ESTIMATED INVESTMENT | $16.2M VALUE CREATED | $583K NEW ANNUAL PROPERTY TAX | $2.77M THE GAP
 11 tally after edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $26.6M ESTIMATED INVESTMENT | $26.7M VALUE CREATED | $907K NEW ANNUAL PROPERTY TAX | $9.96M THE GAP

@@ -69,7 +69,7 @@
   .seg button:hover:not(.active):not(:disabled){background:var(--turq-soft)}
   .seg button:disabled{opacity:.45;cursor:not-allowed}
   .risk{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:800;letter-spacing:.3px}
-  .risk.low{background:var(--grove);color:var(--navy)} .risk.medium{background:var(--gold);color:var(--navy)} .risk.high{background:var(--brick);color:var(--navy)}
+  .risk.low{background:var(--grove);color:var(--navy)} .risk.medium{background:var(--gold);color:var(--navy)} .risk.high{background:var(--brick-ink);color:#fff}
   .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:12px;font-size:11.5px;font-weight:700;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
   .pill .dot,.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
   .toggle{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 11px;border:1px solid var(--line2);border-radius:8px;background:var(--panel);cursor:pointer;user-select:none}
@@ -229,7 +229,7 @@
   /* modal */
   .modal{position:fixed;inset:0;background:rgba(16,28,40,.5);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;overflow:auto}
   .modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:1060px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(16,28,40,.3);position:relative}
-  .modal .box h2{margin-bottom:4px}
+  .modal .box h2{margin-bottom:4px;padding-right:64px}
   .modal .close{position:absolute;top:12px;right:12px}
   .modal-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
 
@@ -270,7 +270,7 @@
   @media (max-width:700px){#brief .bcards{grid-template-columns:repeat(3,1fr)}#brief .bcols{grid-template-columns:1fr}}
   #brief table{font-size:11px} #brief th,#brief td{padding:4px 6px;border-bottom:1px solid #E3DECD}
   #brief .bgap{display:flex;justify-content:space-between;align-items:center;border:2px solid;border-radius:8px;padding:6px 10px;margin-top:8px;font-weight:800}
-  #brief .bgap.open{border-color:#D95448;color:#D95448} #brief .bgap.closed{border-color:#47AB4F;color:#47AB4F}
+  #brief .bgap.open{border-color:#D95448;color:#B8392E} #brief .bgap.closed{border-color:#47AB4F;color:#2B7433}
   #brief .bplan{border:1px solid #E3DECD;border-radius:8px;padding:6px;background:#fff}
   #brief .bplan svg{width:100%;height:auto;max-height:260px;display:block}
   #brief .bfoot{margin-top:12px;font-size:10px;color:#5C6470;line-height:1.45}
@@ -293,6 +293,8 @@
     .modal{padding:12px 8px} .modal .box{padding:16px 14px}
     .wscard .mini{height:60px}
     .wsbar h2{font-size:20px}
+    header .popwrap{order:1} header .tabs{order:2;flex:1 1 100%}
+    .plan{overflow-x:auto} #districtPlan svg{min-width:900px} #twentyPlan svg{min-width:680px} #sitePlan svg{min-width:480px}
   }
 
   @page{size:letter;margin:0.45in}
@@ -530,7 +532,10 @@ function restore(){try{
   if(o.twenty&&o.twenty.lots&&typeof o.twenty.lots==="object")S.twenty.lots=o.twenty.lots;
   if(!Array.isArray(S.pillars)||!S.pillars.length)S.pillars=defaultPillars();
   S.pillars=S.pillars.filter(x=>x&&typeof x==="object").map(x=>({id:String(x.id||uid("p")),name:String(x.name||"Pillar"),color:/^#[0-9a-fA-F]{6}$/.test(x.color||"")?x.color:"#7A5C99",icon:String(x.icon||""),
-    cost:{rehab:Number(x.cost&&x.cost.rehab)||0,new:Number(x.cost&&x.cost.new)||0},metrics:Array.isArray(x.metrics)?x.metrics.filter(m=>m&&typeof m==="object"):[]}));
+    cost:{rehab:Number(x.cost&&x.cost.rehab)||0,new:Number(x.cost&&x.cost.new)||0},metrics:Array.isArray(x.metrics)?x.metrics.filter(m=>m&&typeof m==="object").map(m=>({label:String(m.label||"Metric"),factor:Number(m.factor)||0,money:!!m.money})):[]}));
+  if(!S.pillars.length)S.pillars=defaultPillars();
+  ["district","site","twenty"].forEach(k=>{const w=S[k];w.scenarios=Array.isArray(w.scenarios)?w.scenarios.filter(x=>x&&typeof x==="object"&&x.snap&&typeof x.snap==="object"&&!Array.isArray(x.snap)).map(x=>({id:String(x.id||uid("s")),name:String(x.name||"Scenario"),date:String(x.date||""),snap:x.snap})):[];
+    delete w.activeScenario;if(w.activeScenarioId&&!w.scenarios.some(x=>x.id===w.activeScenarioId))delete w.activeScenarioId;});
   Object.keys(S.district.lots).forEach(k=>{const a=S.district.lots[k];if(!a||!pillarById(a.pillar)||!DISTRICT.find(x=>x.id===k))delete S.district.lots[k];});
   Object.values(S.twenty.lots).forEach(bag=>Object.values(bag||{}).forEach(a=>{if(a&&a.pillar&&!pillarById(a.pillar))a.pillar=null;}));
   if(!pillarById(S.site.pillar))S.site.pillar=S.pillars[0].id;
@@ -674,7 +679,7 @@ function computeSite(ws,structId){
 /* twenty acres */
 function acquisitionBasis(ws){const p=ws.prices;
   if(ws.basis==="reo")return {kind:"reo",label:"Distressed or REO price",price:Number(p.reo)||0,carry:0,note:0,downPct:100};
-  if(ws.basis==="seller"){const price=Number(p.sellerPrice)||0,down=Number(p.sellerDownPct)||0,note=price*(1-down/100);
+  if(ws.basis==="seller"){const price=Number(p.sellerPrice)||0,down=Math.min(100,Math.max(0,Number(p.sellerDownPct)||0)),note=price*(1-down/100);
     return {kind:"seller",label:"Seller financing terms",price,carry:note*(Number(p.sellerRatePct)||0)/100*(Number(p.sellerTermYears)||0),note,downPct:down};}
   return {kind:"market",label:"Market price",price:Number(p.market)||0,carry:0,note:0,downPct:100};}
 function twentyLots(ws,conceptId){const concept=conceptById(conceptId||ws.concept);const bag=(ws.lots&&ws.lots[concept.id])||{};
@@ -732,6 +737,7 @@ document.addEventListener("keydown",e=>{if(e.key!=="Tab")return;const a=document
 function renderAll(){
   const asideEl=document.querySelector(".view.active .ws-side");const asideTop=asideEl?asideEl.scrollTop:0;
   const y=window.scrollY;const a=document.activeElement;
+  const viaTab=!!pendingFocusKey;
   const key=pendingFocusKey||((a&&a!==document.body&&a.getAttribute)?(a.getAttribute("onchange")||a.getAttribute("onclick")||null):null);pendingFocusKey=null;
   destroyCharts();
   renderHeaderChip();
@@ -742,7 +748,10 @@ function renderAll(){
   else if(v==="twenty")renderTwenty();
   else if(v==="pillars")renderPillars();
   const aside2=document.querySelector(".view.active .ws-side");if(aside2&&asideTop)aside2.scrollTop=asideTop;
-  if(key){const el=Array.from(document.querySelectorAll("[onchange],[onclick]")).find(e=>(e.getAttribute("onchange")||e.getAttribute("onclick"))===key&&e.offsetParent!==null);if(el&&el!==document.activeElement){try{el.focus({preventScroll:true});setTimeout(()=>{if(document.activeElement===document.body&&el.isConnected)el.focus({preventScroll:true});},0);}catch(e){}}}
+  const stillThere=a&&a!==document.body&&a.isConnected&&a.offsetParent!==null;
+  if(key&&!stillThere){const el=Array.from(document.querySelectorAll("[onchange],[onclick]")).find(e=>(e.getAttribute("onchange")||e.getAttribute("onclick"))===key&&(e.offsetParent!==null||e.closest(".pop")));
+    const give=()=>{el.focus({preventScroll:true});if(viaTab&&el.tagName==="INPUT"&&typeof el.select==="function")el.select();};
+    if(el&&el!==document.activeElement){try{give();setTimeout(()=>{if(document.activeElement===document.body&&el.isConnected)give();},0);}catch(e){}}}
   window.scrollTo(0,y);
   syncHeader();
   persist();
@@ -783,7 +792,7 @@ function profileFieldsHTML(pk,wsKey){const p=S.profiles[pk];if(!p)return "";
     <div class="field"><label>Value factor</label><input type="number" step="0.01" value="${p.valueFactor}" onchange="setProfile('${pk}','valueFactor',this.value,'${wsKey||''}')"></div>
     <div class="field"><label>Effective tax rate</label><input type="number" step="0.001" value="${p.taxRate}" onchange="setProfile('${pk}','taxRate',this.value,'${wsKey||''}')"></div></div>`;}
 function toggleProfilePop(wsKey){const p=document.getElementById("profilePop-"+wsKey);const show=p.classList.contains("hidden");closeAllPops();if(show)showPop(p);}
-function setProfile(pk,k,v,wsKey){const n=Number(v);const ok=Number.isFinite(n)&&(k==="taxRate"?n>=0:n>0);if(ok)S.profiles[pk][k]=n;renderAll();if(wsKey)showPop(document.getElementById("profilePop-"+wsKey));}
+function setProfile(pk,k,v,wsKey){const str=String(v).trim();const n=Number(str);const ok=str!==""&&Number.isFinite(n)&&(k==="taxRate"?n>=0:n>0);if(ok)S.profiles[pk][k]=n;renderAll();if(wsKey)showPop(document.getElementById("profilePop-"+wsKey));}
 function setWs(wsKey,k,v){S[wsKey][k]=v;renderAll();if(k==="profile")showPop(document.getElementById("profilePop-"+wsKey));}
 function setWsNum(wsKey,k,v){S[wsKey][k]=Math.max(0,Number(v)||0);renderAll();}
 function setStack(wsKey,k,v){S[wsKey].stack[k]=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);renderAll();}
@@ -813,7 +822,7 @@ function stackPanelHTML(wsKey,comp,opts){opts=opts||{};const st=comp.stack;
   const segs=st.lines.filter(l=>l.amount>0).map(l=>`<i style="flex:${l.amount};background:${SRC_COLORS[l.key]||'#999'}" title="${esc(l.label)}: ${fmt$(l.amount)}"></i>`).join("")+(st.gap>0?`<i class="gapseg" style="flex:${st.gap}" title="The gap: ${fmt$(st.gap)}"></i>`:"");
   const rows=st.lines.map(l=>{
     let amt;
-    if(l.editable&&opts.mode==="pct")amt=`<div class="inline" style="gap:4px;justify-content:flex-end"><input type="number" step="1" min="0" style="width:58px" value="${l.pct}" onchange="setSitePct('${opts.structId}','${l.key}',this.value)" title="${esc(l.label)} as % of total"><span class="tiny muted">%</span></div><div class="right tiny mono">${fmt$(l.amount)}</div>`;
+    if(l.editable&&opts.mode==="pct")amt=`<div class="inline" style="gap:4px;justify-content:flex-end"><input type="number" step="1" min="0" max="100" style="width:58px" value="${l.pct}" onchange="setSitePct('${opts.structId}','${l.key}',this.value)" title="${esc(l.label)} as % of total"><span class="tiny muted">%</span></div><div class="right tiny mono">${fmt$(l.amount)}</div>`;
     else if(l.editable)amt=`<input type="text" inputmode="numeric" value="${Math.round(l.amount).toLocaleString('en-US')}" onchange="setStack('${wsKey}','${l.key}',this.value)" title="Edit ${esc(l.label)}">`;
     else amt=`<div class="amt">${fmt$(l.amount)}</div>`;
     const tag=l.auto?`<span class="autotag">${l.note||'auto'}</span>`:(l.editable?"":`<span class="autotag" style="color:var(--muted);border-color:var(--line2)">structure</span>`);
@@ -938,7 +947,7 @@ function assignDistrict(id,pillarId){const ws=S.district,p=DISTRICT.find(x=>x.id
 function setBrush(b){S.district.brush=b;renderAll();}
 function districtAssign(id,pillarId){if(pillarId==="none"){delete S.district.lots[id];}else assignDistrict(id,pillarId);S.district.selected=id;renderAll();}
 function districtMode(id,mode){const a=S.district.lots[id];if(!a)return;a.mode=mode;renderAll();}
-function districtProposed(id,v){const a=S.district.lots[id];if(!a)return;a.proposed=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);renderAll();}
+function districtProposed(id,v){const a=S.district.lots[id];if(!a)return;a.proposed=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);renderAll();}
 
 function renderDistrict(){
   const ws=S.district,comp=computeDistrict(ws);
@@ -1018,6 +1027,7 @@ function siteSVG(ws,mini){
   const foot=(Number(ws.proposed)||0)/floors,pShare=Math.min(.8,foot/SITE.land),pArea=Math.min(pShare*pw*ph,(pw-80)*(ph-80));
   let pw2=Math.min(pw-80,Math.sqrt(pArea*1.6)),ph2=pArea/Math.max(1,pw2);if(ph2>ph-80){ph2=ph-80;pw2=pArea/ph2;}
   const px=m+34,py=m+34;
+  if(mode==="new"){const maxW=ex-px-10;if(pw2>maxW){pw2=Math.max(40,maxW);ph2=Math.min(ph-80,pArea/pw2);}}
   let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five acre site diagram">
     <rect x="0" y="0" width="${W}" height="${H}" fill="#FCFAF1"/>
     <rect x="${m}" y="${m}" width="${pw}" height="${ph}" fill="#F4F0E2" stroke="#101C28" stroke-width="1.5" rx="3"/>
@@ -1038,8 +1048,8 @@ function siteSVG(ws,mini){
 }
 const PCT100=new Set(["acqDebtPct","optionFeePct","downPct","phase1Pct","conveyPct","landCreditPct","hcdcPredevPct","promotePct"]);
 function setSiteAssume(stId,k,v){S.site.assume[stId]=S.site.assume[stId]||{};let n=Math.max(0,Number(v)||0);if(PCT100.has(k))n=Math.min(100,n);S.site.assume[stId][k]=n;renderAll();}
-function setSitePct(stId,k,v){S.site.pct[stId]=S.site.pct[stId]||{...structById(stId).pct};S.site.pct[stId][k]=Math.max(0,Number(v)||0);renderAll();}
-function setSiteNum(k,v){let n=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);if(k==="floors")n=Math.max(1,Math.round(n)||1);S.site[k]=n;renderAll();}
+function setSitePct(stId,k,v){S.site.pct[stId]=S.site.pct[stId]||{...structById(stId).pct};S.site.pct[stId][k]=Math.min(100,Math.max(0,Number(v)||0));renderAll();}
+function setSiteNum(k,v){let n=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);if(k==="floors")n=Math.max(1,Math.round(n)||1);S.site[k]=n;renderAll();}
 function pickStructure(id){S.site.structure=id;renderAll();}
 function toggleSiteCompare(){S.site.compare=(S.site.compare===false);renderAll();}
 
@@ -1075,7 +1085,7 @@ function renderSite(){
             <div class="field"><label>Land price assumption ($)</label><input type="text" inputmode="numeric" value="${fmtN(ws.landPrice)}" onchange="setSiteNum('landPrice',this.value)"></div>
           </div>
           <div class="kv"><b>Construction (hard)</b><span class="v">${fmt$(comp.agg.hard)}</span></div>
-          ${comp.agg.demo?`<div class="kv"><b>Demolition</b><span class="v">${fmt$(comp.agg.demo)}</span></div>`:""}
+          ${comp.agg.demo?`<div class="kv"><b>Demolition (${fmtN(SITE.bldg)} sqft × ${fmt$(S.globals.demoCostPerSqft)} × ${profileFor(ws).costMult})</b><span class="v">${fmt$(comp.agg.demo)}</span></div>`:""}
           ${comp.agg.premium?`<div class="kv"><b>Sustainability premium (${S.globals.sustainPremiumPct}%)</b><span class="v">${fmt$(comp.agg.premium)}</span></div>`:""}
           <div class="kv"><b>Development cost <span class="est-badge">planning estimate</span></b><span class="v">${fmt$(comp.dev)}</span></div>
           <div class="kv"><b>Land basis under ${esc(st.name)} <span class="est-badge">editable assumptions</span></b><span class="v">${fmt$(comp.landBasis)}</span></div>
@@ -1139,10 +1149,10 @@ function twentySVG(ws,conceptId,mini){
 }
 function setTwentyLot(conceptId,lotId,k,v){const ws=S.twenty;ws.lots[conceptId]=ws.lots[conceptId]||{};const l=ws.lots[conceptId][lotId]=ws.lots[conceptId][lotId]||{mode:"new"};
   if(k==="pillar"){l.pillar=v||null;if(v&&!l.proposed){const r=conceptById(conceptId).rects.find(x=>x.id===lotId);const land=TWENTY.land*r.share/100;l.proposed=pillarById(v)&&pillarById(v).id==="green"?Math.round(land):Math.round(land*(Number(S.globals.twentyFar)||0.35)/1000)*1000;}}
-  else if(k==="proposed")l.proposed=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);
+  else if(k==="proposed")l.proposed=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);
   else l[k]=v;
   renderAll();}
-function setPrice(k,v){S.twenty.prices[k]=Math.max(0,Number(String(v).replace(/[^0-9.]/g,""))||0);renderAll();}
+function setPrice(k,v){let n=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);if(k==="sellerDownPct")n=Math.min(100,n);S.twenty.prices[k]=n;renderAll();}
 function pickBasis(b){S.twenty.basis=b;renderAll();}
 function pickConcept(c){S.twenty.concept=c;renderAll();}
 
@@ -1152,7 +1162,7 @@ function renderTwenty(){
   const basisCards=[
     {k:"market",title:"Market price",fig:fmtC(p.market),body:`<div class="field"><label>Market price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.market)}" onchange="setPrice('market',this.value)"></div><div class="note">Broker guidance for a clean sale.</div>`},
     {k:"reo",title:"Distressed or REO price",fig:fmtC(p.reo),body:`<div class="field"><label>REO price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.reo)}" onchange="setPrice('reo',this.value)"></div><div class="note">Bank owned, motivated to clear the asset.</div>`},
-    {k:"seller",title:"Seller financing terms",fig:fmtC(p.sellerPrice),body:`<div class="row2"><div class="field"><label>Price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.sellerPrice)}" onchange="setPrice('sellerPrice',this.value)"></div><div class="field"><label>Down (%)</label><input type="number" step="1" value="${p.sellerDownPct}" onchange="setPrice('sellerDownPct',this.value)"></div><div class="field"><label>Rate (% per year)</label><input type="number" step="0.1" value="${p.sellerRatePct}" onchange="setPrice('sellerRatePct',this.value)"></div><div class="field"><label>Term (years)</label><input type="number" step="1" value="${p.sellerTermYears}" onchange="setPrice('sellerTermYears',this.value)"></div></div><div class="note">Bank carries a note. Interest carry is added to total cost.</div>`}
+    {k:"seller",title:"Seller financing terms",fig:fmtC(p.sellerPrice),body:`<div class="row2"><div class="field"><label>Price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.sellerPrice)}" onchange="setPrice('sellerPrice',this.value)"></div><div class="field"><label>Down (%)</label><input type="number" step="1" min="0" max="100" value="${p.sellerDownPct}" onchange="setPrice('sellerDownPct',this.value)"></div><div class="field"><label>Rate (% per year)</label><input type="number" step="0.1" value="${p.sellerRatePct}" onchange="setPrice('sellerRatePct',this.value)"></div><div class="field"><label>Term (years)</label><input type="number" step="1" value="${p.sellerTermYears}" onchange="setPrice('sellerTermYears',this.value)"></div></div><div class="note">Bank carries a note. Interest carry is added to total cost.</div>`}
   ].map(c=>`<div class="basiscard ${ws.basis===c.k?'active':''}" onclick="if(!event.target.closest('input'))pickBasis('${c.k}')"><h4>${c.title}</h4><div class="fig">${c.fig}</div>${c.body}</div>`).join("");
   const lotRows=comp.lots.map((l,i)=>{const pl=l.pillar?pillarById(l.pillar):null;const c=pl?calcLot(l,ws):null;
     return `<div class="lotrow"><div><span class="lid">${l.id}</span>${l.year?`<div class="lmeta">Yr ${l.year}</div>`:""}</div>
@@ -1165,10 +1175,11 @@ function renderTwenty(){
     <tr><td>Site plan</td>${allC.map(c=>`<td><span class="strip-inline">${twentySVG(ws,c.concept.id,true)}</span></td>`).join("")}</tr>
     <tr><td>Lots assigned</td>${allC.map(c=>`<td class="num">${c.agg.count} of ${c.lots.length}</td>`).join("")}</tr>
     <tr><td>Acquisition (${esc(comp.basis.label)})</td>${allC.map(c=>`<td class="num">${fmtC(c.acquisition)}</td>`).join("")}</tr>
-    ${comp.basis.carry>0?`<tr><td>Seller note interest carry</td>${allC.map(c=>`<td class="num">${fmtC(c.basis.carry)}</td>`).join("")}</tr>`:""}
+    ${comp.basis.kind==="seller"?`<tr><td>Seller note interest carry</td>${allC.map(c=>`<td class="num">${fmtC(c.basis.carry)}</td>`).join("")}</tr>`:""}
     <tr><td>Capital day one</td>${allC.map(c=>`<td class="num">${fmtC(c.dayOne)}</td>`).join("")}</tr>
     <tr><td><b>Total investment</b></td>${allC.map(c=>`<td class="num"><b>${fmtC(c.total)}</b></td>`).join("")}</tr>
     ${outcomeLabels.map(l=>`<tr><td>${esc(l)}</td>${allC.map(c=>`<td class="num">${c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"}</td>`).join("")}</tr>`).join("")}
+    ${ws.sustain?`<tr><td>Annual energy savings</td>${allC.map(c=>`<td class="num">${fmtC(c.agg.energy)}</td>`).join("")}</tr><tr><td>Green building sqft</td>${allC.map(c=>`<td class="num">${fmtN(c.agg.greenSqft)}</td>`).join("")}</tr>`:""}
     <tr><td><b>Value created</b></td>${allC.map(c=>`<td class="num"><b>${fmtC(c.valueCreated)}</b></td>`).join("")}</tr>
     <tr><td>New annual property tax</td>${allC.map(c=>`<td class="num">${fmtC(c.newTax)}</td>`).join("")}</tr>
     <tr><td>The gap</td>${allC.map(c=>`<td class="num" style="font-weight:700;color:${c.stack.gap>0.5?'var(--brick-ink)':'var(--grove-ink)'}">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</td>`).join("")}</tr>
@@ -1241,10 +1252,10 @@ function recommendation(wsKey,comp,all){
 /* ============================================================
    Scenarios: save, list with visual strip, load, compare
    ============================================================ */
-function snapshotWs(ws){const c=JSON.parse(JSON.stringify(ws));delete c.scenarios;delete c.brush;delete c.compare;delete c.activeScenario;delete c.selected;return c;}
+function snapshotWs(ws){const c=JSON.parse(JSON.stringify(ws));delete c.scenarios;delete c.brush;delete c.compare;delete c.activeScenario;delete c.activeScenarioId;delete c.selected;return c;}
 function stableStr(o){if(Array.isArray(o))return "["+o.map(stableStr).join(",")+"]";if(o&&typeof o==="object")return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+stableStr(o[k])).join(",")+"}";return JSON.stringify(o);}
-function liveScenario(ws){if(!ws.activeScenario)return null;const s=(ws.scenarios||[]).find(x=>x.name===ws.activeScenario);if(!s)return null;return stableStr(snapshotWs(ws))===stableStr(snapshotWs(s.snap))?s:null;}
-function scenarioLabel(ws){const s=liveScenario(ws);if(s)return s.name;if(ws.activeScenario&&(ws.scenarios||[]).some(x=>x.name===ws.activeScenario))return ws.activeScenario+" (modified)";return "Working scenario";}
+function liveScenario(ws){if(!ws.activeScenarioId)return null;const s=(ws.scenarios||[]).find(x=>x.id===ws.activeScenarioId);if(!s)return null;return stableStr(snapshotWs(ws))===stableStr(snapshotWs(s.snap))?s:null;}
+function scenarioLabel(ws){const s=liveScenario(ws);if(s)return s.name;const a=(ws.scenarios||[]).find(x=>x.id===ws.activeScenarioId);if(a)return a.name+" (modified)";return "Working scenario";}
 function scenarioWs(wsKey,snap){return {...JSON.parse(JSON.stringify(S[wsKey])),...JSON.parse(JSON.stringify(snap)),scenarios:[]};}
 function stripSVG(wsKey,ws){
   if(wsKey==="district"){let s=`<svg viewBox="0 0 108 44" xmlns="http://www.w3.org/2000/svg">`;const rows=["nb","nf","sf","sb"],ys=[2,12,26,36];
@@ -1252,17 +1263,18 @@ function stripSVG(wsKey,ws){
     s+=`<rect x="2" y="20.5" width="104" height="4.5" fill="${COLORS.road}"/></svg>`;return s;}
   if(wsKey==="site"){const st=structById(ws.structure);let s=`<svg viewBox="0 0 120 44" xmlns="http://www.w3.org/2000/svg">`;
     STRUCTURES.forEach((x,i)=>{const col=i%4,row=Math.floor(i/4);const on=x.id===st.id;const rc={Low:COLORS.grove,Medium:COLORS.gold,High:COLORS.brick}[x.risk];
-      s+=`<rect x="${3+col*29}" y="${3+row*20}" width="26" height="17" rx="3" fill="${on?rc:'#F1EDDF'}" stroke="${on?'#101C28':'#D2CBB6'}" stroke-width="${on?1.2:.6}"/><text x="${16+col*29}" y="${15+row*20}" text-anchor="middle" font-size="9" font-weight="800" fill="${on?'#fff':'#8A94A0'}" font-family="Inter,sans-serif">${x.n}</text>`;});
+      s+=`<rect x="${3+col*29}" y="${3+row*20}" width="26" height="17" rx="3" fill="${on?rc:'#F1EDDF'}" stroke="${on?'#101C28':'#D2CBB6'}" stroke-width="${on?1.2:.6}"/><text x="${16+col*29}" y="${15+row*20}" text-anchor="middle" font-size="9" font-weight="800" fill="${on?onColor(rc):'#8A94A0'}" font-family="Inter,sans-serif">${x.n}</text>`;});
     return s+`</svg>`;}
   return twentySVG(ws,ws.concept,true);
 }
 function openScenarios(wsKey){renderScenarios(wsKey);document.getElementById("scnModal").classList.remove("hidden");}
-function saveScenarioNamed(wsKey){const ws=S[wsKey];const inp=document.getElementById("scnName");const name=(inp&&inp.value.trim())||("Scenario "+((ws.scenarios||[]).length+1));
-  ws.scenarios=ws.scenarios||[];ws.scenarios.push({id:uid("s"),name,date:new Date().toLocaleDateString("en-US"),snap:snapshotWs(ws)});ws.activeScenario=name;persist();renderScenarios(wsKey);renderAll();flash("Saved scenario: "+name);}
+function saveScenarioNamed(wsKey){const ws=S[wsKey];const inp=document.getElementById("scnName");let name=(inp&&inp.value.trim())||("Scenario "+((ws.scenarios||[]).length+1));
+  ws.scenarios=ws.scenarios||[];const base=name;let n=2;while(ws.scenarios.some(x=>x.name===name))name=base+" "+(n++);
+  const sc={id:uid("s"),name,date:new Date().toLocaleDateString("en-US"),snap:snapshotWs(ws)};ws.scenarios.push(sc);ws.activeScenarioId=sc.id;delete ws.activeScenario;persist();renderScenarios(wsKey);renderAll();flash("Saved scenario: "+name);}
 function loadScenario(wsKey,id){const ws=S[wsKey];const s=(ws.scenarios||[]).find(x=>x.id===id);if(!s)return;
-  const keep=ws.scenarios;S[wsKey]={...ws,...JSON.parse(JSON.stringify(s.snap)),scenarios:keep,activeScenario:s.name};closeModal("scnModal");renderAll();flash("Loaded scenario: "+s.name);}
+  const keep=ws.scenarios;S[wsKey]={...ws,...JSON.parse(JSON.stringify(s.snap)),scenarios:keep,activeScenarioId:s.id};delete S[wsKey].activeScenario;closeModal("scnModal");renderAll();flash("Loaded scenario: "+s.name);}
 function deleteScenario(wsKey,id,btn){if(btn&&btn.dataset.armed!=="1"){btn.dataset.armed="1";btn.textContent="Confirm delete";setTimeout(()=>{btn.dataset.armed="";btn.textContent="Delete";},3500);return;}
-  const ws=S[wsKey];ws.scenarios=(ws.scenarios||[]).filter(x=>x.id!==id);if(!ws.scenarios.some(x=>x.name===ws.activeScenario))delete ws.activeScenario;persist();renderScenarios(wsKey);renderAll();}
+  const ws=S[wsKey];ws.scenarios=(ws.scenarios||[]).filter(x=>x.id!==id);if(!ws.scenarios.some(x=>x.id===ws.activeScenarioId))delete ws.activeScenarioId;persist();renderScenarios(wsKey);renderAll();}
 function compareRows(wsKey,entries){
   const comps=entries.map(e=>e.comp);
   const rows=[];const row=(label,fn,cls)=>rows.push(`<tr><td><b>${label}</b></td>${comps.map((c,i)=>`<td class="${cls||'num'}">${fn(c,entries[i])}</td>`).join("")}</tr>`);
@@ -1273,16 +1285,18 @@ function compareRows(wsKey,entries){
   row(wsKey==="site"?"Total capital at completion":"Total investment",c=>fmtC(c.total));
   const labels=[...new Set(comps.flatMap(c=>Object.keys(c.agg.outcomes)))];
   labels.forEach(l=>row(esc(l),c=>c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"));
+  if(entries.some(e=>e.ws.sustain)){row("Annual energy savings",c=>fmtC(c.agg.energy));row("Green building sqft",c=>fmtN(c.agg.greenSqft));}
   row("Value created",c=>fmtC(c.valueCreated));row("New annual property tax",c=>fmtC(c.newTax));
   row("The gap",c=>`<span style="font-weight:700;color:${c.stack.gap>0.5?'var(--brick-ink)':'var(--grove-ink)'}">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</span>`);
   return rows.join("");
 }
 function renderScenarios(wsKey){const ws=S[wsKey],box=document.getElementById("scnBox");const list=ws.scenarios||[];
-  const entries=[{name:"Current (unsaved)",ws:S[wsKey],comp:computeFor(wsKey)},...list.map(s=>{const w=scenarioWs(wsKey,s.snap);return {name:s.name,ws:w,comp:computeFor(wsKey,w)};})];
+  const live=liveScenario(ws);
+  const entries=[{name:live?"Current (saved as "+live.name+")":"Current (unsaved)",ws:S[wsKey],comp:computeFor(wsKey)},...list.map(s=>{const w=scenarioWs(wsKey,s.snap);return {name:s.name,ws:w,comp:computeFor(wsKey,w)};})];
   box.innerHTML=`<button class="btn sm close" onclick="closeModal('scnModal')">Close</button>
    <h2>Scenarios · ${WS_META[wsKey].title}</h2><p class="note" style="margin:0 0 12px">Save the current state of this workspace under a name, load any saved scenario, and compare side by side. Scenarios persist in this browser.</p>
    <div class="inline" style="margin-bottom:14px"><input id="scnName" placeholder="Name this scenario" style="max-width:280px" value="" onkeydown="if(event.key==='Enter')saveScenarioNamed('${wsKey}')"><button class="btn primary" onclick="saveScenarioNamed('${wsKey}')">Save current as scenario</button></div>
-   ${list.length?`<div class="scn-list">${list.map(s=>`<div class="scn"><div class="strip">${stripSVG(wsKey,scenarioWs(wsKey,s.snap))}</div><div class="meta"><b>${esc(s.name)}</b><span>${esc(s.date)}${liveScenario(ws)===s?" · loaded":(ws.activeScenario===s.name?" · loaded, then modified":"")}</span></div><button class="btn sm primary" onclick="loadScenario('${wsKey}','${s.id}')">Load</button><button class="btn sm danger" onclick="deleteScenario('${wsKey}','${s.id}',this)">Delete</button></div>`).join("")}</div>`:`<p class="note">No saved scenarios yet for this workspace.</p>`}
+   ${list.length?`<div class="scn-list">${list.map(s=>`<div class="scn"><div class="strip">${stripSVG(wsKey,scenarioWs(wsKey,s.snap))}</div><div class="meta"><b>${esc(s.name)}</b><span>${esc(s.date)}${liveScenario(ws)===s?" · loaded":(ws.activeScenarioId===s.id?" · loaded, then modified":"")}</span></div><button class="btn sm primary" onclick="loadScenario('${wsKey}','${s.id}')">Load</button><button class="btn sm danger" onclick="deleteScenario('${wsKey}','${s.id}',this)">Delete</button></div>`).join("")}</div>`:`<p class="note">No saved scenarios yet for this workspace.</p>`}
    <h3 style="margin-top:20px">Compare side by side</h3>
    <div class="tablewrap"><table id="scnCompare"><thead><tr><th>Metric</th>${entries.map(e=>`<th>${esc(e.name)}</th>`).join("")}</tr></thead><tbody>${compareRows(wsKey,entries)}</tbody></table></div>
    <div class="assume" style="margin-top:12px;margin-bottom:0">Figures recompute from each saved state under today's pillars, profiles, and shared assumptions. Planning estimates, editable assumptions.</div>`;}
@@ -1294,7 +1308,7 @@ function flash(msg){let el=document.getElementById("flash");if(!el){el=document.
    Partner Brief (print ready, one page)
    ============================================================ */
 function openBrief(wsKey){document.getElementById("brief").innerHTML=briefHTML(wsKey);document.getElementById("briefModal").classList.remove("hidden");document.body.classList.add("brief-open");}
-function assumeLine(f,v){const label=f[1];const m=label.match(/\(([^)]*)\)/);const base=label.replace(/\s*\(.*\)/,"");if(!m)return base+": "+v;const u=m[1].replace(/,\s*0 for all cash/,"");if(u.startsWith("$"))return base+": "+fmt$(v);if(u.startsWith("%"))return base+": "+v+"%"+u.slice(1);return base+": "+v+" "+u;}
+function assumeLine(f,v){const label=f[1];const m=label.match(/\(([^)]*)\)/);const base=label.replace(/\s*\(.*\)/,"");if(!m)return base+": "+v;let u=m[1].replace(/,\s*0 for all cash/,"");if(u.startsWith("$"))return base+": "+fmt$(v);if(u.startsWith("%"))return base+": "+v+"%"+u.slice(1);if(Number(v)===1)u=u.replace(/^([A-Za-z]+)s\b/,"$1");return base+": "+v+" "+u;}
 function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsKey],pr=profileFor(ws);
   const scn=scenarioLabel(ws);const date=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   let cards=[],diagram="",assumptions=[];
@@ -1303,7 +1317,7 @@ function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsK
   if(wsKey==="site"){cards=[[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total at completion"],[comp.st.risk,"Risk level"],[comp.st.income,"Income type"],[fmtC(comp.valueCreated),"Value created"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=siteSVG(ws,false);
     assumptions.push(`Structure ${comp.st.n}: ${comp.st.name}`,`Program: ${pillarById(ws.pillar)?pillarById(ws.pillar).name:""}, ${MODES[ws.mode].label}, ${fmtN(ws.proposed)} sqft`,`Land price ${fmtC(ws.landPrice)}`,...comp.st.fields.map(f=>assumeLine(f,comp.a[f[0]])));}
   if(wsKey==="twenty"){cards=[[fmtC(comp.acquisition),"Acquisition"],[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=twentySVG(ws,null,false);
-    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,`HCDC role: ${comp.role.label}`);}
+    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,...(comp.basis.carry>0?[`Seller note interest carry ${fmtC(comp.basis.carry)} added to total cost`]:[]),`HCDC role: ${comp.role.label}`);}
   assumptions.push(`Market profile: ${pr.name} (cost × ${pr.costMult}, value × ${pr.valueFactor}, tax ${(pr.taxRate*100).toFixed(2)}%)`,`Sustainability ${ws.sustain?"on, premium "+S.globals.sustainPremiumPct+"%":"off"}`);
   const outcomeRows=Object.entries(comp.agg.outcomes).slice(0,6).map(([l,o])=>`<tr><td>${esc(l)}</td><td class="num">${fmtOut(o.v,o.money)}</td></tr>`);
   if(ws.sustain)outcomeRows.push(`<tr><td>Annual energy savings</td><td class="num">${fmtC(comp.agg.energy)}</td></tr>`,`<tr><td>Green building sqft</td><td class="num">${fmtN(comp.agg.greenSqft)}</td></tr>`);
@@ -1412,26 +1426,29 @@ function tourStep(){const step=TOUR[tourI];if(step.view&&S.view!==step.view)setV
 function placeTour(step,scroll){if(!tourActive)return;const layer=document.getElementById("tourLayer"),card=document.getElementById("tourCard");if(!layer||!card)return;
   const root=document.querySelector(".view.active")||document;
   let el=step.sel?(root.querySelector(step.sel)||document.querySelector(step.sel)):null;
-  if(el&&scroll){const hb=(document.getElementById("appHeader")||{}).offsetHeight||56;const r0=el.getBoundingClientRect();
-    if(r0.height>window.innerHeight-hb-24)window.scrollBy(0,r0.top-hb-10);else el.scrollIntoView({block:"center",behavior:"auto"});}
-  const r=el?el.getBoundingClientRect():null;const pad=8;
-  const sh=k=>layer.querySelector(".shade-"+k),ring=layer.querySelector(".ring");
+  const hb=(document.getElementById("appHeader")||{}).offsetHeight||56;
   const W=window.innerWidth,H=window.innerHeight;
-  const geo=(k,l,t,w,h)=>{const d=sh(k);d.style.left=l+"px";d.style.top=t+"px";d.style.width=Math.max(0,w)+"px";d.style.height=Math.max(0,h)+"px";};
-  if(r){const top=Math.max(0,r.top-pad),bottom=Math.min(H,r.bottom+pad),left=Math.max(0,r.left-pad),right=Math.min(W,r.right+pad);
-    geo("t",0,0,W,top);geo("b",0,bottom,W,H-bottom);geo("l",0,top,left,bottom-top);geo("r",right,top,W-right,bottom-top);
-    ring.style.display="block";ring.style.left=left+"px";ring.style.top=top+"px";ring.style.width=(right-left)+"px";ring.style.height=(bottom-top)+"px";}
-  else{geo("t",0,0,W,H);geo("b",0,0,0,0);geo("l",0,0,0,0);geo("r",0,0,0,0);ring.style.display="none";}
+  const underHeader=()=>{const r1=el.getBoundingClientRect();window.scrollBy(0,r1.top-hb-10);};
+  if(el&&scroll){const r0=el.getBoundingClientRect();
+    if(r0.height>H-hb-24)underHeader();else{el.scrollIntoView({block:"center",behavior:"auto"});const r1=el.getBoundingClientRect();if(r1.top<hb+10)underHeader();}}
   card.innerHTML=`${dotsHTML()}<h4>${esc(step.title)}</h4><p>${esc(step.body)}</p><div class="row"><span class="step">${tourI+1} of ${TOUR.length}</span><span class="inline" style="gap:6px">${tourI>0?'<button class="btn sm" onclick="tourNav(-1)">Back</button>':''}${tourI<TOUR.length-1?'<button class="btn sm primary" onclick="tourNav(1)">Next</button>':'<button class="btn sm primary" onclick="endTour()">Done</button>'}<button class="btn sm" onclick="endTour()">Skip</button></span></div>`;
   const cw=Math.min(330,W-24),ch=card.offsetHeight||190;
+  let r=el?el.getBoundingClientRect():null;
   let top,left;
   if(r){const tall=r.height>H*0.7;
     if(!tall&&r.bottom+14+ch<=H-12){top=r.bottom+14;left=r.left;}
     else if(!tall&&r.top-ch-14>=12){top=r.top-ch-14;left=r.left;}
     else if(r.right+14+cw<=W-12){top=Math.max(12,Math.min(H-ch-12,r.top));left=r.right+14;}
     else if(r.left-cw-14>=12){top=Math.max(12,Math.min(H-ch-12,r.top));left=r.left-cw-14;}
-    else{top=H-ch-12;left=W-cw-12;}}
+    else if(scroll&&hb+10+r.height+14+ch<=H-12){underHeader();r=el.getBoundingClientRect();top=r.bottom+14;left=r.left;}
+    else{if(scroll){underHeader();r=el.getBoundingClientRect();}top=H-ch-12;left=W-cw-12;}}
   else{top=H/2-ch/2;left=W/2-cw/2;}
+  const pad=8;const sh=k=>layer.querySelector(".shade-"+k),ring=layer.querySelector(".ring");
+  const geo=(k,l,t,w,h)=>{const d=sh(k);d.style.left=l+"px";d.style.top=t+"px";d.style.width=Math.max(0,w)+"px";d.style.height=Math.max(0,h)+"px";};
+  if(r){const rt=Math.max(0,r.top-pad),rb=Math.min(H,r.bottom+pad),rl=Math.max(0,r.left-pad),rr=Math.min(W,r.right+pad);
+    geo("t",0,0,W,rt);geo("b",0,rb,W,H-rb);geo("l",0,rt,rl,rb-rt);geo("r",rr,rt,W-rr,rb-rt);
+    ring.style.display="block";ring.style.left=rl+"px";ring.style.top=rt+"px";ring.style.width=(rr-rl)+"px";ring.style.height=(rb-rt)+"px";}
+  else{geo("t",0,0,W,H);geo("b",0,0,0,0);geo("l",0,0,0,0);geo("r",0,0,0,0);ring.style.display="none";}
   left=Math.min(Math.max(12,left),W-cw-12);top=Math.min(Math.max(12,top),Math.max(12,H-ch-12));
   card.style.top=top+"px";card.style.left=left+"px";card.style.width=cw+"px";}
 function tourNav(d){tourI=Math.max(0,Math.min(TOUR.length-1,tourI+d));tourStep();}
