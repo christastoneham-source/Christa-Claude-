@@ -7,7 +7,7 @@
 2 gap before/after grants 1.5M to 4M: $636K / Closed
 3 advisor gap: $636K
 3 equity gap: Closed
-3 role box: HCDC role: Equity Partner | HCDC places $1M of equity in the stack, carries that as balance sheet exposure, and holds 33% of the equity, the same share of projected value created. | Advisory fee (in total cost) | none | Balance sheet exposure | $1,000,000 | Ownership share of equity | 33% | HCDC sha
+3 role box: HDDC role: Equity Partner | HDDC places $1M of equity in the stack, carries that as balance sheet exposure, and holds 33% of the equity, the same share of projected value created. | Advisory fee (in total cost) | none | Balance sheet exposure | $1,000,000 | Ownership share of equity | 33% | HDDC sha
 6 D-15 cost by mode: {"Rehab":"$5,464,800","New Construction":"$3,999,700","Demolition plus New":"$4,397,140","Historic Preservation":"$6,284,520"}
 6 historic lines: Federal historic tax credit (20%) PLACEHOLDER $1,256,904 || State historic tax credit (25%) PLACEHOLDER $1,571,130
 7 sustain lines: PACE financing (20% of cost) SUSTAINABILITY $3,624,331 || Energy credits (30% of premium) SUSTAINABILITY $307,726
@@ -27,8 +27,8 @@ $1,025,754
 5 concept single: invest 95993750 value created 122191563 tax 2851014
 5 concept mixed: invest 91815250 value created 116550588 tax 2726913
 5 concept phased: invest 92650000 value created 117677500 tax 2751705
-5 market tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PRICE | $9.6M CAPITAL DAY ONE | $95M TOTAL INVESTMENT | $120.9M VALUE CREATED | $2.82M NEW ANNUAL PROPERTY TAX | $18M THE GAP
-5 reo tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HCDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR REO PRICE | $6.4M CAPITAL DAY ONE | $91.8M TOTAL INVESTMENT | $116.6M VALUE CREATED | $2.73M NEW ANNUAL PROPERTY TAX | $14.8M THE GAP
+5 market tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PRICE | $9.6M CAPITAL DAY ONE | $95M TOTAL INVESTMENT | $120.9M VALUE CREATED | $2.82M NEW ANNUAL PROPERTY TAX | $18M THE GAP
+5 reo tally: 6 Parcels assigned | 2 Pillars in use | $17.1M Estimated investment | $16.2M Value created | $583K New annual property tax | $2.77M The gap | $300K Capital required day one | $35.1M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR REO PRICE | $6.4M CAPITAL DAY ONE | $91.8M TOTAL INVESTMENT | $116.6M VALUE CREATED | $2.73M NEW ANNUAL PROPERTY TAX | $14.8M THE GAP
 9 after reload: view=district scenarios=Housing first ; Green anchor, advisor parcels=7 role=advisor
 9 after load Housing first: parcels=6 role=equity active=undefined
 10 pdf pages: 1

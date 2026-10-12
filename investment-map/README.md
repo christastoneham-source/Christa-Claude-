@@ -5,7 +5,7 @@ Open `index.html` in any browser. It works from a local file with no internet
 except fonts and charts, and it degrades to tables when the chart library
 does not load.
 
-This is an internal demonstration with stylized data for a client proposal.
+This is an internal demonstration with stylized data for the proposal to Historic District Development Corporation (HDDC), Atlanta, led by Cheneé Joseph.
 It is not a client deliverable. Every figure of record carries a reference
 badge. Every projection is a planning estimate with editable assumptions,
 never an appraisal or a tax determination.

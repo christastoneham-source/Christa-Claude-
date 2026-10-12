@@ -368,9 +368,10 @@
    ============================================================ */
 "use strict";
 const LS_KEY="cds_investment_map_portfolio_v1";
+const CLIENT={short:"HDDC",name:"Historic District Development Corporation",lead:"Cheneé Joseph, President and CEO",place:"Sweet Auburn, Atlanta"};
 const STATE_VERSION=1;
 const COLORS={brick:"#D95448",gold:"#F1BA4B",grove:"#47AB4F",turq:"#00BCC5",navy:"#101C28",muted:"#5C6470",line:"#E3DECD",road:"#D7D1C0"};
-const SRC_LABELS={public:"Public partner resources",grants:"Grants",debt:"Debt",partner:"Partner equity",hcdc:"HCDC equity"};
+const SRC_LABELS={public:"Public partner resources",grants:"Grants",debt:"Debt",partner:"Partner equity",hcdc:"HDDC equity"};
 const SRC_COLORS={public:"#101C28",grants:"#F1BA4B",debt:"#8A94A0",partner:"#47AB4F",hcdc:"#00BCC5",fedCredit:"#E89A92",stateCredit:"#D95448",pace:"#8FCF94",energy:"#F7D78F",seller:"#B5443A",landowner:"#C9C2AD",conveyance:"#6B7A8A"};
 const MODES={
   rehab:{label:"Rehab",letter:"R",basis:"existing",hint:"Cost basis is the existing building square footage."},
@@ -453,11 +454,11 @@ const STRUCTURES=[
  {id:"lease",n:3,name:"Ground lease",short:"Landowner keeps the fee",role:"Leasehold developer",control:"Leasehold control for the lease term, the fee stays with the landowner",controlSteps:["Sign lease","Build","Operate","Revert"],risk:"Medium",income:"Equity return",
   fields:[["rentYield","Ground rent (% of land value per year)",6],["prepaidYears","Prepaid rent at closing (years)",1],["deposit","Lease deposit ($)",50000],["termYears","Lease term (years)",65]],
   pct:{public:0,grants:5,debt:65,partner:10,hcdc:20}},
- {id:"fee",n:4,name:"Fee developer",short:"Owner funds, HCDC delivers",role:"Fee developer for the owner",control:"No ownership, control limited to the development agreement",controlSteps:["Agreement","Entitle","Build","Hand over"],risk:"Low",income:"Fee",
+ {id:"fee",n:4,name:"Fee developer",short:"Owner funds, HDDC delivers",role:"Fee developer for the owner",control:"No ownership, control limited to the development agreement",controlSteps:["Agreement","Entitle","Build","Hand over"],risk:"Low",income:"Fee",
   fields:[["pursuit","Pursuit budget ($)",75000],["devFeePct","Development fee (% of development cost)",4]],
   pct:{public:10,grants:5,debt:60,partner:25,hcdc:0}},
  {id:"jv",n:5,name:"Joint venture",short:"Owner contributes land as equity",role:"Managing partner in the venture",control:"Shared control under the venture agreement",controlSteps:["Form venture","Entitle","Build","Share returns"],risk:"Medium",income:"Both",
-  fields:[["landCreditPct","Land credited as owner equity (% of price)",100],["predev","Predevelopment budget ($)",250000],["hcdcPredevPct","HCDC share of predevelopment (%)",50],["promotePct","HCDC promote (% of value created)",15]],
+  fields:[["landCreditPct","Land credited as owner equity (% of price)",100],["predev","Predevelopment budget ($)",250000],["hcdcPredevPct","HDDC share of predevelopment (%)",50],["promotePct","HDDC promote (% of value created)",15]],
   pct:{public:0,grants:5,debt:60,partner:18,hcdc:10}},
  {id:"phased",n:6,name:"Phased takedown",short:"Buy the land in phases",role:"Owner and developer, phase by phase",control:"Control of each phase at its takedown, on a contract schedule",controlSteps:["Phase 1","Phase 2","Phase 3","Complete"],risk:"Medium",income:"Equity return",
   fields:[["phase1Pct","First takedown (% of land)",40],["takedownPremiumPct","Price premium on later phases (%)",3],["closingPct","Closing costs (% of price)",2]],
@@ -607,11 +608,11 @@ function autoLines(ws,agg){const g=S.globals,L=[];
 function buildStack(totalCost,lines){const committed=lines.reduce((a,l)=>a+(Number(l.amount)||0),0);return {lines,committed,gap:totalCost-committed,totalCost};}
 function roleSummary(ws,total,fee,vm){
   if(ws.role!=="equity")return {key:"advisor",label:"Advisor",fee,exposure:0,share:0,shareValue:0,
-    text:"HCDC advises the public partner and earns an advisory fee of "+S.globals.advisoryFeePct+"% of development cost. No capital on the HCDC balance sheet. Zero exposure."};
+    text:"HDDC advises the public partner and earns an advisory fee of "+S.globals.advisoryFeePct+"% of development cost. No capital on the HDDC balance sheet. Zero exposure."};
   const hcdc=Number(ws.stack.hcdc)||0,equity=(Number(ws.stack.partner)||0)+hcdc;
   const share=equity>0?hcdc/equity:0;
   return {key:"equity",label:"Equity Partner",fee:0,exposure:hcdc,share,shareValue:share*vm.valueCreated,
-    text:"HCDC places "+fmtC(hcdc)+" of equity in the stack, carries that as balance sheet exposure, and holds "+fmtPct(share*100,0)+" of the equity, the same share of projected value created."};
+    text:"HDDC places "+fmtC(hcdc)+" of equity in the stack, carries that as balance sheet exposure, and holds "+fmtPct(share*100,0)+" of the equity, the same share of projected value created."};
 }
 
 /* district */
@@ -652,10 +653,10 @@ function computeSite(ws,structId){
       info.push({key:"landowner",label:"Land kept in fee by the landowner (not in the stack)",amount:price});
       incomeNote="Equity return on the leasehold. Ground rent of "+fmtC(annual)+" each year is an operating cost.";timelineNote=a.termYears+" year leasehold.";break;}
     case "fee":{landBasis=price;dayOne=a.pursuit;hcdcAtCompletion=a.pursuit;
-      incomeNote="Development fee of "+fmtC(dev*a.devFeePct/100)+" ("+a.devFeePct+"% of development cost). No equity.";timelineNote="Owner funds land and construction. HCDC recovers the pursuit budget through the fee.";break;}
+      incomeNote="Development fee of "+fmtC(dev*a.devFeePct/100)+" ("+a.devFeePct+"% of development cost). No equity.";timelineNote="Owner funds land and construction. HDDC recovers the pursuit budget through the fee.";break;}
     case "jv":{landBasis=price;const landCredit=price*a.landCreditPct/100;dayOne=a.predev*a.hcdcPredevPct/100;
       extra.push({key:"landowner",label:"Owner land contribution (equity credit)",amount:landCredit});
-      incomeNote="Development fee plus a promote of "+a.promotePct+"% of value created.";timelineNote="Owner contributes the land. HCDC funds "+a.hcdcPredevPct+"% of predevelopment day one.";break;}
+      incomeNote="Development fee plus a promote of "+a.promotePct+"% of value created.";timelineNote="Owner contributes the land. HDDC funds "+a.hcdcPredevPct+"% of predevelopment day one.";break;}
     case "phased":{const closing=price*a.closingPct/100;const later=price*(1-a.phase1Pct/100)*a.takedownPremiumPct/100;landBasis=price+closing+later;
       dayOne=(price+closing)*a.phase1Pct/100;incomeNote="Equity return, phase by phase.";timelineNote="First takedown is "+a.phase1Pct+"% of the land. Later phases carry a "+a.takedownPremiumPct+"% premium.";break;}
     case "seller":{const closing=price*a.closingPct/100;const note=price*(1-a.downPct/100);carry=note*a.ratePct/100*a.termYears;landBasis=price+closing+carry;
@@ -712,7 +713,7 @@ function computeFor(wsKey,ws){ws=ws||S[wsKey];return wsKey==="district"?computeD
    profile popover, sustainability toggle, charts with fallback
    ============================================================ */
 const WS_META={
-  district:{title:"The District",sub:"District revitalization study · small Southern city · 40 stylized parcels",tab:"The District"},
+  district:{title:"The District",sub:"District revitalization study · a historic Southern district, stylized · 40 parcels",tab:"The District"},
   site:{title:"The Five Acre Site",sub:"One parcel, 217,800 sqft · the scenario axis is deal structure",tab:"Five Acre Site"},
   twenty:{title:"The Twenty Acres",sub:"One bank owned site, 871,200 sqft · large metro · subdivide or hold whole",tab:"Twenty Acres"}
 };
@@ -840,12 +841,12 @@ function stackPanelHTML(wsKey,comp,opts){opts=opts||{};const st=comp.stack;
 /* role toggle and summary */
 function roleHTML(wsKey,comp){const ws=S[wsKey],r=comp.role;
   return `<div class="seg" id="roleSeg-${wsKey}" style="width:100%;display:flex"><button style="flex:1" class="${ws.role!=='equity'?'active':''}" onclick="setWs('${wsKey}','role','advisor')">Advisor</button><button style="flex:1" class="${ws.role==='equity'?'active':''}" onclick="setWs('${wsKey}','role','equity')">Equity Partner</button></div>
-   <div class="rolebox"><b>HCDC role: ${r.label}</b>${esc(r.text)}
+   <div class="rolebox"><b>HDDC role: ${r.label}</b>${esc(r.text)}
      <div class="kv" style="margin-top:8px"><b>Advisory fee (in total cost)</b><span class="v">${r.key==="advisor"?fmt$(r.fee):"none"}</span></div>
      <div class="kv"><b>Balance sheet exposure</b><span class="v">${fmt$(r.exposure)}</span></div>
      <div class="kv"><b>Ownership share of equity</b><span class="v">${r.key==="equity"?fmtPct(r.share*100,0):"none"}</span></div>
-     <div class="kv"><b>HCDC share of value created</b><span class="v">${r.key==="equity"?fmt$(r.shareValue):"none"}</span></div>
-     <div class="note" style="margin-top:6px">${r.key==="advisor"?"What closes the gap under this role: more public, grant, debt, or partner equity. HCDC brings advice, not capital.":"What closes the gap under this role: HCDC equity enters the stack. Raise it until the gap closes, then read the exposure that implies."}</div>
+     <div class="kv"><b>HDDC share of value created</b><span class="v">${r.key==="equity"?fmt$(r.shareValue):"none"}</span></div>
+     <div class="note" style="margin-top:6px">${r.key==="advisor"?"What closes the gap under this role: more public, grant, debt, or partner equity. HDDC brings advice, not capital.":"What closes the gap under this role: HDDC equity enters the stack. Raise it until the gap closes, then read the exposure that implies."}</div>
    </div>`;}
 
 /* construction mode segmented control */
@@ -873,7 +874,7 @@ function dotsHTML(cls){return `<div class="dots ${cls||''}"><i style="background
 function renderLanding(){
   const el=document.getElementById("landingView");
   const cards=[
-    {key:"district",c:COLORS.brick,num:"Workspace 01",title:"The District",text:"A small Southern city. About 40 stylized parcels on a schematic grid, four editable investment pillars, and a capital stack that keeps the gap in view. Advisor or Equity Partner.",mini:districtSVG(S.district,true)},
+    {key:"district",c:COLORS.brick,num:"Workspace 01",title:"The District",text:"A historic Southern district, stylized. About 40 parcels on a schematic grid, four editable investment pillars, historic preservation priced as its own mode, and a capital stack that keeps the gap in view. Advisor or Equity Partner.",mini:districtSVG(S.district,true)},
     {key:"site",c:COLORS.gold,num:"Workspace 02",title:"The Five Acre Site",text:"One parcel, 217,800 sqft, with a small existing building. Eight deal structures compared on capital day one, capital at completion, control, risk, and income.",mini:siteSVG(S.site,true)},
     {key:"twenty",c:COLORS.grove,num:"Workspace 03",title:"The Twenty Acres",text:"One bank owned site in a large metro, 871,200 sqft. Three subdivision concepts and three price bases answer: buy it, highest and best use, one parcel or subdivide.",mini:twentySVG(S.twenty,null,true)}
   ];
@@ -882,6 +883,7 @@ function renderLanding(){
     <h1>The Investment Map</h1>
     <div class="tag">Portfolio Demonstration</div>
     <p class="lede">One decision engine. Three live deal types. Demonstration data.</p>
+    <div class="inline" style="justify-content:center;margin:-22px 0 30px"><span class="chip">Prepared for ${esc(CLIENT.name)}</span><span class="chip">${esc(CLIENT.lead)}</span></div>
     <div class="landing-cards" id="landingCards">${cards.map(c=>`<div class="wscard" style="--c:${c.c}"><div class="num">${c.num}</div><h2>${c.title}</h2><div class="mini">${c.mini}</div><p>${c.text}</p><button class="btn primary" onclick="setView('${c.key}')">Open</button></div>`).join("")}</div>
     <div class="engine-strip"><span>Shared decision engine:</span>
       <span class="chip">Construction modes</span><span class="chip">Historic credits</span><span class="chip">Sustainability</span><span class="chip">Market profiles</span><span class="chip">Capital stack and the gap</span><span class="chip">Scenarios</span><span class="chip">Partner Brief</span><span class="chip">Edit Pillars</span>
@@ -975,7 +977,7 @@ function renderDistrict(){
     </div>
   </div>
   <aside class="ws-side">
-    <div class="ph">HCDC role</div>${roleHTML("district",comp)}
+    <div class="ph">HDDC role</div>${roleHTML("district",comp)}
     <div class="ph" style="margin-top:18px">Capital stack</div>
     <div id="districtStack">${stackPanelHTML("district",comp,{mode:"dollar"})}</div>
     <div class="ph">Cost build up</div>
@@ -1061,7 +1063,7 @@ function renderSite(){
      <div class="fig">${fmtC(c.dayOne)}<small>Capital required day one</small></div>
      <div class="fig" style="font-size:13px">${fmtC(c.total)}<small>Total capital at completion</small></div>
      <div class="foot"><span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk} risk</span><span class="tiny muted">${esc(c.st.income)}</span></div></button>`).join("");
-  const compareTable=`<div class="tablewrap"><table id="siteCompareTable"><thead><tr><th>#</th><th>Structure</th><th class="num">Capital day one</th><th class="num">Total at completion</th><th>HCDC role</th><th>Control timeline</th><th>Risk</th><th>Income type</th><th class="num">HCDC equity</th><th class="num">The gap</th></tr></thead><tbody>
+  const compareTable=`<div class="tablewrap"><table id="siteCompareTable"><thead><tr><th>#</th><th>Structure</th><th class="num">Capital day one</th><th class="num">Total at completion</th><th>HDDC role</th><th>Control timeline</th><th>Risk</th><th>Income type</th><th class="num">HDDC equity</th><th class="num">The gap</th></tr></thead><tbody>
     ${all.map(c=>`<tr class="clickable ${ws.structure===c.st.id?'sel':''}" onclick="pickStructure('${c.st.id}')"><td>${c.st.n}</td><td><b>${esc(c.st.name)}</b></td><td class="num">${fmtC(c.dayOne)}</td><td class="num">${fmtC(c.total)}</td><td>${esc(c.st.role)}</td><td class="small">${esc(c.st.control)}</td><td><span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk}</span></td><td>${esc(c.st.income)}</td><td class="num">${fmtC(c.stack.lines.find(l=>l.key==="hcdc").amount)}</td><td class="num" style="color:${c.stack.gap>0.5?'var(--brick-ink)':'var(--grove-ink)'};font-weight:700">${c.stack.gap>0.5?fmtC(c.stack.gap):"Closed"}</td></tr>`).join("")}
     </tbody></table></div>`;
   const chartTable=`<table><thead><tr><th>Structure</th><th class="num">Day one</th><th class="num">At completion</th></tr></thead><tbody>${all.map(c=>`<tr><td>${c.st.n}. ${esc(c.st.name)}</td><td class="num">${fmtC(c.dayOne)}</td><td class="num">${fmtC(c.total)}</td></tr>`).join("")}</tbody></table>`;
@@ -1069,7 +1071,7 @@ function renderSite(){
   const pl=pillarById(ws.pillar);
   el.innerHTML=`<div class="ws"><div class="ws-main">
     ${wsBarHTML("site")}
-    ${tallyHTML([{n:fmtC(comp.dayOne),l:"Capital required day one"},{n:fmtC(comp.total),l:"Total capital at completion"},{n:`<span class="serif" style="font-size:16px">${esc(st.role)}</span>`,l:"HCDC role"},{n:`<span class="risk ${RISK_CLASS[st.risk]}" style="font-size:13px">${st.risk}</span>`,l:"Risk level"},{n:`<span class="serif" style="font-size:16px">${esc(st.income)}</span>`,l:"Income type"},gapCell(comp.stack)])}
+    ${tallyHTML([{n:fmtC(comp.dayOne),l:"Capital required day one"},{n:fmtC(comp.total),l:"Total capital at completion"},{n:`<span class="serif" style="font-size:16px">${esc(st.role)}</span>`,l:"HDDC role"},{n:`<span class="risk ${RISK_CLASS[st.risk]}" style="font-size:13px">${st.risk}</span>`,l:"Risk level"},{n:`<span class="serif" style="font-size:16px">${esc(st.income)}</span>`,l:"Income type"},gapCell(comp.stack)])}
     <div class="reco" id="siteReco">${recommendation("site",comp,all)}</div>
     <div class="card" id="siteProgram"><h3>Site and program <span class="spacer"></span><span class="pill">${pl?`<span class="dot" style="background:${pl.color}"></span>${esc(pl.name)}`:"No pillar"} · ${MODES[ws.mode]?MODES[ws.mode].label:""}</span></h3>
       <div class="row2" style="gap:20px;align-items:start">
@@ -1105,11 +1107,11 @@ function renderSite(){
   <aside class="ws-side" id="siteSide">
     <div class="ph">Active structure</div>
     <h3 style="margin:0">${st.n}. ${esc(st.name)}</h3><div class="note">${esc(st.short)}</div>
-    <div class="kv" style="margin-top:8px"><b>HCDC role</b><span class="v">${esc(st.role)}</span></div>
+    <div class="kv" style="margin-top:8px"><b>HDDC role</b><span class="v">${esc(st.role)}</span></div>
     <div class="kv"><b>Risk level</b><span class="v"><span class="risk ${RISK_CLASS[st.risk]}">${st.risk}</span></span></div>
     <div class="kv"><b>Income type</b><span class="v">${esc(st.income)}</span></div>
     <div class="kv"><b>Capital day one</b><span class="v">${fmt$(comp.dayOne)}</span></div>
-    <div class="kv"><b>HCDC capital at completion</b><span class="v">${fmt$(comp.hcdcAtCompletion)}</span></div>
+    <div class="kv"><b>HDDC capital at completion</b><span class="v">${fmt$(comp.hcdcAtCompletion)}</span></div>
     <div class="kv"><b>Total capital at completion</b><span class="v">${fmt$(comp.total)}</span></div>
     <div class="ph">Control timeline</div>
     <div class="timeline">${st.controlSteps.map((c,i)=>`<span class="${i===0?'on':''}">${esc(c)}</span>`).join("")}</div>
@@ -1208,7 +1210,7 @@ function renderTwenty(){
     </div>
   </div>
   <aside class="ws-side">
-    <div class="ph">HCDC role</div>${roleHTML("twenty",comp)}
+    <div class="ph">HDDC role</div>${roleHTML("twenty",comp)}
     <div class="ph" style="margin-top:18px">Capital stack</div>
     <div id="twentyStack">${stackPanelHTML("twenty",comp,{mode:"dollar"})}</div>
     <div class="ph">Cost build up</div>
@@ -1230,15 +1232,15 @@ function recommendation(wsKey,comp,all){
     const gap=comp.stack.gap,open=gap>0.5;
     let t=`<b>Recommendation.</b> ${comp.agg.count} parcel${comp.agg.count===1?"":"s"} across ${comp.pillarsUsed} pillar${comp.pillarsUsed===1?"":"s"}. Investment ${fmtC(comp.total)}, value created ${fmtC(comp.valueCreated)}, new annual property tax ${fmtC(comp.newTax)}. `;
     if(!comp.agg.count)t+=`Assign parcels to begin.`;
-    else if(open)t+=`The gap is ${fmtC(gap)} under the ${comp.role.label} role. `+(comp.role.key==="advisor"?`Closing it takes ${fmtC(gap)} more from public, grant, debt, or partner sources, or a move to the Equity Partner role.`:`HCDC equity of ${fmtC((Number(ws.stack.hcdc)||0)+gap)} closes it, with that exposure on the balance sheet.`);
-    else t+=`Sources cover total cost under the ${comp.role.label} role${comp.role.key==="equity"?` with ${fmtC(comp.role.exposure)} of HCDC exposure`:""}.`;
+    else if(open)t+=`The gap is ${fmtC(gap)} under the ${comp.role.label} role. `+(comp.role.key==="advisor"?`Closing it takes ${fmtC(gap)} more from public, grant, debt, or partner sources, or a move to the Equity Partner role.`:`HDDC equity of ${fmtC((Number(ws.stack.hcdc)||0)+gap)} closes it, with that exposure on the balance sheet.`);
+    else t+=`Sources cover total cost under the ${comp.role.label} role${comp.role.key==="equity"?` with ${fmtC(comp.role.exposure)} of HDDC exposure`:""}.`;
     return t+` <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
   }
   if(wsKey==="site"){
     all=all||STRUCTURES.map(s=>computeSite(ws,s.id));
     const lowest=all.reduce((a,c)=>c.dayOne<a.dayOne?c:a,all[0]);
     const open=comp.stack.gap>0.5;
-    return `<b>Recommendation.</b> Under ${esc(comp.st.name)}, HCDC needs ${fmtC(comp.dayOne)} day one and the project needs ${fmtC(comp.total)} at completion, with ${comp.st.risk.toLowerCase()} risk and ${comp.st.income.toLowerCase()} income. ${lowest.st.id===comp.st.id?"This is the lightest day one position of the eight.":`${esc(lowest.st.name)} is the lightest day one position at ${fmtC(lowest.dayOne)}.`} ${open?`The stack leaves a gap of ${fmtC(comp.stack.gap)}.`:"The stack closes under the current percentages."} <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
+    return `<b>Recommendation.</b> Under ${esc(comp.st.name)}, HDDC needs ${fmtC(comp.dayOne)} day one and the project needs ${fmtC(comp.total)} at completion, with ${comp.st.risk.toLowerCase()} risk and ${comp.st.income.toLowerCase()} income. ${lowest.st.id===comp.st.id?"This is the lightest day one position of the eight.":`${esc(lowest.st.name)} is the lightest day one position at ${fmtC(lowest.dayOne)}.`} ${open?`The stack leaves a gap of ${fmtC(comp.stack.gap)}.`:"The stack closes under the current percentages."} <span class="tiny muted">Planning estimate, editable assumptions.</span>`;
   }
   all=all||CONCEPTS.map(c=>computeTwenty(ws,c.id));
   const best=all.reduce((a,c)=>c.valueCreated>a.valueCreated?c:a,all[0]);
@@ -1279,9 +1281,9 @@ function compareRows(wsKey,entries){
   const comps=entries.map(e=>e.comp);
   const rows=[];const row=(label,fn,cls)=>rows.push(`<tr><td><b>${label}</b></td>${comps.map((c,i)=>`<td class="${cls||'num'}">${fn(c,entries[i])}</td>`).join("")}</tr>`);
   row("Picture",(c,e)=>`<span class="strip-inline">${stripSVG(wsKey,e.ws)}</span>`,"");
-  if(wsKey==="district"){row("Parcels assigned",c=>c.agg.count);row("HCDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  if(wsKey==="district"){row("Parcels assigned",c=>c.agg.count);row("HDDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
   if(wsKey==="site"){row("Structure",c=>c.st.n+". "+esc(c.st.name),"");row("Capital day one",c=>fmtC(c.dayOne));row("Risk",c=>`<span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk}</span>`,"");row("Income type",c=>esc(c.st.income),"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
-  if(wsKey==="twenty"){row("Concept",c=>esc(c.concept.name),"");row("Price basis",c=>esc(c.basis.label),"");row("Capital day one",c=>fmtC(c.dayOne));row("HCDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  if(wsKey==="twenty"){row("Concept",c=>esc(c.concept.name),"");row("Price basis",c=>esc(c.basis.label),"");row("Capital day one",c=>fmtC(c.dayOne));row("HDDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
   row(wsKey==="site"?"Total capital at completion":"Total investment",c=>fmtC(c.total));
   const labels=[...new Set(comps.flatMap(c=>Object.keys(c.agg.outcomes)))];
   labels.forEach(l=>row(esc(l),c=>c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"));
@@ -1312,17 +1314,17 @@ function assumeLine(f,v){const label=f[1];const m=label.match(/\(([^)]*)\)/);con
 function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsKey],pr=profileFor(ws);
   const scn=scenarioLabel(ws);const date=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   let cards=[],diagram="",assumptions=[];
-  if(wsKey==="district"){cards=[[comp.agg.count,"Parcels assigned"],[fmtC(comp.total),"Investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.role.label,"HCDC role"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=districtSVG(ws,false);
+  if(wsKey==="district"){cards=[[comp.agg.count,"Parcels assigned"],[fmtC(comp.total),"Investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.role.label,"HDDC role"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=districtSVG(ws,false);
     assumptions.push(`${comp.pillarsUsed} pillars in use`,`Acquisition at ${ws.acqPctOfAssessed}% of assessed value`);}
   if(wsKey==="site"){cards=[[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total at completion"],[comp.st.risk,"Risk level"],[comp.st.income,"Income type"],[fmtC(comp.valueCreated),"Value created"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=siteSVG(ws,false);
     assumptions.push(`Structure ${comp.st.n}: ${comp.st.name}`,`Program: ${pillarById(ws.pillar)?pillarById(ws.pillar).name:""}, ${MODES[ws.mode].label}, ${fmtN(ws.proposed)} sqft`,`Land price ${fmtC(ws.landPrice)}`,...comp.st.fields.map(f=>assumeLine(f,comp.a[f[0]])));}
   if(wsKey==="twenty"){cards=[[fmtC(comp.acquisition),"Acquisition"],[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=twentySVG(ws,null,false);
-    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,...(comp.basis.carry>0?[`Seller note interest carry ${fmtC(comp.basis.carry)} added to total cost`]:[]),`HCDC role: ${comp.role.label}`);}
+    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,...(comp.basis.carry>0?[`Seller note interest carry ${fmtC(comp.basis.carry)} added to total cost`]:[]),`HDDC role: ${comp.role.label}`);}
   assumptions.push(`Market profile: ${pr.name} (cost × ${pr.costMult}, value × ${pr.valueFactor}, tax ${(pr.taxRate*100).toFixed(2)}%)`,`Sustainability ${ws.sustain?"on, premium "+S.globals.sustainPremiumPct+"%":"off"}`);
   const outcomeRows=Object.entries(comp.agg.outcomes).slice(0,6).map(([l,o])=>`<tr><td>${esc(l)}</td><td class="num">${fmtOut(o.v,o.money)}</td></tr>`);
   if(ws.sustain)outcomeRows.push(`<tr><td>Annual energy savings</td><td class="num">${fmtC(comp.agg.energy)}</td></tr>`,`<tr><td>Green building sqft</td><td class="num">${fmtN(comp.agg.greenSqft)}</td></tr>`);
   const outcomes=outcomeRows.join("");
-  return `<div class="bhead"><div><h1>Partner Brief · ${m.title}</h1><div class="sub">The Investment Map · Portfolio Demonstration · ${esc(scn)}</div></div><div class="right">${date}<br>Demonstration data</div></div>
+  return `<div class="bhead"><div><h1>Partner Brief · ${m.title}</h1><div class="sub">The Investment Map · Portfolio Demonstration · Prepared for ${esc(CLIENT.name)} · ${esc(scn)}</div></div><div class="right">${date}<br>Demonstration data</div></div>
    <div class="brule"></div>
    <div class="breco">${recommendation(wsKey,comp)}</div>
    <div class="bcards">${cards.map(c=>`<div class="bc"><div class="n">${c[0]}</div><div class="l">${c[1]}</div></div>`).join("")}</div>
@@ -1400,8 +1402,8 @@ const TOUR=[
  {view:"district",sel:"#districtPlan",title:"Read the district",body:"About 40 stylized parcels on a schematic grid. Hatched parcels are vacant land, gray parcels hold an existing building. Click any parcel to open its reference data."},
  {view:"district",sel:"#brushBar",title:"Assign pillars in one click",body:"Pick a pillar brush, then click parcels to assign them. Totals, outcomes, value created, new annual tax, and the gap update live."},
  {view:"district",sel:"#districtDetail",title:"Construction modes",body:"Rehab prices the existing building. New Construction prices a proposed square footage you can edit. Demolition plus New adds a demolition line. Historic Preservation adds federal and state credit lines to the stack."},
- {view:"district",sel:"#districtStack",title:"The capital stack and the gap",body:"Editable source lines: public partner resources, grants, debt, partner equity, and HCDC equity. The gap is total cost minus committed sources. It stays big and unmissable."},
- {view:"district",sel:"#roleSeg-district",title:"Advisor or Equity Partner",body:"Advisor shows an advisory fee and zero balance sheet exposure. Equity Partner moves HCDC equity into the stack and shows the ownership share of projected value created. What closes the gap, and what role does that imply."},
+ {view:"district",sel:"#districtStack",title:"The capital stack and the gap",body:"Editable source lines: public partner resources, grants, debt, partner equity, and HDDC equity. The gap is total cost minus committed sources. It stays big and unmissable."},
+ {view:"district",sel:"#roleSeg-district",title:"Advisor or Equity Partner",body:"Advisor shows an advisory fee and zero balance sheet exposure. Equity Partner moves HDDC equity into the stack and shows the ownership share of projected value created. What closes the gap, and what role does that imply."},
  {view:"site",sel:"#structGrid",title:"Eight deal structures",body:"On the five acre site the scenario axis is deal structure, not land use. Select any card: capital day one, capital at completion, role, control, risk, income, and the stack all recompute."},
  {view:"site",sel:"#siteCompare",title:"Compare all eight",body:"One table puts every structure side by side so the tradeoff is visible at a glance. Every assumption number is editable in the side panel."},
  {view:"twenty",sel:"#basisSeg",title:"Price basis",body:"Market price, distressed or REO price, or seller financing terms. The selection flows into every concept's numbers and the seller note enters the stack."},
