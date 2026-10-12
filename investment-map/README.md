@@ -16,7 +16,7 @@ One shared decision engine powers three workspaces:
 
 | Workspace | Deal type | The question it answers |
 |---|---|---|
-| The District | District revitalization study, about 40 stylized parcels in a small Southern city | What does it take for the gap to close, and what role does that imply |
+| The District | District revitalization study, about 40 stylized parcels in a historic Southern district | What does it take for the gap to close, and what role does that imply |
 | The Five Acre Site | One parcel, 217,800 sqft, eight deal structures | Which structure fits on capital day one, control, risk, and income |
 | The Twenty Acres | One bank owned site, 871,200 sqft, large metro | Should we buy it, what is highest and best use, one parcel or subdivide |
 
@@ -25,6 +25,28 @@ Construction, Demolition plus New), sustainability toggle, market profiles,
 capital stack with the gap always in view, scenarios with a visual strip and a
 compare table, a print ready Partner Brief, an Edit Pillars view, localStorage
 persistence, and a guided tour.
+
+## The HDDC instance
+
+- Quick tour. A Quick tour button sits in the header on every view. On the
+  landing it runs the full tour. Inside a workspace it runs that workspace's
+  own tour. The landing opens with a Start here card, and every workspace opens
+  with three steps and a Tour this workspace button.
+- Deep links. `#tour` opens the full tour, `#tour-district`, `#tour-site`,
+  and `#tour-twenty` open a workspace tour, and `#district`, `#site`, `#twenty`
+  open a workspace. The Lovable proposal page uses these from its quick tour panel.
+- HDDC principles check. Every workspace and the Partner Brief read the plan
+  against non displacement, historic preservation, and sustainability. Demolishing
+  an occupied building or one 50 years or older turns the read to Watch.
+- Pillars in HDDC's program language: Affordable Housing, Black Owned Business,
+  Arts and Culture, Urban Agriculture and Green Space.
+- Market profiles by state: Atlanta, Georgia (default) and Small city, Alabama.
+  Each carries its state historic credit rate and per project cap, its
+  environmental program, and its public resources label. Rates, caps, and tax
+  rates are planning assumptions marked verify.
+- Client theme. HDDC colors by default (navy #214083, teal #2494A5, lime
+  #AED153, measured from the HDDC logo). Edit Pillars switches to the
+  Connecting Dots and Strategies colors.
 
 ## Projection math (planning estimates)
 
