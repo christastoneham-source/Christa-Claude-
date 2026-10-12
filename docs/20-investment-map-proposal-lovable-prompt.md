@@ -168,7 +168,7 @@ Eyebrow: "SECTION 02 · THE PROBLEM"
 Headline: "Good deals stall when the numbers miss the neighborhood."
 Intro: "HDDC is weighing a district, a five acre site, and a twenty acre acquisition. Two of them sit in Alabama, under rules that differ from Georgia's. Three patterns slow decisions like these."
 Three cards, each with a small line icon in hddc-teal (aria-hidden):
-Card 1 title: "The appraisal misreads the place." Body: "Comparable sales carry decades of disinvestment. They miss what a restored historic district is worth once people live and work there again. When value comes in low, the capital stack breaks and the team rebuilds the case under deadline."
+Card 1 title: "The appraisal misreads the place." Body: "Comparable sales carry decades of disinvestment. They miss what a place is worth once people live and work there again. When value comes in low, the capital stack breaks and the team rebuilds the case under deadline."
 Card 2 title: "One structure gets priced. The rest get guessed." Body: "Buying outright, an option, a ground lease, a fee developer role, and a joint venture each change capital on day one, control, risk, and income. When only one structure is modeled, the cost of the others shows up after the commitment."
 Card 3 title: "The principles are hard to show in numbers." Body: "Lenders read the pro forma. Funders ask for impact. Residents ask who gets to stay. Historic preservation, non displacement, and sustainability guide HDDC's work. They seldom appear in the model a deal is judged by."
 Closing line, Fraunces, hddc-navy: "Each of these can be solved before the money moves."
@@ -241,7 +241,7 @@ Tier 3 name: "Lender Ready Case". Time: "9 to 12 months". Investment: "$$$". Out
   "Full pro formas, sources and uses, and capital stack options for the priority site"
   "An appraisal support package: the value story, comparable logic, and assumptions, ready for the appraiser"
   "An investment packet and recommendation written for your lenders and your board"
-  "Application support for state and local resources in Georgia and Alabama"
+  "Application support for state and local resources in each site's state"
   "A phased implementation plan with partners, funding order, and milestones"
   "Site visits and in person working sessions, scoped and priced separately"
 Eyebrow: "WHAT THE PRICE COVERS". Four small cards: 01 "Instrument license" / "for HDDC's instance" · 02 "Advisory retainer" / "monthly, in Tiers 2 and 3" · 03 "Feasibility work" / "priced by module" · 04 "License and support" / "each year after the engagement".
@@ -264,7 +264,7 @@ Table. Header row hddc-navy with white text: "Deliverable", "Tier 1 · First Dec
   "Seven acquisition paths and three subdivision concepts for The Twenty Acres" · filled, filled, filled
   "Scenario comparison and a one page Partner Brief" · filled, filled, filled
   "Quick tour and in page guide" · filled, filled, filled
-  "Hosted link your team can open anywhere" · filled, filled, filled
+  "Hosted demonstration link your team can open anywhere" · filled, filled, filled
   "Access control on the hosted link" · empty, empty, empty
   "Team workspace with named users and roles" · dash, empty, empty
 "DATA AND CALIBRATION"
@@ -310,8 +310,8 @@ Three numbered cards with a 4px hddc-teal left border:
 Eyebrow: "HOW FEATURES ARE SCOPED". Headline: "Every feature is core, configurable, or built to order."
 Three cards, each with a label line and a list:
 "CORE · Included in every tier": "District grid" · "Scenario builder" · "Eight deal structures" · "Seven acquisition paths" · "Subdivision concepts" · "Capital stack and the gap" · "Principles check" · "Partner Brief" · "Hosted access"
-"CONFIGURABLE · Set with HDDC during scoping": "Pillars and outcome measures" · "Georgia and Alabama market profiles" · "Principle weights" · "Branding" · "Access levels"
-"BUILT TO ORDER · Added in Tiers 2 and 3": "Financial modules" · "Appraisal support package" · "Environmental screening" · "Connections to HDDC's data" · "Fiscal impact views" · "Team workspace with named users and roles" · "Additional sites"
+"CONFIGURABLE · Set with HDDC during scoping": "Pillars and outcome measures" · "Georgia and Alabama market profiles" · "Branding" · "Access levels"
+"BUILT TO ORDER · Added in Tiers 2 and 3": "Financial modules" · "Appraisal support package" · "Environmental screening" · "Connections to HDDC's data" · "Team workspace with named users and roles" · "Additional sites"
 
 CLOSE
 Rule above. Headline, two lines, the second in hddc-teal italic: "The next step is to choose" / "the first decision together."
