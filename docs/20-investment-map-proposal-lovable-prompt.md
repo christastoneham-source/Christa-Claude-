@@ -110,7 +110,7 @@ Closing line, Fraunces, hddc-navy: "The work is strategic. The current process m
 WHAT I'M HEARING
 Headline: "I am bringing four working assumptions into this conversation."
 Four numbered cards, each with a 6px hddc-lime bar on top:
-01 Title: "Front Porch proved Auburn Avenue can build again." Body: "Front Porch opened in April 2025, the first new building on its stretch of Auburn Avenue since 2007. Phase II and the parcels around it are the next decisions, with real timing, lenders, and partners."
+01 Title: "Front Porch proved Auburn Avenue can build again." Body: "Front Porch opened in April 2025, the first new development on its stretch of Auburn Avenue in nearly two decades. Phase II and the parcels around it are the next decisions, with real timing, lenders, and partners."
 02 Title: "The role question is real." Body: "HDDC has led as owner and developer at Front Porch, contributed its land to a partnership with Mercy Housing Southeast at Henderson Place, and developed with partners at Flats at The Indie and Auburn Glenn. Each new deal asks which role fits and what exposure comes with it."
 03 Title: "HDDC is becoming a capital investment corporation." Body: "That is HDDC's own language for its next chapter. An investor's discipline needs a decision trail a board, a lender, and an appraiser can each follow."
 04 Title: "The principles should score the deal." Body: "Historic preservation, non displacement, and sustainability have guided HDDC since Coretta Scott King, Christine King Farris, and John Cox founded it in 1980. They belong inside the numbers, read scenario by scenario."
@@ -327,8 +327,8 @@ exact values in if they differ. Everything else in the table is derived, not HDD
 | Founded 1980 by Coretta Scott King, Christine King Farris, and John Cox | Confirmed by HDDC's About page and press |
 | Principles: Historic Preservation, Non Displacement, Sustainability | Confirmed, HDDC supplied listings |
 | Block by block strategy pioneered in the late 1990s | HDDC's About page |
-| "Evolution into a capital investment corporation" | HDDC careers page, early 2026 |
-| Front Porch opened April 2025, first new building on its stretch of Auburn since 2007 | SaportaReport, Bisnow, Axios |
+| "Evolution into a capital investment corporation" | One HDDC page, the careers page, early 2026. Confirm with Cheneé before the proposal leans on it. If she does not use the phrase, rewrite assumption 03. |
+| Front Porch opened April 2025, first new development on its stretch of Auburn in nearly two decades | Urbanize, SaportaReport, Bisnow. Print as "nearly two decades", not "since 2007". |
 | Henderson Place: HDDC's site since 1995, Mercy Housing Southeast developing | HDDC, Mercy Housing |
 | Flats at The Indie and Auburn Glenn developed with partners | HDDC projects page |
 | Dynamic Metal Lofts, first cleanup under Georgia's brownfield law | HDDC projects page. Verify the wording before sending. |
@@ -350,8 +350,9 @@ Those are Cheneé's to raise. HDDC's board chair and its lender may read this pa
    Green Space. HDDC's three principles become the scoring check, not pillars.
 4. Front Porch struggles. Do not name them. Frame the instrument around Phase II and the
    appraisal problem in general terms.
-5. Readers. Cheneé first, then Nasim Fluker, Vice President of Program Development, and Ron
-   Kirkpatrick, Vice President of Real Estate. Then the board and Reinvestment Fund. Write
+5. Readers. Cheneé first, then Nasim Fluker and Ron Kirkpatrick, Vice President of Real
+   Estate. Nasim's title conflicts: the website says Vice President of Program Development,
+   HDDC's own September emails say VP of Programs. Use the one in her email signature. Then the board and Reinvestment Fund. Write
    so a lender can read every line.
 6. Roles. Yes. HDDC has been owner developer, land partner, and co developer. Keep the
    Advisor or Equity Partner toggle.
