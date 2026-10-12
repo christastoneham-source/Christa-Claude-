@@ -478,7 +478,7 @@ function buildDistrictParcels(){
 }
 const DISTRICT=buildDistrictParcels();
 const SITE={id:"S-01",land:217800,bldg:14500,year:1979,assessed:1850000,use:"Light industrial, vacant two years",owner:"Private owner, anonymized"};
-const TWENTY={id:"T-01",land:871200,bldg:0,year:null,assessed:7400000,use:"Vacant, formerly distribution, bank owned (REO)",owner:"Regional bank, anonymized"};
+const TWENTY={id:"T-01",land:871200,bldg:0,year:null,assessed:7400000,use:"Vacant, formerly distribution",owner:"Private owner, anonymized"};
 
 /* ---------- deal structures (five acre site) ---------- */
 const STRUCTURES=[
@@ -522,7 +522,7 @@ function conceptById(id){return CONCEPTS.find(c=>c.id===id)||CONCEPTS[0];}
 
 /* ---------- workspace defaults ---------- */
 function defaultDistrict(){return {
-  profile:"atl",role:"advisor",sustain:false,brush:"inspect",selected:"D-15",acqPctOfAssessed:0,
+  profile:"al",role:"advisor",sustain:false,brush:"inspect",selected:"D-15",acqPctOfAssessed:0,
   lots:{
     "D-15":{pillar:"commercial",mode:"historic",proposed:36000},
     "D-18":{pillar:"community",mode:"rehab",proposed:7200},
@@ -537,18 +537,18 @@ function defaultDistrict(){return {
 function defaultSite(){
   const assume={},pct={};
   STRUCTURES.forEach(s=>{assume[s.id]={};s.fields.forEach(f=>assume[s.id][f[0]]=f[2]);pct[s.id]={...s.pct};});
-  return {profile:"atl",sustain:false,structure:"option",compare:true,landPrice:2400000,pillar:"housing",mode:"demo",proposed:160000,floors:3,assume,pct,scenarios:[]};
+  return {profile:"al",sustain:false,structure:"option",compare:true,landPrice:2400000,pillar:"housing",mode:"demo",proposed:160000,floors:3,assume,pct,scenarios:[]};
 }
 function defaultTwenty(){
   const lots={single:{A:{pillar:"housing",mode:"new",proposed:305000}},
     mixed:{L1:{pillar:"housing",mode:"new",proposed:76000},L2:{pillar:"housing",mode:"new",proposed:46000},L3:{pillar:"commercial",mode:"new",proposed:30000},
            L4:{pillar:"commercial",mode:"new",proposed:61000},L5:{pillar:"community",mode:"new",proposed:38000},L6:{pillar:"green",mode:"new",proposed:152460}},
     phased:{P1:{pillar:"housing",mode:"new",proposed:122000},P2:{pillar:"commercial",mode:"new",proposed:107000},P3:{pillar:"housing",mode:"new",proposed:76000}}};
-  return {profile:"atl",role:"equity",sustain:false,concept:"mixed",basis:"reo",
-    prices:{market:9600000,reo:6400000,sellerPrice:8200000,sellerDownPct:10,sellerRatePct:5.5,sellerTermYears:5},
+  return {profile:"atl",role:"equity",sustain:false,concept:"mixed",basis:"market",
+    prices:{market:9600000,reo:6400000,sellerPrice:8200000,sellerDownPct:10,sellerRatePct:5.5,sellerTermYears:5,optionFeePct:3,optionStrike:9300000,groundRent:576000,groundYears:3,conveyPct:10,conveyCost:60000},
     lots,stack:{public:3000000,grants:4000000,debt:52000000,partner:12000000,hcdc:6000000},scenarios:[]};
 }
-function defaultState(){return {version:STATE_VERSION,view:"landing",tourDone:false,theme:"hddc",guideHidden:{},pillars:defaultPillars("hddc"),profiles:defaultProfiles(),globals:defaultGlobals(),district:defaultDistrict(),site:defaultSite(),twenty:defaultTwenty()};}
+function defaultState(){return {version:STATE_VERSION,view:"landing",tourDone:false,theme:"hddc",migr:{al2026:true},guideHidden:{},pillars:defaultPillars("hddc"),profiles:defaultProfiles(),globals:defaultGlobals(),district:defaultDistrict(),site:defaultSite(),twenty:defaultTwenty()};}
 
 /* ---------- state and persistence ---------- */
 let S=defaultState();
@@ -580,6 +580,8 @@ function restore(){try{
   if(S.profiles.small||S.profiles.metro){const fresh=defaultProfiles();Object.keys(S.profiles).forEach(k=>{if(!fresh[k])delete S.profiles[k];});Object.keys(fresh).forEach(k=>{S.profiles[k]=Object.assign({},fresh[k],S.profiles[k]&&S.profiles[k].state?S.profiles[k]:{});});
     ["district","site","twenty"].forEach(k=>{if(LEGACY_PROFILE[S[k].profile])S[k].profile="atl";});}
   Object.keys(S.profiles).forEach(k=>{const d=defaultProfiles()[k];if(d)Object.keys(d).forEach(f=>{if(S.profiles[k][f]==null)S.profiles[k][f]=d[f];});});
+  if(!(o.migr&&o.migr.al2026)){S.district.profile="al";S.site.profile="al";S.migr={al2026:true};}
+  if(!ACQ_PATHS.some(x=>x.k===S.twenty.basis))S.twenty.basis="market";
   if(!THEMES[S.theme])S.theme="hddc";
   if(!o.theme)recolorPillars("cds",S.theme);
   const OLD_PILLARS={housing:{name:"Housing"},commercial:{name:"Commercial"},community:{name:"Community and Education",icon:"🎓",labels:{"People served each year":"Visitors each year","Program seats":"Gallery and program seats"}},green:{name:"Green and Public Realm",icon:"🌳",labels:{"Public realm sqft":"Garden and green sqft"}}};
@@ -734,11 +736,23 @@ function computeSite(ws,structId){
 }
 
 /* twenty acres */
-function acquisitionBasis(ws){const p=ws.prices;
-  if(ws.basis==="reo")return {kind:"reo",label:"Distressed or REO price",price:Number(p.reo)||0,carry:0,note:0,downPct:100};
-  if(ws.basis==="seller"){const price=Number(p.sellerPrice)||0,down=Math.min(100,Math.max(0,Number(p.sellerDownPct)||0)),note=price*(1-down/100);
-    return {kind:"seller",label:"Seller financing terms",price,carry:note*(Number(p.sellerRatePct)||0)/100*(Number(p.sellerTermYears)||0),note,downPct:down};}
-  return {kind:"market",label:"Market price",price:Number(p.market)||0,carry:0,note:0,downPct:100};}
+const ACQ_PATHS=[
+  {k:"market",label:"Market purchase"},{k:"reo",label:"Distressed or bank owned price"},{k:"seller",label:"Seller financing"},
+  {k:"option",label:"Option to purchase"},{k:"ground",label:"Ground lease"},{k:"jv",label:"Land contribution, joint venture"},{k:"convey",label:"Public conveyance"}];
+function acqLabel(k){const a=ACQ_PATHS.find(x=>x.k===k);return a?a.label:k;}
+/* price = land cost in total cost; dayOne = land capital needed at closing or signing; carry = extra cost added; landCredit = land value contributed as equity */
+function acquisitionBasis(ws){const p=ws.prices,num=k=>Math.max(0,Number(p[k])||0),market=num("market");
+  const base={kind:ws.basis,label:acqLabel(ws.basis),price:0,carry:0,carryLabel:"",note:0,downPct:100,dayOneLand:0,landCredit:0,phased:true};
+  if(ws.basis==="reo")return {...base,price:num("reo"),dayOneLand:num("reo")};
+  if(ws.basis==="seller"){const price=num("sellerPrice"),down=Math.min(100,num("sellerDownPct")),note=price*(1-down/100);
+    return {...base,price,note,downPct:down,dayOneLand:price*down/100,carry:note*num("sellerRatePct")/100*num("sellerTermYears"),carryLabel:"Seller note interest carry"};}
+  if(ws.basis==="option"){const fee=num("optionStrike")*Math.min(100,num("optionFeePct"))/100;
+    return {...base,price:num("optionStrike"),carry:fee,carryLabel:"Option fee (not credited at closing)",dayOneLand:fee,phased:false};}
+  if(ws.basis==="ground"){const rent=num("groundRent"),yrs=num("groundYears");
+    return {...base,price:0,carry:rent*yrs,carryLabel:"Ground rent during development ("+yrs+" years)",dayOneLand:rent,phased:false};}
+  if(ws.basis==="jv")return {...base,price:market,dayOneLand:0,landCredit:market,phased:false};
+  if(ws.basis==="convey"){const price=market*Math.min(100,num("conveyPct"))/100+num("conveyCost");return {...base,price,dayOneLand:price};}
+  return {...base,kind:"market",label:acqLabel("market"),price:market,dayOneLand:market};}
 function twentyLots(ws,conceptId){const concept=conceptById(conceptId||ws.concept);const bag=(ws.lots&&ws.lots[concept.id])||{};
   return concept.rects.map(r=>{const a=bag[r.id]||{};const land=TWENTY.land*r.share/100;
     return {id:r.id,pillar:a.pillar||null,mode:a.mode||"new",existing:0,proposed:a.proposed,land,assessed:TWENTY.assessed*r.share/100,share:r.share,year:r.year,rect:r};});}
@@ -752,10 +766,11 @@ function computeTwenty(ws,conceptId){
   const fee=ws.role!=="equity"?devCost*(Number(S.globals.advisoryFeePct)||0)/100:0;
   const total=devCost+fee;
   const phase1=concept.id==="phased"?concept.rects[0].share/100:1;
-  const dayOne=basis.kind==="seller"?basis.price*basis.downPct/100*phase1:basis.price*phase1;
+  const dayOne=basis.phased?basis.dayOneLand*phase1:basis.dayOneLand;
   const lines=["public","grants","debt","partner"].map(k=>({key:k,label:srcLabel(k,ws),amount:Number(ws.stack[k])||0,editable:true}));
   if(ws.role==="equity")lines.push({key:"hcdc",label:SRC_LABELS.hcdc,amount:Number(ws.stack.hcdc)||0,editable:true});
-  if(basis.kind==="seller")lines.push({key:"seller",label:"Seller note ("+ws.prices.sellerRatePct+"% over "+ws.prices.sellerTermYears+" years)",amount:basis.note,auto:true,note:"price basis"});
+  if(basis.kind==="seller")lines.push({key:"seller",label:"Seller note ("+ws.prices.sellerRatePct+"% over "+ws.prices.sellerTermYears+" years)",amount:basis.note,auto:true,note:"acquisition"});
+  if(basis.landCredit>0)lines.push({key:"landowner",label:"Owner land contribution (joint venture equity)",amount:basis.landCredit,auto:true,note:"acquisition"});
   lines.push(...autoLines(ws,agg));
   const stack=buildStack(total,lines);
   const vm=valueMath(total,TWENTY.assessed,ws);
@@ -771,7 +786,7 @@ function computeFor(wsKey,ws){ws=ws||S[wsKey];return wsKey==="district"?computeD
 const WS_META={
   district:{title:"The District",sub:"District revitalization study · a historic Southern district, stylized · 40 parcels",tab:"The District"},
   site:{title:"The Five Acre Site",sub:"One parcel, 217,800 sqft · the scenario axis is deal structure",tab:"Five Acre Site"},
-  twenty:{title:"The Twenty Acres",sub:"One bank owned site, 871,200 sqft · large metro · subdivide or hold whole",tab:"Twenty Acres"}
+  twenty:{title:"The Twenty Acres",sub:"One twenty acre site, 871,200 sqft · large metro · seven ways to acquire it",tab:"Twenty Acres"}
 };
 let charts={};
 function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
@@ -932,7 +947,7 @@ function dotsHTML(cls){return `<div class="dots ${cls||''}"><i style="background
 const GUIDES={
   district:[["Assign parcels.","Pick a pillar brush, then click parcels on the grid."],["Set the construction mode.","Open a parcel: Rehab, Historic Preservation, New Construction, or Demolition plus New."],["Close the gap.","Edit a source line, then switch Advisor and Equity Partner to see what the role implies."]],
   site:[["Set the program.","Pick the pillar, the construction mode, and the proposed square footage."],["Pick a deal structure.","Click any of the eight cards. Capital day one, risk, income, and the stack recompute."],["Compare all eight.","Read the table side by side, then print the Partner Brief."]],
-  twenty:[["Pick a price basis.","Market, distressed or REO, or seller financing terms."],["Pick a concept.","One parcel, mixed use lots with a pillar per lot, or a three phase takedown."],["Read the compare table.","Buy it or not, highest and best use, one parcel or subdivide."]]};
+  twenty:[["Pick an acquisition path.","Seven ways to acquire it, from a market purchase to an option, a ground lease, or a joint venture."],["Pick a concept.","One parcel, mixed use lots with a pillar per lot, or a three phase takedown."],["Read the compare table.","Buy it or not, highest and best use, one parcel or subdivide."]]};
 function guideHTML(wsKey){const hidden=!!(S.guideHidden&&S.guideHidden[wsKey]);const steps=GUIDES[wsKey]||[];
   return `<div class="guide" id="guide-${wsKey}"><div class="guide-top"><div class="ph">How to use this workspace</div><button class="btn sm primary" onclick="startTour(0,'${wsKey}')">Tour this workspace</button><button class="btn sm" onclick="toggleGuide('${wsKey}')">${hidden?"Show the three steps":"Hide steps"}</button></div>${hidden?"":`<div class="guide-steps">${steps.map((x,i)=>`<div class="guide-step"><span class="n">${i+1}</span><span><b>${x[0]}</b> ${x[1]}</span></div>`).join("")}</div>`}</div>`;}
 function toggleGuide(k){S.guideHidden=S.guideHidden||{};S.guideHidden[k]=!S.guideHidden[k];renderAll();}
@@ -954,7 +969,7 @@ function principlesFor(wsKey,comp,ws){ws=ws||S[wsKey];const out=[];const cal=(co
     out.push({label:"Non displacement",status:"holds",text:"The existing building has sat vacant for two years. No resident or business is displaced."});
     out.push({label:"Historic preservation",status:(demo&&age>=50)?"watch":"holds",text:demo?"Demolition plus New removes the "+SITE.year+" building, "+age+" years old"+(age>=50?", historic age.":", under the 50 year mark."):"The "+SITE.year+" building stays standing."});
   }else{
-    out.push({label:"Non displacement",status:"holds",text:"Vacant, bank owned land. No residents or businesses on site."});
+    out.push({label:"Non displacement",status:"holds",text:"Vacant land. No residents or businesses on site."});
     out.push({label:"Historic preservation",status:"holds",text:"No standing buildings on the site. Preservation applies to the district around it."});
   }
   out.push(ws.sustain?{label:"Sustainability",status:"holds",text:fmtN(comp.agg.greenSqft)+" sqft of green building and "+fmtC(comp.agg.energy)+" in annual energy savings, with PACE and energy credits in the stack."}
@@ -965,9 +980,9 @@ function principlesHTML(wsKey,comp){const items=principlesFor(wsKey,comp);
 function renderLanding(){
   const el=document.getElementById("landingView");
   const cards=[
-    {key:"district",c:theme().ws[0],num:"Workspace 01",title:"The District",text:"A historic Southern district, stylized. About 40 parcels on a schematic grid, four editable investment pillars, historic preservation priced as its own mode, and a capital stack that keeps the gap in view. Advisor or Equity Partner.",mini:districtSVG(S.district,true)},
-    {key:"site",c:theme().ws[1],num:"Workspace 02",title:"The Five Acre Site",text:"One parcel, 217,800 sqft, with a small existing building. Eight deal structures compared on capital day one, capital at completion, control, risk, and income.",mini:siteSVG(S.site,true)},
-    {key:"twenty",c:theme().ws[2],num:"Workspace 03",title:"The Twenty Acres",text:"One bank owned site in a large metro, 871,200 sqft. Three subdivision concepts and three price bases answer: buy it, highest and best use, one parcel or subdivide.",mini:twentySVG(S.twenty,null,true)}
+    {key:"district",c:theme().ws[0],num:"Workspace 01",title:"The District",text:"A historic district in a small Alabama city, stylized. About 40 parcels on a schematic grid, four editable investment pillars, historic preservation priced as its own mode, and a capital stack that keeps the gap in view. Advisor or Equity Partner.",mini:districtSVG(S.district,true)},
+    {key:"site",c:theme().ws[1],num:"Workspace 02",title:"The Five Acre Site",text:"One parcel in Alabama, 217,800 sqft, with a small existing building. Eight deal structures compared on capital day one, capital at completion, control, risk, and income.",mini:siteSVG(S.site,true)},
+    {key:"twenty",c:theme().ws[2],num:"Workspace 03",title:"The Twenty Acres",text:"One twenty acre site in a large metro, 871,200 sqft. Seven acquisition paths and three subdivision concepts answer: how to acquire it, highest and best use, one parcel or subdivide.",mini:twentySVG(S.twenty,null,true)}
   ];
   el.innerHTML=`<section class="landing">
     ${dotsHTML("big").replace('class="dots big"','class="dots big" style="justify-content:center"')}
@@ -1223,7 +1238,7 @@ function renderSite(){
 }
 
 /* ============================================================
-   Workspace 3 · The Twenty Acres (bank owned, large metro)
+   Workspace 3 · The Twenty Acres (large metro, seven acquisition paths)
    ============================================================ */
 function twentySVG(ws,conceptId,mini){
   const concept=conceptById(conceptId||ws.concept);const lots=twentyLots(ws,concept.id);
@@ -1252,7 +1267,7 @@ function setTwentyLot(conceptId,lotId,k,v){const ws=S.twenty;ws.lots[conceptId]=
   else if(k==="proposed")l.proposed=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);
   else l[k]=v;
   renderAll();}
-function setPrice(k,v){let n=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);if(k==="sellerDownPct")n=Math.min(100,n);S.twenty.prices[k]=n;renderAll();}
+function setPrice(k,v){let n=Math.max(0,Number(String(v).replace(/[^0-9.\-]/g,""))||0);if(k==="sellerDownPct"||k==="optionFeePct"||k==="conveyPct")n=Math.min(100,n);S.twenty.prices[k]=n;renderAll();}
 function pickBasis(b){S.twenty.basis=b;renderAll();}
 function pickConcept(c){S.twenty.concept=c;renderAll();}
 
@@ -1260,9 +1275,13 @@ function renderTwenty(){
   const ws=S.twenty,comp=computeTwenty(ws);const allC=CONCEPTS.map(c=>computeTwenty(ws,c.id));
   const el=document.getElementById("twentyView");const p=ws.prices;
   const basisCards=[
-    {k:"market",title:"Market price",fig:fmtC(p.market),body:`<div class="field"><label>Market price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.market)}" onchange="setPrice('market',this.value)"></div><div class="note">Broker guidance for a clean sale.</div>`},
-    {k:"reo",title:"Distressed or REO price",fig:fmtC(p.reo),body:`<div class="field"><label>REO price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.reo)}" onchange="setPrice('reo',this.value)"></div><div class="note">Bank owned, motivated to clear the asset.</div>`},
-    {k:"seller",title:"Seller financing terms",fig:fmtC(p.sellerPrice),body:`<div class="row2"><div class="field"><label>Price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.sellerPrice)}" onchange="setPrice('sellerPrice',this.value)"></div><div class="field"><label>Down (%)</label><input type="number" step="1" min="0" max="100" value="${p.sellerDownPct}" onchange="setPrice('sellerDownPct',this.value)"></div><div class="field"><label>Rate (% per year)</label><input type="number" step="0.1" value="${p.sellerRatePct}" onchange="setPrice('sellerRatePct',this.value)"></div><div class="field"><label>Term (years)</label><input type="number" step="1" value="${p.sellerTermYears}" onchange="setPrice('sellerTermYears',this.value)"></div></div><div class="note">Bank carries a note. Interest carry is added to total cost.</div>`}
+    {k:"market",title:"Market purchase",fig:fmtC(p.market),body:`<div class="field"><label>Market price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.market)}" onchange="setPrice('market',this.value)"></div><div class="note">Broker guidance for a clean sale.</div>`},
+    {k:"reo",title:"Distressed or bank owned price",fig:fmtC(p.reo),body:`<div class="field"><label>Distressed or REO price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.reo)}" onchange="setPrice('reo',this.value)"></div><div class="note">If a lender takes it back or prices it to clear. Motivated to clear the asset.</div>`},
+    {k:"seller",title:"Seller financing",fig:fmtC(p.sellerPrice),body:`<div class="row2"><div class="field"><label>Price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.sellerPrice)}" onchange="setPrice('sellerPrice',this.value)"></div><div class="field"><label>Down (%)</label><input type="number" step="1" min="0" max="100" value="${p.sellerDownPct}" onchange="setPrice('sellerDownPct',this.value)"></div><div class="field"><label>Rate (% per year)</label><input type="number" step="0.1" value="${p.sellerRatePct}" onchange="setPrice('sellerRatePct',this.value)"></div><div class="field"><label>Term (years)</label><input type="number" step="1" value="${p.sellerTermYears}" onchange="setPrice('sellerTermYears',this.value)"></div></div><div class="note">The seller carries a note. Interest carry is added to total cost.</div>`},
+    {k:"option",title:"Option to purchase",fig:fmtC(p.optionStrike*p.optionFeePct/100)+" now",body:`<div class="row2"><div class="field"><label>Strike price ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.optionStrike)}" onchange="setPrice('optionStrike',this.value)"></div><div class="field"><label>Option fee (% of strike)</label><input type="number" step="0.5" min="0" max="100" value="${p.optionFeePct}" onchange="setPrice('optionFeePct',this.value)"></div></div><div class="note">Control now for a fee, close when entitlements and capital are in place. The fee is added to total cost.</div>`},
+    {k:"ground",title:"Ground lease",fig:fmtC(p.groundRent)+" a year",body:`<div class="row2"><div class="field"><label>Ground rent ($ per year)</label><input type="text" inputmode="numeric" value="${fmtN(p.groundRent)}" onchange="setPrice('groundRent',this.value)"></div><div class="field"><label>Years counted in the investment</label><input type="number" step="1" min="0" value="${p.groundYears}" onchange="setPrice('groundYears',this.value)"></div></div><div class="note">The owner keeps the land. No purchase price. Rent during development is added to total cost.</div>`},
+    {k:"jv",title:"Land contribution, joint venture",fig:fmtC(p.market)+" in kind",body:`<div class="note">The owner puts the land in at market value as equity and shares in the value created. No land cash at closing. The land value enters the stack as owner equity.</div>`},
+    {k:"convey",title:"Public conveyance",fig:fmtC(p.market*p.conveyPct/100+p.conveyCost),body:`<div class="row2"><div class="field"><label>Price (% of market)</label><input type="number" step="1" min="0" max="100" value="${p.conveyPct}" onchange="setPrice('conveyPct',this.value)"></div><div class="field"><label>Application and predevelopment ($)</label><input type="text" inputmode="numeric" value="${fmtN(p.conveyCost)}" onchange="setPrice('conveyCost',this.value)"></div></div><div class="note">From a land bank or public owner, with a public purpose covenant.</div>`}
   ].map(c=>`<div class="basiscard ${ws.basis===c.k?'active':''}" onclick="if(!event.target.closest('input'))pickBasis('${c.k}')"><h4>${c.title}</h4><div class="fig">${c.fig}</div>${c.body}</div>`).join("");
   const lotRows=comp.lots.map((l,i)=>{const pl=l.pillar?pillarById(l.pillar):null;const c=pl?calcLot(l,ws):null;
     return `<div class="lotrow"><div><span class="lid">${l.id}</span>${l.year?`<div class="lmeta">Yr ${l.year}</div>`:""}</div>
@@ -1275,7 +1294,7 @@ function renderTwenty(){
     <tr><td>Site plan</td>${allC.map(c=>`<td><span class="strip-inline">${twentySVG(ws,c.concept.id,true)}</span></td>`).join("")}</tr>
     <tr><td>Lots assigned</td>${allC.map(c=>`<td class="num">${c.agg.count} of ${c.lots.length}</td>`).join("")}</tr>
     <tr><td>Acquisition (${esc(comp.basis.label)})</td>${allC.map(c=>`<td class="num">${fmtC(c.acquisition)}</td>`).join("")}</tr>
-    ${comp.basis.kind==="seller"?`<tr><td>Seller note interest carry</td>${allC.map(c=>`<td class="num">${fmtC(c.basis.carry)}</td>`).join("")}</tr>`:""}
+    ${comp.basis.carry>0?`<tr><td>${esc(comp.basis.carryLabel)}</td>${allC.map(c=>`<td class="num">${fmtC(c.basis.carry)}</td>`).join("")}</tr>`:""}
     <tr><td>Capital day one</td>${allC.map(c=>`<td class="num">${fmtC(c.dayOne)}</td>`).join("")}</tr>
     <tr><td><b>Total investment</b></td>${allC.map(c=>`<td class="num"><b>${fmtC(c.total)}</b></td>`).join("")}</tr>
     ${outcomeLabels.map(l=>`<tr><td>${esc(l)}</td>${allC.map(c=>`<td class="num">${c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"}</td>`).join("")}</tr>`).join("")}
@@ -1292,10 +1311,10 @@ function renderTwenty(){
     ${tallyHTML([{n:fmtC(comp.acquisition),l:"Acquisition · "+esc(comp.basis.label)},{n:fmtC(comp.dayOne),l:"Capital day one"},{n:fmtC(comp.total),l:"Total investment"},{n:fmtC(comp.valueCreated),l:"Value created"},{n:fmtC(comp.newTax),l:"New annual property tax"},gapCell(comp.stack)])}
     <div class="reco" id="twentyReco">${recommendation("twenty",comp,allC)}</div>
     ${principlesHTML("twenty",comp)}
-    <div class="card" id="basisCard"><h3>Acquisition scenarios <span class="est-badge">price basis</span><span class="spacer"></span><span class="tiny muted">The selection flows into every concept.</span></h3>
+    <div class="card" id="basisCard"><h3>Acquisition paths <span class="est-badge">seven ways to acquire it</span><span class="spacer"></span><span class="tiny muted">The selection flows into every concept.</span></h3>
       <div class="basis" id="basisSeg">${basisCards}</div>
       <div class="row2" style="margin-top:12px;gap:20px"><div>${parcelFactsHTML({land:TWENTY.land,bldg:TWENTY.bldg,year:TWENTY.year,assessed:TWENTY.assessed,use:TWENTY.use})}<div class="kv"><b>Owner</b><span class="v">${esc(TWENTY.owner)} <span class="ro-badge">reference</span></span></div></div>
-      <div class="note">Acquisition basis under ${esc(comp.basis.label)} is ${fmtPct(comp.basis.price/TWENTY.assessed*100,0)} of the assessed value of record.${comp.basis.kind==="seller"?" The seller note of "+fmtC(comp.basis.note)+" enters the capital stack and its interest carry of "+fmtC(comp.basis.carry)+" is added to total cost.":""} Planning estimate, editable assumptions.</div></div>
+      <div class="note">Land cost under ${esc(comp.basis.label)} is ${fmtPct(comp.basis.price/TWENTY.assessed*100,0)} of the assessed value of record, with ${fmtC(comp.dayOne)} of capital needed day one.${comp.basis.kind==="seller"?" The seller note of "+fmtC(comp.basis.note)+" enters the capital stack.":""}${comp.basis.landCredit>0?" The owner's land, "+fmtC(comp.basis.landCredit)+", enters the stack as equity.":""}${comp.basis.carry>0?" "+esc(comp.basis.carryLabel)+" of "+fmtC(comp.basis.carry)+" is added to total cost.":""} Planning estimate, editable assumptions.</div></div>
     </div>
     <div class="card" id="conceptCard"><h3>Subdivision concepts <span class="spacer"></span><div class="seg" id="conceptSeg">${CONCEPTS.map(c=>`<button class="${ws.concept===c.id?'active':''}" onclick="pickConcept('${c.id}')">${esc(c.name)}</button>`).join("")}</div></h3>
       <div class="note" style="margin-bottom:8px">${esc(comp.concept.short)}. ${comp.concept.id==="mixed"?"Assign a pillar per lot.":comp.concept.id==="phased"?"Phases shaded by order. Day one capital is the first takedown.":"One pillar across the whole site."}</div>
@@ -1315,7 +1334,7 @@ function renderTwenty(){
     <div id="twentyStack">${stackPanelHTML("twenty",comp,{mode:"dollar"})}</div>
     <div class="ph">Cost build up</div>
     <div class="kv"><b>Acquisition (${esc(comp.basis.label)})</b><span class="v">${fmt$(comp.basis.price)}</span></div>
-    ${comp.basis.carry?`<div class="kv"><b>Seller note interest carry</b><span class="v">${fmt$(comp.basis.carry)}</span></div>`:""}
+    ${comp.basis.carry?`<div class="kv"><b>${esc(comp.basis.carryLabel)}</b><span class="v">${fmt$(comp.basis.carry)}</span></div>`:""}
     <div class="kv"><b>Construction (hard)</b><span class="v">${fmt$(comp.agg.hard)}</span></div>
     ${comp.agg.premium?`<div class="kv"><b>Sustainability premium (${S.globals.sustainPremiumPct}%)</b><span class="v">${fmt$(comp.agg.premium)}</span></div>`:""}
     ${comp.fee?`<div class="kv"><b>Advisory fee (${S.globals.advisoryFeePct}%)</b><span class="v">${fmt$(comp.fee)}</span></div>`:""}
@@ -1383,7 +1402,7 @@ function compareRows(wsKey,entries){
   row("Picture",(c,e)=>`<span class="strip-inline">${stripSVG(wsKey,e.ws)}</span>`,"");
   if(wsKey==="district"){row("Parcels assigned",c=>c.agg.count);row("HDDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
   if(wsKey==="site"){row("Structure",c=>c.st.n+". "+esc(c.st.name),"");row("Capital day one",c=>fmtC(c.dayOne));row("Risk",c=>`<span class="risk ${RISK_CLASS[c.st.risk]}">${c.st.risk}</span>`,"");row("Income type",c=>esc(c.st.income),"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
-  if(wsKey==="twenty"){row("Concept",c=>esc(c.concept.name),"");row("Price basis",c=>esc(c.basis.label),"");row("Capital day one",c=>fmtC(c.dayOne));row("HDDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
+  if(wsKey==="twenty"){row("Concept",c=>esc(c.concept.name),"");row("Acquisition path",c=>esc(c.basis.label),"");row("Capital day one",c=>fmtC(c.dayOne));row("HDDC role",c=>c.role.label,"");row("Market profile",(c,e)=>esc(profileFor(e.ws).name),"");row("Sustainability",(c,e)=>e.ws.sustain?"On":"Off","");}
   row(wsKey==="site"?"Total capital at completion":"Total investment",c=>fmtC(c.total));
   const labels=[...new Set(comps.flatMap(c=>Object.keys(c.agg.outcomes)))];
   labels.forEach(l=>row(esc(l),c=>c.agg.outcomes[l]?fmtOut(c.agg.outcomes[l].v,c.agg.outcomes[l].money):"0"));
@@ -1419,7 +1438,7 @@ function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsK
   if(wsKey==="site"){cards=[[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total at completion"],[comp.st.risk,"Risk level"],[comp.st.income,"Income type"],[fmtC(comp.valueCreated),"Value created"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=siteSVG(ws,false);
     assumptions.push(`Structure ${comp.st.n}: ${comp.st.name}`,`Program: ${pillarById(ws.pillar)?pillarById(ws.pillar).name:""}, ${MODES[ws.mode].label}, ${fmtN(ws.proposed)} sqft`,`Land price ${fmtC(ws.landPrice)}`,...comp.st.fields.map(f=>assumeLine(f,comp.a[f[0]])));}
   if(wsKey==="twenty"){cards=[[fmtC(comp.acquisition),"Acquisition"],[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=twentySVG(ws,null,false);
-    assumptions.push(`Concept: ${comp.concept.name}`,`Price basis: ${comp.basis.label} at ${fmtC(comp.basis.price)}`,...(comp.basis.carry>0?[`Seller note interest carry ${fmtC(comp.basis.carry)} added to total cost`]:[]),`HDDC role: ${comp.role.label}`);}
+    assumptions.push(`Concept: ${comp.concept.name}`,`Acquisition path: ${comp.basis.label}, land cost ${fmtC(comp.basis.price)}, ${fmtC(comp.dayOne)} day one`,...(comp.basis.carry>0?[`${comp.basis.carryLabel} ${fmtC(comp.basis.carry)} added to total cost`]:[]),...(comp.basis.landCredit>0?[`Owner land contribution ${fmtC(comp.basis.landCredit)} as equity`]:[]),`HDDC role: ${comp.role.label}`);}
   assumptions.push(`Market profile: ${pr.name} (cost × ${pr.costMult}, value × ${pr.valueFactor}, tax ${(pr.taxRate*100).toFixed(2)}%)`,`${pr.state||"State"} programs: state historic credit ${pr.stateCreditPct}%${Number(pr.stateCreditCap)>0?" up to "+fmtC(pr.stateCreditCap)+" per project":""}, ${pr.envAgency||""}`,`Sustainability ${ws.sustain?"on, premium "+S.globals.sustainPremiumPct+"%":"off"}`);
   const prin=principlesFor(wsKey,comp,ws);
   const outcomeRows=Object.entries(comp.agg.outcomes).slice(0,6).map(([l,o])=>`<tr><td>${esc(l)}</td><td class="num">${fmtOut(o.v,o.money)}</td></tr>`);
@@ -1515,7 +1534,7 @@ const TOUR=[
  {view:"district",sel:"#roleSeg-district",title:"Advisor or Equity Partner",body:"Advisor shows an advisory fee and zero balance sheet exposure. Equity Partner moves HDDC equity into the stack and shows the ownership share of projected value created. What closes the gap, and what role does that imply."},
  {view:"site",sel:"#structGrid",title:"Eight deal structures",body:"On the five acre site the scenario axis is deal structure, not land use. Select any card: capital day one, capital at completion, role, control, risk, income, and the stack all recompute."},
  {view:"site",sel:"#siteCompare",title:"Compare all eight",body:"One table puts every structure side by side so the tradeoff is visible at a glance. Every assumption number is editable in the side panel."},
- {view:"twenty",sel:"#basisSeg",title:"Price basis",body:"Market price, distressed or REO price, or seller financing terms. The selection flows into every concept's numbers and the seller note enters the stack."},
+ {view:"twenty",sel:"#basisSeg",title:"Seven ways to acquire it",body:"Market purchase, a distressed or bank owned price, seller financing, an option, a ground lease, a land contribution joint venture, or a public conveyance. The path flows into every concept: land cost, capital day one, and the stack."},
  {view:"twenty",sel:"#conceptCard",title:"Three subdivision concepts",body:"One parcel, mixed use lots with a pillar per lot, or a three phase takedown with phases shaded. Switching redraws the site plan and recomputes everything. The compare table answers one parcel or subdivide."},
  {view:"twenty",sel:".profile-chip",title:"Market profile",body:"A named assumption set per workspace: Atlanta, Georgia or a small Alabama city. Each sets a cost multiplier, a value factor, an effective property tax rate, and the state historic credit with its cap. The chip always shows which is active."},
  {view:"twenty",sel:".sustain-toggle",title:"Sustainability",body:"Adds an editable cost premium, green outcome metrics, and unlockable funding lines: PACE financing and energy credits. Clearly labeled planning assumptions."},
@@ -1541,10 +1560,10 @@ const TOURS={full:TOUR,
    {view:"site",sel:"#siteCompare",title:"Compare all eight",body:"One table puts every structure side by side so the tradeoff is visible at a glance."},
    {view:"site",sel:"#principles-site",title:"HDDC principles, checked live",body:"The same three principles, read for this site and this structure."}],
   twenty:[
-   {view:"twenty",sel:"#guide-twenty",title:"Three steps, then the details",body:"Buy it, highest and best use, one parcel or subdivide. This tour walks the twenty acres in under a minute."},
-   {view:"twenty",sel:"#basisSeg",title:"Price basis",body:"Market price, distressed or REO price, or seller financing terms. The choice flows into every concept and the seller note enters the stack."},
+   {view:"twenty",sel:"#guide-twenty",title:"Three steps, then the details",body:"How to acquire it, highest and best use, one parcel or subdivide. This tour walks the twenty acres in under a minute."},
+   {view:"twenty",sel:"#basisSeg",title:"Seven ways to acquire it",body:"From a market purchase to an option, a ground lease, or a joint venture with the owner. The path sets land cost, capital day one, and what enters the stack."},
    {view:"twenty",sel:"#conceptCard",title:"Three subdivision concepts",body:"One parcel, mixed use lots with a pillar per lot, or a three phase takedown. Switching redraws the plan and recomputes everything."},
-   {view:"twenty",sel:"#conceptCompareCard",title:"One parcel or subdivide",body:"The compare table reads every concept under the same price basis: investment, outcomes, value created, new annual tax, and the gap."},
+   {view:"twenty",sel:"#conceptCompareCard",title:"One parcel or subdivide",body:"The compare table reads every concept under the same acquisition path: investment, outcomes, value created, new annual tax, and the gap."},
    {view:"twenty",sel:"#twentyStack",title:"The stack and the gap",body:"Edit any source line and switch Advisor or Equity Partner to see what the role implies."},
    {view:"twenty",sel:".brief-btn",title:"Partner Brief",body:"One printed page for the scenario on screen."}]};
 let tourSteps=TOUR,tourName="full";

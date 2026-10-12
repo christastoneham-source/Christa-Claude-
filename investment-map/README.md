@@ -16,9 +16,9 @@ One shared decision engine powers three workspaces:
 
 | Workspace | Deal type | The question it answers |
 |---|---|---|
-| The District | District revitalization study, about 40 stylized parcels in a historic Southern district | What does it take for the gap to close, and what role does that imply |
-| The Five Acre Site | One parcel, 217,800 sqft, eight deal structures | Which structure fits on capital day one, control, risk, and income |
-| The Twenty Acres | One bank owned site, 871,200 sqft, large metro | Should we buy it, what is highest and best use, one parcel or subdivide |
+| The District | District revitalization study, about 40 stylized parcels in a historic district in a small Alabama city | What does it take for the gap to close, and what role does that imply |
+| The Five Acre Site | One parcel in Alabama, 217,800 sqft, eight deal structures | Which structure fits on capital day one, control, risk, and income |
+| The Twenty Acres | One twenty acre site, 871,200 sqft, large metro, seven acquisition paths | How to acquire it, what is highest and best use, one parcel or subdivide |
 
 Shared engine: construction modes (Rehab, Historic Preservation, New
 Construction, Demolition plus New), sustainability toggle, market profiles,
@@ -40,10 +40,15 @@ persistence, and a guided tour.
   an occupied building or one 50 years or older turns the read to Watch.
 - Pillars in HDDC's program language: Affordable Housing, Black Owned Business,
   Arts and Culture, Urban Agriculture and Green Space.
-- Market profiles by state: Atlanta, Georgia (default) and Small city, Alabama.
+- Market profiles by state: The District and The Five Acre Site default to Small city,
+  Alabama. The Twenty Acres defaults to Atlanta, Georgia.
   Each carries its state historic credit rate and per project cap, its
   environmental program, and its public resources label. Rates, caps, and tax
   rates are planning assumptions marked verify.
+- Seven acquisition paths on The Twenty Acres: market purchase, distressed or bank
+  owned price, seller financing, option to purchase, ground lease, land contribution
+  joint venture, and public conveyance. Each sets land cost, capital day one, carry,
+  and what enters the capital stack.
 - Client theme. HDDC colors by default (navy #214083, teal #2494A5, lime
   #AED153, measured from the HDDC logo). Edit Pillars switches to the
   Connecting Dots and Strategies colors.

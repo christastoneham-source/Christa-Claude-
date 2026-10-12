@@ -3,37 +3,41 @@
 1 landing line: One decision engine. Three live deal types. Demonstration data.
 1 cards: 3
 2 tally before: 0 PARCELS ASSIGNED | 0 PILLARS IN USE | $0 ESTIMATED INVESTMENT | $0 VALUE CREATED | $0 NEW ANNUAL PROPERTY TAX | Closed THE GAP
-2 tally after 5 parcels: 5 PARCELS ASSIGNED | 2 PILLARS IN USE | $12.1M ESTIMATED INVESTMENT | $13.1M VALUE CREATED | $232K NEW ANNUAL PROPERTY TAX | $1.6M THE GAP
-2 gap before/after grants 1.5M to 4M: $1.6M / Closed
-3 advisor gap: $1.6M
-3 equity gap: $252K
+2 tally after 5 parcels: 5 PARCELS ASSIGNED | 2 PILLARS IN USE | $10.9M ESTIMATED INVESTMENT | $9.98M VALUE CREATED | $103K NEW ANNUAL PROPERTY TAX | $394K THE GAP
+2 gap before/after grants 1.5M to 4M: $394K / Closed
+3 advisor gap: $394K
+3 equity gap: Closed
 3 role box: HDDC role: Equity Partner | HDDC places $1M of equity in the stack, carries that as balance sheet exposure, and holds 33% of the equity, the same share of projected value created. | Advisory fee (in total cost) | none | Balance sheet exposure | $1,000,000 | Ownership share of equity | 33% | HDDC sha
-6 D-15 cost by mode: {"Rehab":"$5,940,000","New Construction":"$4,347,500","Demolition plus New":"$4,779,500","Historic Preservation":"$6,831,000"}
-6 historic lines: Federal historic tax credit (20%) VERIFY $1,366,200 || Georgia state historic credit (25%, $5M cap per project) VERIFY $1,707,750
-7 sustain lines: PACE financing (20% of cost) SUSTAINABILITY $3,939,490 || Energy credits (30% of premium) SUSTAINABILITY $334,485
+6 D-15 cost by mode: {"Rehab":"$5,346,000","New Construction":"$3,912,750","Demolition plus New":"$4,301,550","Historic Preservation":"$6,147,900"}
+6 historic lines: Federal historic tax credit (20%) VERIFY $1,229,580 || Alabama historic rehabilitation credit (25%, $5M cap per project) VERIFY $1,536,975
+7 sustain lines: PACE financing (20% of cost) SUSTAINABILITY $3,545,541 || Energy credits (30% of premium) SUSTAINABILITY $301,037
 7 premium: Sustainability premium (6%)
-$1,114,950
-8 tally small: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $18.6M ESTIMATED INVESTMENT | $19.7M VALUE CREATED | $357K NEW ANNUAL PROPERTY TAX | $4.01M THE GAP
-8 tally metro: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $16.4M ESTIMATED INVESTMENT | $14.6M VALUE CREATED | $155K NEW ANNUAL PROPERTY TAX | $2.15M THE GAP
+$1,003,455
+8 tally small: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $16.7M ESTIMATED INVESTMENT | $15M VALUE CREATED | $158K NEW ANNUAL PROPERTY TAX | $2.46M THE GAP
+8 tally metro: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $18.6M ESTIMATED INVESTMENT | $19.7M VALUE CREATED | $357K NEW ANNUAL PROPERTY TAX | $4.01M THE GAP
 4 structures: 
-1 | Buy outright | 1008000 | 40222000 | High | Equity return | 2011100
-2 | Option contract | 198000 | 40372000 | Low | Equity return | 0
-3 | Ground lease | 194000 | 37968000 | Medium | Equity return | 0
-4 | Fee developer | 75000 | 40174000 | Low | Fee | 0
-5 | Joint venture | 125000 | 40174000 | Medium | Both | 412180
-6 | Phased takedown | 979200 | 40265200 | Medium | Equity return | 2013260
-7 | Seller financing | 408000 | 40834000 | Medium | Equity return | 10210200
-8 | Public conveyance | 300000 | 38074000 | Low | Both | 0
-5 concept single: invest 78075000 value created 86290000 tax 1499040
-5 concept mixed: invest 74732200 value created 82278640 tax 1434858
-5 concept phased: invest 75400000 value created 83080000 tax 1447680
-5 market tally: 6 Parcels assigned | 2 Pillars in use | $18.6M Estimated investment | $19.7M Value created | $357K New annual property tax | $4.01M The gap | $300K Capital required day one | $38.1M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PRICE | $9.6M CAPITAL DAY ONE | $77.9M TOTAL INVESTMENT | $86.1M VALUE CREATED | $1.5M NEW ANNUAL PROPERTY TAX | $932K THE GAP
-5 reo tally: 6 Parcels assigned | 2 Pillars in use | $18.6M Estimated investment | $19.7M Value created | $357K New annual property tax | $4.01M The gap | $300K Capital required day one | $38.1M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR REO PRICE | $6.4M CAPITAL DAY ONE | $74.7M TOTAL INVESTMENT | $82.3M VALUE CREATED | $1.43M NEW ANNUAL PROPERTY TAX | Closed THE GAP
+1 | Buy outright | 1008000 | 36444600 | High | Equity return | 1822230
+2 | Option contract | 198000 | 36594600 | Low | Equity return | 0
+3 | Ground lease | 194000 | 34190600 | Medium | Equity return | 0
+4 | Fee developer | 75000 | 36396600 | Low | Fee | 0
+5 | Joint venture | 125000 | 36396600 | Medium | Both | 147762
+6 | Phased takedown | 979200 | 36487800 | Medium | Equity return | 1824390
+7 | Seller financing | 408000 | 37056600 | Medium | Equity return | 9076980
+8 | Public conveyance | 300000 | 34296600 | Low | Both | 0
+5 concept single: invest 81275000 value created 90130000 tax 1560480
+5 concept mixed: invest 77932200 value created 86118640 tax 1496298
+5 concept phased: invest 78600000 value created 86920000 tax 1509120
+5 market tally: 6 Parcels assigned | 2 Pillars in use | $16.7M Estimated investment | $15M Value created | $158K New annual property tax | $2.46M The gap | $300K Capital required day one | $34.3M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $9.6M ACQUISITION · MARKET PURCHASE | $9.6M CAPITAL DAY ONE | $77.9M TOTAL INVESTMENT | $86.1M VALUE CREATED | $1.5M NEW ANNUAL PROPERTY TAX | $932K THE GAP
+5 reo tally: 6 Parcels assigned | 2 Pillars in use | $16.7M Estimated investment | $15M Value created | $158K New annual property tax | $2.46M The gap | $300K Capital required day one | $34.3M Total capital at completion | Development partner to the authority HDDC role | Low Risk level | Both Income type | Closed The gap | $6.4M ACQUISITION · DISTRESSED OR BANK OWNED PRICE | $6.4M CAPITAL DAY ONE | $74.7M TOTAL INVESTMENT | $82.3M VALUE CREATED | $1.43M NEW ANNUAL PROPERTY TAX | Closed THE GAP
+5 path option: Option to purchase | land 9300000 | day one 279000 | carry 279000 | total 77911200 | gap 911200
+5 path ground: Ground lease | land 0 | day one 576000 | carry 1728000 | total 70060200 | gap -6939800
+5 path jv: Land contribution, joint venture | land 9600000 | day one 0 | carry 0 | total 77932200 | gap -8667800
+5 path convey: Public conveyance | land 1020000 | day one 1020000 | carry 0 | total 69352200 | gap -7647800
 9 after reload: view=district scenarios=Housing first ; Green anchor, advisor parcels=7 role=advisor
 9 after load Housing first: parcels=6 role=equity active=undefined
 10 pdf pages: 1
-11 tally before edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $18.6M ESTIMATED INVESTMENT | $19.7M VALUE CREATED | $357K NEW ANNUAL PROPERTY TAX | $4.01M THE GAP
-11 tally after edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $28.9M ESTIMATED INVESTMENT | $32.1M VALUE CREATED | $555K NEW ANNUAL PROPERTY TAX | $11.8M THE GAP
+11 tally before edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $16.7M ESTIMATED INVESTMENT | $15M VALUE CREATED | $158K NEW ANNUAL PROPERTY TAX | $2.46M THE GAP
+11 tally after edit: 6 PARCELS ASSIGNED | 2 PILLARS IN USE | $26M ESTIMATED INVESTMENT | $24.7M VALUE CREATED | $246K NEW ANNUAL PROPERTY TAX | $9.49M THE GAP
 12 banned words: 0
 12 em dashes: 0
 12 body background: rgb(252, 250, 241)
