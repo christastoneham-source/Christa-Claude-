@@ -324,6 +324,11 @@
   #tourCard .tour-name{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
   @media (max-width:760px){.guide-steps,.principles{grid-template-columns:1fr} .starthere{grid-template-columns:1fr} .sh-actions{flex-direction:row;flex-wrap:wrap}}
 
+  .costtbl td{vertical-align:middle}
+  .costtbl input{width:92px;padding:6px 8px;text-align:right}
+  .costtbl .lbl{display:flex;align-items:center;gap:7px;font-weight:600}
+  .costtbl .lbl .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .costwrap{overflow-x:auto}
   @page{size:letter;margin:0.45in}
   @media print{
     html,body{background:#fff}
@@ -944,9 +949,24 @@ function parcelFactsHTML(p){return `
    Landing view
    ============================================================ */
 function dotsHTML(cls){return `<div class="dots ${cls||''}"><i style="background:#D95448"></i><i style="background:#F1BA4B"></i><i style="background:#47AB4F"></i><i style="background:#00BCC5"></i></div>`;}
+function costCardHTML(wsKey){const ws=S[wsKey],pr=profileFor(ws),g=S.globals,m=Number(pr.costMult)||0,ha=(g.modeAdj&&g.modeAdj.historic!=null&&g.modeAdj.historic!=="")?Number(g.modeAdj.historic):1;
+  const rows=S.pillars.map(p=>{const r=Number(p.cost&&p.cost.rehab)||0,n=Number(p.cost&&p.cost.new)||0;
+    return `<tr><td><span class="lbl"><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</span></td>
+      <td class="num"><input type="number" min="0" step="1" value="${r}" aria-label="${esc(p.name)} rehab cost per sqft" onchange="updPillarCost('${p.id}','rehab',this.value)"></td>
+      <td class="num"><input type="number" min="0" step="1" value="${n}" aria-label="${esc(p.name)} new construction cost per sqft" onchange="updPillarCost('${p.id}','new',this.value)"></td>
+      <td class="num">${fmt$(r*m)}</td><td class="num">${fmt$(r*ha*m)}</td><td class="num">${fmt$(n*m)}</td></tr>`;}).join("");
+  return `<div class="card" id="costs-${wsKey}"><h3>Construction costs <span class="est-badge">editable assumptions</span></h3>
+    <div class="note" style="margin-bottom:10px">Cost per square foot drives every cost on this page. These are planning figures, not bids. Replace them with HDDC's contractor or estimator numbers.</div>
+    <div class="costwrap"><table class="costtbl"><thead><tr><th>Pillar</th><th class="num">Rehab ($/sqft)</th><th class="num">New ($/sqft)</th><th class="num">Rehab here</th><th class="num">Historic here</th><th class="num">New here</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="row3" style="margin-top:12px">
+      <div class="field"><label>Market cost multiplier (${esc(pr.name)})</label><input type="number" step="0.01" min="0.01" value="${pr.costMult}" onchange="setProfile('${ws.profile}','costMult',this.value,'')"></div>
+      <div class="field"><label>Historic preservation premium (× rehab)</label><input type="number" step="0.01" min="0" value="${ha}" onchange="setModeAdj('historic',this.value)"></div>
+      <div class="field"><label>Demolition ($ per existing sqft)</label><input type="number" step="1" min="0" value="${g.demoCostPerSqft}" onchange="setGlobal('demoCostPerSqft',this.value)"></div>
+    </div>
+    <div class="note">"Here" columns apply the ${esc(pr.name)} multiplier. Pillar costs apply in all three workspaces. The multiplier applies to every workspace on this market profile. Demolition is also multiplied.</div></div>`;}
 const GUIDES={
-  district:[["Assign parcels.","Pick a pillar brush, then click parcels on the grid."],["Set the construction mode.","Open a parcel: Rehab, Historic Preservation, New Construction, or Demolition plus New."],["Close the gap.","Edit a source line, then switch Advisor and Equity Partner to see what the role implies."]],
-  site:[["Set the program.","Pick the pillar, the construction mode, and the proposed square footage."],["Pick a deal structure.","Click any of the eight cards. Capital day one, risk, income, and the stack recompute."],["Compare all eight.","Read the table side by side, then print the Partner Brief."]],
+  district:[["Assign parcels.","Pick a pillar brush, then click parcels on the grid."],["Set the mode and the cost.","Open a parcel to pick Rehab, Historic Preservation, New Construction, or Demolition plus New. Edit cost per square foot under Construction costs."],["Close the gap.","Edit a source line, then switch Advisor and Equity Partner to see what the role implies."]],
+  site:[["Set the program and the cost.","Pick the pillar, the construction mode, and the square footage. Edit cost per square foot under Construction costs."],["Pick a deal structure.","Click any of the eight cards. Capital day one, risk, income, and the stack recompute."],["Compare all eight.","Read the table side by side, then print the Partner Brief."]],
   twenty:[["Pick an acquisition path.","Seven ways to acquire it, from a market purchase to an option, a ground lease, or a joint venture."],["Pick a concept.","One parcel, mixed use lots with a pillar per lot, or a three phase takedown."],["Read the compare table.","Buy it or not, highest and best use, one parcel or subdivide."]]};
 function guideHTML(wsKey){const hidden=!!(S.guideHidden&&S.guideHidden[wsKey]);const steps=GUIDES[wsKey]||[];
   return `<div class="guide" id="guide-${wsKey}"><div class="guide-top"><div class="ph">How to use this workspace</div><button class="btn sm primary" onclick="startTour(0,'${wsKey}')">Tour this workspace</button><button class="btn sm" onclick="toggleGuide('${wsKey}')">${hidden?"Show the three steps":"Hide steps"}</button></div>${hidden?"":`<div class="guide-steps">${steps.map((x,i)=>`<div class="guide-step"><span class="n">${i+1}</span><span><b>${x[0]}</b> ${x[1]}</span></div>`).join("")}</div>`}</div>`;}
@@ -1071,6 +1091,7 @@ function renderDistrict(){
     ${tallyHTML([{n:comp.agg.count,l:"Parcels assigned"},{n:comp.pillarsUsed,l:"Pillars in use"},{n:fmtC(comp.total),l:"Estimated investment"},{n:fmtC(comp.valueCreated),l:"Value created"},{n:fmtC(comp.newTax),l:"New annual property tax"},gapCell(comp.stack)])}
     <div class="reco" id="districtReco">${recommendation("district",comp)}</div>
     ${principlesHTML("district",comp)}
+    ${costCardHTML("district")}
     <div class="card" id="districtPlanCard">
       <h3>Schematic district grid <span class="spacer"></span><span class="tiny muted">Click a parcel to inspect it. Pick a pillar brush to assign parcels in one click each.</span></h3>
       <div class="brushbar" id="brushBar"><span class="tiny muted" style="font-weight:700;letter-spacing:.5px;text-transform:uppercase">Brush</span>
@@ -1186,6 +1207,7 @@ function renderSite(){
     ${tallyHTML([{n:fmtC(comp.dayOne),l:"Capital required day one"},{n:fmtC(comp.total),l:"Total capital at completion"},{n:`<span class="serif" style="font-size:16px">${esc(st.role)}</span>`,l:"HDDC role"},{n:`<span class="risk ${RISK_CLASS[st.risk]}" style="font-size:13px">${st.risk}</span>`,l:"Risk level"},{n:`<span class="serif" style="font-size:16px">${esc(st.income)}</span>`,l:"Income type"},gapCell(comp.stack)])}
     <div class="reco" id="siteReco">${recommendation("site",comp,all)}</div>
     ${principlesHTML("site",comp)}
+    ${costCardHTML("site")}
     <div class="card" id="siteProgram"><h3>Site and program <span class="spacer"></span><span class="pill">${pl?`<span class="dot" style="background:${pl.color}"></span>${esc(pl.name)}`:"No pillar"} · ${MODES[ws.mode]?MODES[ws.mode].label:""}</span></h3>
       <div class="row2" style="gap:20px;align-items:start">
         <div class="plan" id="sitePlan">${siteSVG(ws,false)}</div>
@@ -1311,6 +1333,7 @@ function renderTwenty(){
     ${tallyHTML([{n:fmtC(comp.acquisition),l:"Acquisition · "+esc(comp.basis.label)},{n:fmtC(comp.dayOne),l:"Capital day one"},{n:fmtC(comp.total),l:"Total investment"},{n:fmtC(comp.valueCreated),l:"Value created"},{n:fmtC(comp.newTax),l:"New annual property tax"},gapCell(comp.stack)])}
     <div class="reco" id="twentyReco">${recommendation("twenty",comp,allC)}</div>
     ${principlesHTML("twenty",comp)}
+    ${costCardHTML("twenty")}
     <div class="card" id="basisCard"><h3>Acquisition paths <span class="est-badge">seven ways to acquire it</span><span class="spacer"></span><span class="tiny muted">The selection flows into every concept.</span></h3>
       <div class="basis" id="basisSeg">${basisCards}</div>
       <div class="row2" style="margin-top:12px;gap:20px"><div>${parcelFactsHTML({land:TWENTY.land,bldg:TWENTY.bldg,year:TWENTY.year,assessed:TWENTY.assessed,use:TWENTY.use})}<div class="kv"><b>Owner</b><span class="v">${esc(TWENTY.owner)} <span class="ro-badge">reference</span></span></div></div>
@@ -1440,6 +1463,8 @@ function briefHTML(wsKey){const ws=S[wsKey],comp=computeFor(wsKey),m=WS_META[wsK
   if(wsKey==="twenty"){cards=[[fmtC(comp.acquisition),"Acquisition"],[fmtC(comp.dayOne),"Capital day one"],[fmtC(comp.total),"Total investment"],[fmtC(comp.valueCreated),"Value created"],[fmtC(comp.newTax),"New annual tax"],[comp.stack.gap>0.5?fmtC(comp.stack.gap):"Closed","The gap"]];diagram=twentySVG(ws,null,false);
     assumptions.push(`Concept: ${comp.concept.name}`,`Acquisition path: ${comp.basis.label}, land cost ${fmtC(comp.basis.price)}, ${fmtC(comp.dayOne)} day one`,...(comp.basis.carry>0?[`${comp.basis.carryLabel} ${fmtC(comp.basis.carry)} added to total cost`]:[]),...(comp.basis.landCredit>0?[`Owner land contribution ${fmtC(comp.basis.landCredit)} as equity`]:[]),`HDDC role: ${comp.role.label}`);}
   assumptions.push(`Market profile: ${pr.name} (cost × ${pr.costMult}, value × ${pr.valueFactor}, tax ${(pr.taxRate*100).toFixed(2)}%)`,`${pr.state||"State"} programs: state historic credit ${pr.stateCreditPct}%${Number(pr.stateCreditCap)>0?" up to "+fmtC(pr.stateCreditCap)+" per project":""}, ${pr.envAgency||""}`,`Sustainability ${ws.sustain?"on, premium "+S.globals.sustainPremiumPct+"%":"off"}`);
+  const usedP=Object.keys((comp.agg&&comp.agg.byPillar)||{}).map(pillarById).filter(Boolean);
+  if(usedP.length)assumptions.push("Cost per sqft before the market multiplier: "+usedP.map(p=>`${p.name} rehab ${fmt$(p.cost.rehab)}, new ${fmt$(p.cost.new)}`).join("; "));
   const prin=principlesFor(wsKey,comp,ws);
   const outcomeRows=Object.entries(comp.agg.outcomes).slice(0,6).map(([l,o])=>`<tr><td>${esc(l)}</td><td class="num">${fmtOut(o.v,o.money)}</td></tr>`);
   if(ws.sustain)outcomeRows.push(`<tr><td>Annual energy savings</td><td class="num">${fmtC(comp.agg.energy)}</td></tr>`,`<tr><td>Green building sqft</td><td class="num">${fmtN(comp.agg.greenSqft)}</td></tr>`);
@@ -1548,6 +1573,7 @@ const TOURS={full:TOUR,
    {view:"district",sel:"#brushBar",title:"Assign pillars in one click",body:"Pick a pillar brush, then click parcels on the grid. Totals, outcomes, value created, new annual tax, and the gap update live."},
    {view:"district",sel:"#districtPlan",title:"Read the district",body:"Hatched parcels are vacant land, gray parcels hold an existing building. Click any parcel to open its reference data."},
    {view:"district",sel:"#districtDetail",title:"Construction modes",body:"Rehab, Historic Preservation, New Construction, or Demolition plus New. Historic Preservation adds the federal credit and the state credit for the active market profile."},
+   {view:"district",sel:"#costs-district",title:"Construction costs you control",body:"Cost per square foot for each pillar, rehab and new, plus the market multiplier and the historic premium. Put in your own contractor's numbers and every figure updates."},
    {view:"district",sel:"#principles-district",title:"HDDC principles, checked live",body:"Non displacement, historic preservation, and sustainability, read against the plan. Demolishing an occupied or 50 year old building turns the read to Watch."},
    {view:"district",sel:"#districtStack",title:"The capital stack and the gap",body:"Edit any source line. The gap is total cost minus committed sources, and it stays big and unmissable."},
    {view:"district",sel:"#roleSeg-district",title:"Advisor or Equity Partner",body:"Switch the role and read what closes the gap: more outside sources, or HDDC equity with the exposure it implies."},
@@ -1555,6 +1581,7 @@ const TOURS={full:TOUR,
   site:[
    {view:"site",sel:"#guide-site",title:"Three steps, then the details",body:"The scenario axis here is deal structure, not land use. This tour walks the five acre site in under a minute."},
    {view:"site",sel:"#siteProgram",title:"Set the program",body:"Pick the pillar, the construction mode, and the proposed square footage. The diagram and the cost build up follow."},
+   {view:"site",sel:"#costs-site",title:"Construction costs you control",body:"Cost per square foot, rehab and new, plus the market multiplier. Put in your own contractor's numbers and the structures recompute."},
    {view:"site",sel:"#structGrid",title:"Eight deal structures",body:"Click any card. Capital day one, capital at completion, role, control, risk, income, and the stack recompute."},
    {view:"site",sel:"#siteStack",title:"The stack under this structure",body:"Edit the share of each source. The gap shows what the structure leaves to find."},
    {view:"site",sel:"#siteCompare",title:"Compare all eight",body:"One table puts every structure side by side so the tradeoff is visible at a glance."},
@@ -1563,6 +1590,7 @@ const TOURS={full:TOUR,
    {view:"twenty",sel:"#guide-twenty",title:"Three steps, then the details",body:"How to acquire it, highest and best use, one parcel or subdivide. This tour walks the twenty acres in under a minute."},
    {view:"twenty",sel:"#basisSeg",title:"Seven ways to acquire it",body:"From a market purchase to an option, a ground lease, or a joint venture with the owner. The path sets land cost, capital day one, and what enters the stack."},
    {view:"twenty",sel:"#conceptCard",title:"Three subdivision concepts",body:"One parcel, mixed use lots with a pillar per lot, or a three phase takedown. Switching redraws the plan and recomputes everything."},
+   {view:"twenty",sel:"#costs-twenty",title:"Construction costs you control",body:"Cost per square foot, rehab and new, plus the market multiplier. Put in your own numbers and every concept recomputes."},
    {view:"twenty",sel:"#conceptCompareCard",title:"One parcel or subdivide",body:"The compare table reads every concept under the same acquisition path: investment, outcomes, value created, new annual tax, and the gap."},
    {view:"twenty",sel:"#twentyStack",title:"The stack and the gap",body:"Edit any source line and switch Advisor or Equity Partner to see what the role implies."},
    {view:"twenty",sel:".brief-btn",title:"Partner Brief",body:"One printed page for the scenario on screen."}]};

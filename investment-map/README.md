@@ -49,6 +49,9 @@ persistence, and a guided tour.
   owned price, seller financing, option to purchase, ground lease, land contribution
   joint venture, and public conveyance. Each sets land cost, capital day one, carry,
   and what enters the capital stack.
+- Construction costs panel in every workspace: cost per square foot by pillar (rehab and
+  new), the market multiplier, the historic premium, and demolition, all editable, with the
+  resulting cost in this market. The Partner Brief lists the costs used.
 - Client theme. HDDC colors by default (navy #214083, teal #2494A5, lime
   #AED153, measured from the HDDC logo). Edit Pillars switches to the
   Connecting Dots and Strategies colors.
